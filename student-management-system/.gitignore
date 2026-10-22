@@ -1,0 +1,7 @@
+node_modules/
+.npmcache/
+.env
+*.db
+*.db-journal
+*.log
+data/

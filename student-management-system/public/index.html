@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Student Management System</title>
+  <link rel="stylesheet" href="/styles.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎓</text></svg>" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">🎓 Student Management System</div>
+    <div class="session" id="session" hidden>
+      <span id="whoami" class="who"></span>
+      <button id="logoutBtn" class="btn btn-ghost">Logout</button>
+    </div>
+  </header>
+
+  <main class="container">
+    <!-- Auth view -->
+    <section id="authView" class="card auth-card">
+      <div class="tabs">
+        <button class="tab active" data-tab="login" id="tabLogin">Login</button>
+        <button class="tab" data-tab="register" id="tabRegister">Register</button>
+      </div>
+
+      <form id="loginForm" class="form">
+        <h2>Sign in</h2>
+        <label>Email<input type="email" name="email" value="admin@school.edu" required /></label>
+        <label>Password<input type="password" name="password" value="Admin@12345" required /></label>
+        <button class="btn btn-primary" type="submit">Login</button>
+        <p class="hint">Seeded admin: <code>admin@school.edu</code> / <code>Admin@12345</code></p>
+      </form>
+
+      <form id="registerForm" class="form" hidden>
+        <h2>Create account</h2>
+        <label>Email<input type="email" name="email" required /></label>
+        <label>Password<input type="password" name="password" required />
+          <small class="muted">Min 8 chars, with upper, lower, number &amp; symbol.</small>
+        </label>
+        <button class="btn btn-primary" type="submit">Register</button>
+        <p class="hint">New accounts are <strong>read-only</strong> users. Admins can edit data.</p>
+      </form>
+    </section>
+
+    <!-- App view -->
+    <section id="appView" hidden>
+      <div class="toolbar">
+        <input type="search" id="search" class="search" placeholder="Search by name or email…" />
+        <button class="btn btn-primary" id="addBtn" hidden>+ Add student</button>
+      </div>
+
+      <div class="card">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>#</th><th>Name</th><th>Email</th><th>Age</th><th>Grade</th><th>Status</th><th class="actions-col">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="rows"></tbody>
+        </table>
+        <div id="empty" class="empty" hidden>No students found.</div>
+        <div class="pager">
+          <button class="btn btn-ghost" id="prevBtn">← Prev</button>
+          <span id="pageInfo" class="muted"></span>
+          <button class="btn btn-ghost" id="nextBtn">Next →</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Student editor modal -->
+  <div class="modal" id="modal" hidden>
+    <div class="modal-card card">
+      <h2 id="modalTitle">Add student</h2>
+      <form id="studentForm" class="form grid2">
+        <input type="hidden" name="id" />
+        <label>First name<input name="first_name" maxlength="60" required /></label>
+        <label>Last name<input name="last_name" maxlength="60" required /></label>
+        <label>Email<input name="email" type="email" required /></label>
+        <label>Age<input name="age" type="number" min="3" max="120" required /></label>
+        <label>Grade<input name="grade" maxlength="20" required /></label>
+        <label class="check">Enrolled<input name="enrolled" type="checkbox" checked /></label>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-ghost" id="cancelBtn">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="toast" class="toast" hidden></div>
+
+  <script src="/app.js"></script>
+</body>
+</html>

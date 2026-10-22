@@ -12,7 +12,11 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.ems.dto.EmployeeStats;
+
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -152,5 +156,39 @@ public class EmployeeService {
                 .createdAt(e.getCreatedAt())
                 .updatedAt(e.getUpdatedAt())
                 .build();
+    }
+
+    // --- vishal.02 additions: Dashboard & Export support ---
+
+    @Transactional(readOnly = true)
+    public EmployeeStats getStats() {
+        List<Employee> all = employeeRepository.findAll();
+        long total = all.size();
+        long active = all.stream().filter(Employee::getIsActive).count();
+
+        Map<String, Long> deptCounts = all.stream()
+                .collect(Collectors.groupingBy(Employee::getDepartment, Collectors.counting()));
+
+        String topDept = deptCounts.entrySet().stream()
+                .max(Map.Entry.comparingByValue())
+                .map(Map.Entry::getKey)
+                .orElse("N/A");
+
+        return EmployeeStats.builder()
+                .totalEmployees(total)
+                .activeEmployees(active)
+                .inactiveEmployees(total - active)
+                .departmentCount(deptCounts.size())
+                .topDepartment(topDept)
+                .build();
+    }
+
+    @Transactional(readOnly = true)
+    public List<String> getAllDepartments() {
+        return employeeRepository.findAll().stream()
+                .map(Employee::getDepartment)
+                .distinct()
+                .sorted()
+                .toList();
     }
 }

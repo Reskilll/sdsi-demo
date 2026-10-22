@@ -118,11 +118,11 @@ npm start   # → http://localhost:4200
 ## Changelog
 
 ### v1.1.0 — vishal.02
-- Added pagination to employee list (10 per page)
-- Stats summary cards (total, active, departments, showing count)
-- Department filter dropdown
-- Search across name, email, and position
-- Soft-delete with reactivate support
+- CSV export endpoint (`GET /api/export/employees/csv`)
+- Dashboard stats API (`GET /api/dashboard/stats`) — total, active, inactive, top department
+- Departments list API (`GET /api/dashboard/departments`)
+- Export button on frontend with one-click CSV download
+- API-driven stats cards replacing client-side aggregation
 
 ### v1.0.0 — vishal.01
 - Initial release: Login/Register with JWT auth
@@ -130,3 +130,4 @@ npm start   # → http://localhost:4200
 - Role-based access control (ADMIN/USER)
 - Spring Boot 3.2 backend with PostgreSQL
 - Angular 17 frontend with standalone components
+- Paginated table, search, department filter, stats cards

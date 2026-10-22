@@ -33,3 +33,11 @@ export interface RegisterRequest {
   fullName: string;
   email: string;
 }
+
+export interface EmployeeStats {
+  totalEmployees: number;
+  activeEmployees: number;
+  inactiveEmployees: number;
+  departmentCount: number;
+  topDepartment: string;
+}

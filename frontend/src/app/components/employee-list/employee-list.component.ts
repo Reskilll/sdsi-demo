@@ -4,8 +4,9 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { EmployeeService } from '../../services/employee.service';
 import { AuthService } from '../../services/auth.service';
-import { Employee } from '../../models/employee.model';
+import { Employee, EmployeeStats } from '../../models/employee.model';
 import { EmployeeFormComponent } from '../employee-form/employee-form.component';
+import { environment } from '../../../environments/environment';
 
 @Component({
   standalone: true,
@@ -22,6 +23,7 @@ export class EmployeeListComponent implements OnInit {
   isLoading = false;
   showForm = false;
   editingEmployee: Employee | null = null;
+  stats: EmployeeStats | null = null;
 
   // Pagination
   currentPage = 1;
@@ -35,6 +37,7 @@ export class EmployeeListComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadEmployees();
+    this.loadStats();
   }
 
   get currentUser() {
@@ -156,5 +159,18 @@ export class EmployeeListComponent implements OnInit {
   logout(): void {
     this.authService.logout();
     this.router.navigate(['/login']);
+  }
+
+  // --- vishal.02 additions: Export & Dashboard ---
+
+  loadStats(): void {
+    this.employeeService.getStats().subscribe({
+      next: (s) => (this.stats = s),
+      error: () => {},
+    });
+  }
+
+  exportCsv(): void {
+    window.open(`${environment.apiUrl}/export/employees/csv`, '_blank');
   }
 }

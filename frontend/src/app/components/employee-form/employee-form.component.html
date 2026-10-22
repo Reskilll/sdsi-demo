@@ -1,0 +1,80 @@
+<!-- Modal Backdrop -->
+<div class="modal-backdrop fade show"></div>
+
+<div class="modal fade show d-block" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title">
+          <i class="bi" [ngClass]="isEditing ? 'bi-pencil-square' : 'bi-person-plus'"></i>
+          {{ isEditing ? 'Edit Employee' : 'Add Employee' }}
+        </h5>
+        <button type="button" class="btn-close btn-close-white" (click)="cancel()"></button>
+      </div>
+
+      <div class="modal-body p-4">
+        <div *ngIf="errorMessage" class="alert alert-danger py-2">{{ errorMessage }}</div>
+
+        <form [formGroup]="form" (ngSubmit)="onSubmit()">
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label class="form-label">First Name *</label>
+              <input type="text" class="form-control" formControlName="firstName" placeholder="First name" />
+            </div>
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Last Name *</label>
+              <input type="text" class="form-control" formControlName="lastName" placeholder="Last name" />
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Email *</label>
+              <input type="email" class="form-control" formControlName="email" placeholder="email@example.com" />
+            </div>
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Phone</label>
+              <input type="text" class="form-control" formControlName="phoneNumber" placeholder="+1-555-0100" />
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Department *</label>
+              <select class="form-select" formControlName="department">
+                <option value="">Select Department</option>
+                <option *ngFor="let d of departments" [value]="d">{{ d }}</option>
+              </select>
+            </div>
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Position *</label>
+              <input type="text" class="form-control" formControlName="position" placeholder="Job title" />
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Salary</label>
+              <div class="input-group">
+                <span class="input-group-text">$</span>
+                <input type="number" class="form-control" formControlName="salary" placeholder="50000" step="0.01" />
+              </div>
+            </div>
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Hire Date</label>
+              <input type="date" class="form-control" formControlName="hireDate" />
+            </div>
+          </div>
+
+          <div class="d-flex justify-content-end gap-2 mt-3">
+            <button type="button" class="btn btn-outline-secondary" (click)="cancel()">Cancel</button>
+            <button type="submit" class="btn btn-primary" [disabled]="form.invalid || isSubmitting">
+              <span *ngIf="isSubmitting" class="spinner-border spinner-border-sm me-2"></span>
+              {{ isEditing ? 'Update' : 'Create' }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

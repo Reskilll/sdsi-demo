@@ -1,0 +1,71 @@
+<div class="container">
+  <div class="row justify-content-center min-vh-100 align-items-center">
+    <div class="col-md-5 col-lg-4">
+      <div class="text-center mb-4">
+        <h2 class="fw-bold text-primary">
+          <i class="bi bi-people-fill me-2"></i>EMS
+        </h2>
+        <p class="text-muted">Employee Management System</p>
+      </div>
+
+      <div class="card">
+        <div class="card-body p-4">
+          <h5 class="card-title mb-3">{{ isRegistering ? 'Create Account' : 'Sign In' }}</h5>
+
+          <!-- Error Alert -->
+          <div *ngIf="errorMessage" class="alert alert-danger py-2">
+            {{ errorMessage }}
+          </div>
+
+          <!-- Login Form -->
+          <form *ngIf="!isRegistering" [formGroup]="loginForm" (ngSubmit)="onLogin()">
+            <div class="mb-3">
+              <label class="form-label">Username</label>
+              <input type="text" class="form-control" formControlName="username"
+                     placeholder="Enter username" autocomplete="username" />
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Password</label>
+              <input type="password" class="form-control" formControlName="password"
+                     placeholder="Enter password" autocomplete="current-password" />
+            </div>
+            <button type="submit" class="btn btn-primary w-100" [disabled]="loginForm.invalid || isLoading">
+              <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-2"></span>
+              Sign In
+            </button>
+          </form>
+
+          <!-- Register Form -->
+          <form *ngIf="isRegistering" [formGroup]="registerForm" (ngSubmit)="onRegister()">
+            <div class="mb-3">
+              <label class="form-label">Full Name</label>
+              <input type="text" class="form-control" formControlName="fullName" placeholder="John Doe" />
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Email</label>
+              <input type="email" class="form-control" formControlName="email" placeholder="john@example.com" />
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Username</label>
+              <input type="text" class="form-control" formControlName="username" placeholder="Choose a username" />
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Password</label>
+              <input type="password" class="form-control" formControlName="password" placeholder="Min. 6 characters" />
+            </div>
+            <button type="submit" class="btn btn-success w-100" [disabled]="registerForm.invalid || isLoading">
+              <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-2"></span>
+              Register
+            </button>
+          </form>
+
+          <hr class="my-3" />
+
+          <button class="btn btn-link w-100 text-decoration-none" (click)="toggleMode()">
+            {{ isRegistering ? 'Already have an account? Sign In' : "Don't have an account? Register" }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

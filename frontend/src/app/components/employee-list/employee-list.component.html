@@ -1,0 +1,173 @@
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary mb-4">
+  <div class="container-fluid px-4">
+    <a class="navbar-brand fw-bold" href="#"><i class="bi bi-people-fill me-2"></i>Employee Management</a>
+    <div class="d-flex align-items-center">
+      <span class="text-white me-3">
+        <i class="bi bi-person-circle me-1"></i>{{ currentUser?.fullName }}
+        <span class="badge bg-light text-primary ms-2">{{ isAdmin ? 'Admin' : 'User' }}</span>
+      </span>
+      <button class="btn btn-outline-light btn-sm" (click)="logout()">
+        <i class="bi bi-box-arrow-right me-1"></i>Logout
+      </button>
+    </div>
+  </div>
+</nav>
+
+<div class="container-fluid px-4">
+  <!-- Filters & Actions -->
+  <div class="row mb-3">
+    <div class="col-md-4 mb-2 mb-md-0">
+      <div class="input-group">
+        <span class="input-group-text"><i class="bi bi-search"></i></span>
+        <input type="text" class="form-control" [(ngModel)]="searchQuery"
+               (input)="applyFilters()" placeholder="Search employees..." />
+      </div>
+    </div>
+    <div class="col-md-3 mb-2 mb-md-0">
+      <select class="form-select" [(ngModel)]="selectedDepartment" (change)="applyFilters()">
+        <option value="">All Departments</option>
+        <option *ngFor="let d of departments" [value]="d">{{ d }}</option>
+      </select>
+    </div>
+    <div class="col-md-5 text-md-end">
+      <button *ngIf="isAdmin" class="btn btn-primary" (click)="openCreate()">
+        <i class="bi bi-plus-lg me-1"></i>Add Employee
+      </button>
+      <button class="btn btn-outline-success ms-2" (click)="exportCsv()" title="Export CSV">
+        <i class="bi bi-download me-1"></i>Export
+      </button>
+      <button class="btn btn-outline-secondary ms-2" (click)="loadEmployees(); loadStats()">
+        <i class="bi bi-arrow-clockwise"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- Stats Row -->
+  <div class="row mb-3">
+    <div class="col-md-3 mb-2">
+      <div class="card bg-white">
+        <div class="card-body py-2 px-3">
+          <small class="text-muted">Total Employees</small>
+          <h5 class="mb-0">{{ stats?.totalEmployees ?? employees.length }}</h5>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3 mb-2">
+      <div class="card bg-white">
+        <div class="card-body py-2 px-3">
+          <small class="text-muted">Active</small>
+          <h5 class="mb-0 text-success">{{ stats?.activeEmployees ?? employees.filter(e => e.isActive).length }}</h5>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3 mb-2">
+      <div class="card bg-white">
+        <div class="card-body py-2 px-3">
+          <small class="text-muted">Top Dept</small>
+          <h5 class="mb-0">{{ stats?.topDepartment ?? '—' }}</h5>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3 mb-2">
+      <div class="card bg-white">
+        <div class="card-body py-2 px-3">
+          <small class="text-muted">Showing</small>
+          <h5 class="mb-0">{{ paginatedEmployees.length }} of {{ filteredEmployees.length }}</h5>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="isLoading" class="text-center py-5">
+    <div class="spinner-border text-primary" role="status"></div>
+    <p class="mt-2 text-muted">Loading employees...</p>
+  </div>
+
+  <!-- Employee Table -->
+  <div *ngIf="!isLoading" class="card">
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0">
+        <thead class="table-light">
+          <tr>
+            <th>#</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Department</th>
+            <th>Position</th>
+            <th>Salary</th>
+            <th>Status</th>
+            <th *ngIf="isAdmin" class="text-end">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let emp of paginatedEmployees; let i = index" [class.table-secondary]="!emp.isActive">
+            <td class="text-muted">{{ (currentPage - 1) * pageSize + i + 1 }}</td>
+            <td>
+              <strong>{{ emp.firstName }} {{ emp.lastName }}</strong>
+              <br /><small class="text-muted">{{ emp.phoneNumber || '—' }}</small>
+            </td>
+            <td>{{ emp.email }}</td>
+            <td><span class="badge bg-info text-dark">{{ emp.department }}</span></td>
+            <td>{{ emp.position }}</td>
+            <td>{{ emp.salary | currency:'USD' }}</td>
+            <td>
+              <span [ngClass]="emp.isActive ? 'badge-active' : 'badge-inactive'">
+                {{ emp.isActive ? 'Active' : 'Inactive' }}
+              </span>
+            </td>
+            <td *ngIf="isAdmin" class="text-end">
+              <div class="btn-group btn-group-sm">
+                <button *ngIf="emp.isActive" class="btn btn-outline-secondary" (click)="openEdit(emp)" title="Edit">
+                  <i class="bi bi-pencil"></i>
+                </button>
+                <button *ngIf="emp.isActive" class="btn btn-outline-danger" (click)="deleteEmployee(emp)" title="Deactivate">
+                  <i class="bi bi-trash"></i>
+                </button>
+                <button *ngIf="!emp.isActive" class="btn btn-outline-success" (click)="reactivateEmployee(emp)" title="Reactivate">
+                  <i class="bi bi-arrow-repeat"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+          <tr *ngIf="filteredEmployees.length === 0">
+            <td [attr.colspan]="isAdmin ? 8 : 7" class="text-center py-4 text-muted">
+              <i class="bi bi-inbox fs-3 d-block mb-2"></i>
+              No employees found
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    <div *ngIf="totalPages > 1" class="card-footer d-flex justify-content-center">
+      <nav>
+        <ul class="pagination pagination-sm mb-0">
+          <li class="page-item" [class.disabled]="currentPage === 1">
+            <a class="page-link" (click)="changePage(currentPage - 1)">&laquo;</a>
+          </li>
+          <ng-container *ngFor="let p of getPageNumbers()">
+            <li class="page-item" [class.disabled]="p === -1" [class.active]="p === currentPage">
+              <a class="page-link" (click)="p !== -1 && changePage(p)">
+                {{ p === -1 ? '...' : p }}
+              </a>
+            </li>
+          </ng-container>
+          <li class="page-item" [class.disabled]="currentPage === totalPages">
+            <a class="page-link" (click)="changePage(currentPage + 1)">&raquo;</a>
+          </li>
+        </ul>
+      </nav>
+    </div>
+  </div>
+</div>
+
+<!-- Employee Form Modal -->
+<app-employee-form
+  *ngIf="showForm"
+  [employee]="editingEmployee"
+  (saved)="onFormSaved()"
+  (cancelled)="onFormCancelled()">
+</app-employee-form>

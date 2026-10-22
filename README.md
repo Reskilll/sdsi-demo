@@ -114,3 +114,19 @@ npm start   # → http://localhost:4200
 | Database | PostgreSQL |
 | Auth | JWT (jjwt 0.12.3), BCrypt |
 | Build | Maven (backend), Angular CLI (frontend) |
+
+## Changelog
+
+### v1.1.0 — vishal.02
+- Added pagination to employee list (10 per page)
+- Stats summary cards (total, active, departments, showing count)
+- Department filter dropdown
+- Search across name, email, and position
+- Soft-delete with reactivate support
+
+### v1.0.0 — vishal.01
+- Initial release: Login/Register with JWT auth
+- Employee CRUD (create, read, update, delete)
+- Role-based access control (ADMIN/USER)
+- Spring Boot 3.2 backend with PostgreSQL
+- Angular 17 frontend with standalone components

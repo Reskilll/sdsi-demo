@@ -75,9 +75,9 @@ def compute_ticket_sla(
 
     ref = reference_time or datetime.now().replace(microsecond=0)
 
-    # If the ticket is resolved, use the resolved time as the window end;
-    # otherwise use the reference time.
-    window_end = ticket.resolved if ticket.resolved and ticket.resolved <= ref else ref
+    # A resolved ticket stops the SLA clock at its resolved time.  An open
+    # ticket runs until the reference time (default: now).
+    window_end = ticket.resolved if ticket.resolved is not None else ref
 
     # ---- M3: isolate active periods -----------------------------------------
     active = _active_periods(ticket, window_end)

@@ -7,8 +7,10 @@ import sys
 from datetime import date, datetime
 from pathlib import Path
 
+import pytest
+
 # Make the submission directory importable
-sys.path.insert(0, str(Path(__file__).resolve().parent))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from sla_tracker.calendar import add_business_minutes, business_minutes_between
 from sla_tracker.models import SlaPolicy, StatusEntry, Ticket
@@ -101,8 +103,6 @@ class TestAddBusinessMinutes:
         assert add_business_minutes(dt, 0, EMPTY_HOLIDAYS) == dt
 
     def test_negative_raises(self):
-        import pytest
-
         with pytest.raises(ValueError, match="non-negative"):
             add_business_minutes(datetime(2026, 10, 19, 10, 0), -1, EMPTY_HOLIDAYS)
 
@@ -114,14 +114,14 @@ class TestHolidayExclusion:
     def test_holiday_not_counted(self):
         # Thu 2026-11-26 is a holiday
         holidays = {date(2026, 11, 26)}
-        # Tue 16:00 → Thu 12:00 (Thu is holiday, so only Tue+Wed):
-        # Tue 16-18 = 120, Wed 09-12 = 180 → 300
+        # Tue 16:00 → Thu 12:00 (Thu is holiday, loop stops at Wed):
+        # Tue 16-18 = 120, Wed 09-18 = 540 → 660
         result = business_minutes_between(
             datetime(2026, 11, 24, 16, 0),
             datetime(2026, 11, 26, 12, 0),
             holidays,
         )
-        assert result == 300
+        assert result == 660
 
     def test_add_business_minutes_skips_holiday(self):
         holidays = {date(2026, 11, 26)}
@@ -281,8 +281,6 @@ class TestValidation:
         assert date(2026, 12, 25) in h
 
     def test_invalid_ticket_raises(self):
-        import pytest
-
         raw = [{"id": 123}]  # id must be string
         with pytest.raises(ValueError):
             parse_tickets(raw)

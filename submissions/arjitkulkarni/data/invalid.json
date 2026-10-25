@@ -1,0 +1,23 @@
+{
+  "members": ["Asha", "Ravi", "Meera"],
+  "expenses": [
+    {
+      "id": "bad-percent",
+      "paidBy": "Asha",
+      "amount": 300,
+      "split": { "type": "percentage", "shares": { "Asha": 50, "Ravi": 30 } }
+    },
+    {
+      "id": "bad-exact",
+      "paidBy": "Ravi",
+      "amount": 500,
+      "split": { "type": "exact", "shares": { "Asha": 200, "Ravi": 200 } }
+    },
+    {
+      "id": "bad-payer",
+      "paidBy": "Stranger",
+      "amount": 90,
+      "split": { "type": "equal" }
+    }
+  ]
+}

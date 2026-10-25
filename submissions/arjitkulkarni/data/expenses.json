@@ -1,0 +1,41 @@
+{
+  "members": ["Asha", "Ravi", "Meera", "Kabir", "Zoya"],
+  "expenses": [
+    {
+      "id": "e1",
+      "description": "Cab to the venue (₹100 split 3 ways)",
+      "paidBy": "Asha",
+      "amount": 100,
+      "split": { "type": "equal", "among": ["Asha", "Ravi", "Meera"] }
+    },
+    {
+      "id": "e2",
+      "description": "Lunch",
+      "paidBy": "Ravi",
+      "amount": 1250.5,
+      "split": { "type": "exact", "shares": { "Asha": 400, "Ravi": 350.5, "Meera": 300, "Kabir": 200 } }
+    },
+    {
+      "id": "e3",
+      "description": "Go-karting",
+      "paidBy": "Meera",
+      "amount": 3000,
+      "split": { "type": "percentage", "shares": { "Asha": 33.33, "Ravi": 33.33, "Meera": 33.34 } }
+    },
+    {
+      "id": "e4",
+      "description": "Kabir's own souvenir (paid only for himself)",
+      "paidBy": "Kabir",
+      "amount": 450,
+      "split": { "type": "equal", "among": ["Kabir"] }
+    },
+    {
+      "id": "e5",
+      "description": "Snacks bought abroad",
+      "paidBy": "Kabir",
+      "amount": 12.4,
+      "currency": "USD",
+      "split": { "type": "equal", "among": ["Asha", "Ravi", "Kabir"] }
+    }
+  ]
+}

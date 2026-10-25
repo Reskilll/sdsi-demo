@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block content %}
+<h2 style="margin-bottom:20px">Dashboard</h2>
+<div class="grid grid-3 mb-24">
+  <div class="card stat">
+    <div class="stat-value">{{ total }}</div>
+    <div class="stat-label">Total Employees</div>
+  </div>
+  <div class="card stat">
+    <div class="stat-value">{{ dept_counts|length }}</div>
+    <div class="stat-label">Departments</div>
+  </div>
+  <div class="card stat">
+    <div class="stat-value">{{ avg_team }}</div>
+    <div class="stat-label">Avg Team Size</div>
+  </div>
+</div>
+
+<div class="grid grid-2 mb-24">
+  <div class="card">
+    <h3 style="margin-bottom:12px">Departments</h3>
+    {% if dept_counts %}
+      {% for dept, cnt in dept_counts %}
+        <div class="flex-between" style="padding:6px 0;border-bottom:1px solid var(--border)">
+          <a href="/employees?dept={{ dept|urlencode }}" class="pill pill-dept">{{ dept }}</a>
+          <span>{{ cnt }} employee{{ "s" if cnt != 1 }}</span>
+        </div>
+      {% endfor %}
+    {% else %}
+      <p class="text-muted">No departments yet.</p>
+    {% endif %}
+  </div>
+
+  <div class="card">
+    <h3 style="margin-bottom:12px">Recent Hires</h3>
+    {% if recent %}
+      {% for emp in recent %}
+        <div class="flex-between" style="padding:6px 0;border-bottom:1px solid var(--border)">
+          <span><strong>{{ emp.full_name }}</strong> — {{ emp.position }}</span>
+          <span class="text-muted">{{ emp.department }}</span>
+        </div>
+      {% endfor %}
+    {% else %}
+      <p class="text-muted">No employees yet.</p>
+    {% endif %}
+  </div>
+</div>
+
+<div style="text-align:center">
+  <a href="/employees" class="btn btn-primary">Manage Employees →</a>
+</div>
+{% endblock %}

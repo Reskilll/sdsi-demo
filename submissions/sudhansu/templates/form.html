@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block content %}
+<h2 class="mb-16">{{ "Edit" if employee else "Add" }} Employee</h2>
+
+<div class="card" style="max-width:640px">
+  <form method="post" action="/employees{{ '/' ~ employee.id if employee else '' }}">
+    <div class="grid grid-2">
+      <div class="form-group">
+        <label for="first_name">First Name *</label>
+        <input id="first_name" name="first_name" required maxlength="80"
+               value="{{ employee.first_name if employee else '' }}">
+      </div>
+      <div class="form-group">
+        <label for="last_name">Last Name *</label>
+        <input id="last_name" name="last_name" required maxlength="80"
+               value="{{ employee.last_name if employee else '' }}">
+      </div>
+    </div>
+    <div class="form-group">
+      <label for="email">Email *</label>
+      <input id="email" name="email" type="email" required maxlength="254"
+             value="{{ employee.email if employee else '' }}">
+    </div>
+    <div class="grid grid-2">
+      <div class="form-group">
+        <label for="department">Department *</label>
+        <input id="department" name="department" required maxlength="100"
+               value="{{ employee.department if employee else '' }}">
+      </div>
+      <div class="form-group">
+        <label for="position">Position *</label>
+        <input id="position" name="position" required maxlength="120"
+               value="{{ employee.position if employee else '' }}">
+      </div>
+    </div>
+    <div class="grid grid-2">
+      <div class="form-group">
+        <label for="salary">Salary *</label>
+        <input id="salary" name="salary" type="number" step="0.01" min="0" required
+               value="{{ employee.salary if employee else '0' }}">
+      </div>
+      <div class="form-group">
+        <label for="hire_date">Hire Date *</label>
+        <input id="hire_date" name="hire_date" type="date" required
+               value="{{ employee.hire_date if employee else '' }}">
+      </div>
+    </div>
+    <div class="flex mt-16">
+      <button class="btn btn-primary">{{ "Update" if employee else "Create" }} Employee</button>
+      <a href="/employees" class="btn btn-outline">Cancel</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

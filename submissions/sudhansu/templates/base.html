@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Employee Management System</title>
+<meta name="description" content="Minimal, production-shaped employee management CRUD.">
+<style>
+  :root {
+    --bg: #f8fafc;
+    --surface: #fff;
+    --text: #1e293b;
+    --muted: #64748b;
+    --border: #e2e8f0;
+    --primary: #2563eb;
+    --primary-hover: #1d4ed8;
+    --danger: #dc2626;
+    --danger-hover: #b91c1c;
+    --green: #16a34a;
+    --radius: 8px;
+    --shadow: 0 1px 3px rgba(0,0,0,.08);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0f172a; --surface: #1e293b; --text: #f1f5f9;
+      --muted: #94a3b8; --border: #334155;
+      --primary: #3b82f6; --primary-hover: #2563eb;
+      --green: #22c55e;
+    }
+  }
+  :root[data-theme="dark"] { --bg: #0f172a; --surface: #1e293b; --text: #f1f5f9; --muted: #94a3b8; --border: #334155; --primary: #3b82f6; --primary-hover: #2563eb; --green: #22c55e; }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; min-height: 100vh; }
+  a { color: var(--primary); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  .container { max-width: 1200px; margin: 0 auto; padding: 0 16px; }
+  header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 12px 0; position: sticky; top: 0; z-index: 10; }
+  header .container { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
+  header h1 { font-size: 1.25rem; }
+  nav { display: flex; gap: 16px; }
+  nav a { font-weight: 500; font-size: .9rem; padding: 4px 8px; border-radius: 4px; }
+  nav a.active { background: var(--primary); color: #fff; }
+  main { padding: 24px 0; }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; box-shadow: var(--shadow); }
+  .btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; border: none; border-radius: var(--radius); font-size: .875rem; font-weight: 500; cursor: pointer; transition: background .15s; }
+  .btn-primary { background: var(--primary); color: #fff; }
+  .btn-primary:hover { background: var(--primary-hover); }
+  .btn-danger { background: var(--danger); color: #fff; }
+  .btn-danger:hover { background: var(--danger-hover); }
+  .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text); }
+  .btn-outline:hover { background: var(--border); }
+  .btn-sm { padding: 4px 10px; font-size: .8rem; }
+  table { width: 100%; border-collapse: collapse; }
+  th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--border); }
+  th { font-weight: 600; font-size: .8rem; text-transform: uppercase; letter-spacing: .5px; color: var(--muted); }
+  tr:hover td { background: var(--border) / .3; }
+  .form-group { margin-bottom: 16px; }
+  label { display: block; font-weight: 500; margin-bottom: 4px; font-size: .875rem; }
+  input, select { width: 100%; padding: 8px 12px; border: 1px solid var(--border); border-radius: var(--radius); font-size: .9rem; background: var(--surface); color: var(--text); }
+  input:focus, select:focus { outline: 2px solid var(--primary); outline-offset: -1px; }
+  .grid { display: grid; gap: 16px; }
+  .grid-2 { grid-template-columns: repeat(2, 1fr); }
+  .grid-3 { grid-template-columns: repeat(3, 1fr); }
+  .grid-4 { grid-template-columns: repeat(4, 1fr); }
+  @media (max-width: 768px) { .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; } }
+  .stat { text-align: center; }
+  .stat-value { font-size: 2rem; font-weight: 700; }
+  .stat-label { color: var(--muted); font-size: .85rem; }
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: .75rem; font-weight: 500; background: var(--border); }
+  .flex { display: flex; gap: 8px; align-items: center; }
+  .flex-between { display: flex; justify-content: space-between; align-items: center; }
+  .mb-16 { margin-bottom: 16px; }
+  .mb-24 { margin-bottom: 24px; }
+  .mt-16 { margin-top: 16px; }
+  .text-muted { color: var(--muted); font-size: .85rem; }
+  .empty { text-align: center; padding: 48px 16px; color: var(--muted); }
+  .empty h3 { margin-bottom: 8px; }
+  .toast { position: fixed; bottom: 24px; right: 24px; background: var(--text); color: var(--bg); padding: 12px 20px; border-radius: var(--radius); font-size: .875rem; z-index: 1000; opacity: 0; transform: translateY(10px); transition: .3s; pointer-events: none; }
+  .toast.show { opacity: 1; transform: translateY(0); }
+  .pill { display: inline-block; padding: 4px 10px; border-radius: 16px; font-size: .75rem; font-weight: 500; margin: 2px; }
+  .pill a { color: inherit; }
+  .pill-dept { background: #dbeafe; color: #1e40af; }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .pill-dept { background: #1e3a5f; color: #93c5fd; } }
+  :root[data-theme="dark"] .pill-dept { background: #1e3a5f; color: #93c5fd; }
+</style>
+</head>
+<body>
+<header>
+  <div class="container">
+    <h1>👥 EMS</h1>
+    <nav>
+      <a href="/" {% if request.url.path == "/" %}class="active"{% endif %}>Dashboard</a>
+      <a href="/employees" {% if request.url.path.startswith("/employees") %}class="active"{% endif %}>Employees</a>
+    </nav>
+  </div>
+</header>
+<main class="container">
+  {% block content %}{% endblock %}
+</main>
+<div class="toast" id="toast"></div>
+<script>
+  function toast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg; t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2500);
+  }
+  async function deleteEmployee(id, name) {
+    if (!confirm(`Delete ${name}? This cannot be undone.`)) return;
+    const res = await fetch(`/api/employees/${id}`, { method: 'DELETE' });
+    if (res.ok) { toast('Employee deleted'); setTimeout(() => location.reload(), 600); }
+    else toast('Delete failed');
+  }
+</script>
+</body>
+</html>

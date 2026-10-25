@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="flex-between mb-16">
+  <h2>Employees <span class="text-muted">({{ total_count }})</span></h2>
+  <a href="/employees/add" class="btn btn-primary">+ Add Employee</a>
+</div>
+
+<div class="card mb-24">
+  <form method="get" action="/employees" class="grid grid-2" style="align-items:end">
+    <div class="form-group" style="margin-bottom:0">
+      <label>Search</label>
+      <input type="text" name="search" value="{{ search }}" placeholder="Name, email, or position…">
+    </div>
+    <div class="form-group" style="margin-bottom:0">
+      <label>Department</label>
+      <select name="dept">
+        <option value="">All Departments</option>
+        {% for d in departments %}
+          <option value="{{ d }}" {% if dept == d %}selected{% endif %}>{{ d }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div style="grid-column:1/-1;display:flex;gap:8px">
+      <button class="btn btn-primary btn-sm">Filter</button>
+      <a href="/employees" class="btn btn-outline btn-sm">Clear</a>
+    </div>
+  </form>
+</div>
+
+{% if employees %}
+<div class="card" style="overflow-x:auto">
+  <table>
+    <thead>
+      <tr>
+        <th>#</th><th>Name</th><th>Email</th><th>Department</th><th>Position</th><th>Salary</th><th>Hire Date</th><th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for e in employees %}
+      <tr>
+        <td>{{ e.id }}</td>
+        <td><strong>{{ e.full_name }}</strong></td>
+        <td>{{ e.email }}</td>
+        <td><a href="/employees?dept={{ e.department|urlencode }}" class="pill pill-dept">{{ e.department }}</a></td>
+        <td>{{ e.position }}</td>
+        <td>${{ "%.0f" | format(e.salary) }}</td>
+        <td>{{ e.hire_date.strftime("%Y-%m-%d") }}</td>
+        <td>
+          <div class="flex">
+            <a href="/employees/{{ e.id }}/edit" class="btn btn-outline btn-sm">Edit</a>
+            <button onclick="deleteEmployee({{ e.id }}, '{{ e.full_name }}')" class="btn btn-danger btn-sm">Del</button>
+          </div>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% if total_pages > 1 %}
+<div class="flex mt-16" style="justify-content:center;gap:4px">
+  {% for p in range(1, total_pages + 1) %}
+    <a href="/employees?search={{ search|urlencode }}&dept={{ dept|urlencode }}&page={{ p }}"
+       class="btn btn-sm {{ 'btn-primary' if p == page else 'btn-outline' }}">{{ p }}</a>
+  {% endfor %}
+</div>
+{% endif %}
+
+{% else %}
+<div class="card empty">
+  <h3>No employees found</h3>
+  <p>{% if search or dept %}Try adjusting your filters.{% else %}Get started by adding your first employee.{% endif %}</p>
+  {% if not search and not dept %}
+    <a href="/employees/add" class="btn btn-primary mt-16">+ Add Employee</a>
+  {% endif %}
+</div>
+{% endif %}
+{% endblock %}

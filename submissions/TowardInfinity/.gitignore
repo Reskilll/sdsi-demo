@@ -1,0 +1,31 @@
+# OS junk
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+*.egg-info/
+
+# Node
+node_modules/
+
+# Env & secrets — never commit
+.env
+.env.local
+*.key
+
+# Build output
+dist/
+build/
+target/
+
+# Local DB files
+*.db
+*.sqlite3
+
+# IDE
+.idea/
+.vscode/

@@ -53,7 +53,8 @@ h1 { font-size: 1.6rem; margin-bottom: 6px; }
 .pos { color: var(--green); }
 .neg { color: var(--danger); }
 
-.settlement { padding: 8px 12px; background: #fefce8; border-radius: 6px; margin: 4px 0; border: 1px solid #fde68a; }
+.settlement { display: flex; align-items: center; gap: 8px; padding: 8px 12px; background: #fefce8; border-radius: 6px; margin: 4px 0; border: 1px solid #fde68a; }
+.btn-settle { background: var(--green); color: #fff; }
 .settlement .arrow { color: var(--accent); font-weight: 700; }
 
 .error { color: var(--danger); font-size: 0.8rem; margin-top: 2px; }
@@ -447,6 +448,51 @@ function simplifyDebts(balances) {
   return settlements;
 }
 
+// ── settle debts ────────────────────────────────
+window._currentSettlements = [];
+
+function __settle(idx) {
+  if (idx >= window._currentSettlements.length) return;
+  var s = window._currentSettlements[idx];
+  settleDebt(s.from, s.to, s.amount);
+}
+
+function settleDebt(from, to, amount) {
+  var exp = {
+    description: 'Settlement: ' + from + ' → ' + to,
+    amount: amount,
+    paidBy: from,
+    split: 'exact',
+    shares: {}
+  };
+  exp.shares[to] = amount;
+  expenses.push(exp);
+  saveToStorage();
+  renderAll();
+  showToast('Settled!');
+}
+
+function settleAll() {
+  var sels = simplifyDebts(computeBalances());
+  if (!sels.length) return;
+  if (!confirm('Record all ' + sels.length + ' settlements?')) return;
+  for (var i = 0; i < sels.length; i++) {
+    var s = sels[i];
+    var exp = {
+      description: 'Settlement: ' + s.from + ' → ' + s.to,
+      amount: s.amount,
+      paidBy: s.from,
+      split: 'exact',
+      shares: {}
+    };
+    exp.shares[s.to] = s.amount;
+    expenses.push(exp);
+  }
+  saveToStorage();
+  renderAll();
+  showToast('All settled!');
+}
+
 // ── M4: import JSON — single object or array ───────
 function handleFile(event) {
   var file = event.target.files[0];
@@ -635,14 +681,20 @@ function renderSettlements() {
   var bal = computeBalances();
   var settlements = simplifyDebts(bal);
   var el = document.getElementById('tabSettlements');
+  window._currentSettlements = settlements;
+
   if (!settlements.length) {
     el.innerHTML = '<p style="color:var(--muted);font-size:0.9rem">All settled up!</p>';
   } else {
     var h = '';
     for (var i = 0; i < settlements.length; i++) {
       var s = settlements[i];
-      h += '<div class="settlement"><strong>' + escHtml(s.from) + '</strong> <span class="arrow">pays</span> <strong>' + escHtml(s.to) + '</strong> <span class="arrow">₹' + s.amount.toFixed(2) + '</span></div>';
+      h += '<div class="settlement">'
+        + '<div style="flex:1"><strong>' + escHtml(s.from) + '</strong> <span class="arrow">pays</span> <strong>' + escHtml(s.to) + '</strong> <span class="arrow">₹' + s.amount.toFixed(2) + '</span></div>'
+        + '<button class="btn btn-sm btn-settle" onclick="__settle(' + i + ')">Settle</button>'
+        + '</div>';
     }
+    h += '<button class="btn btn-primary" style="margin-top:10px" onclick="settleAll()">Settle All</button>';
     el.innerHTML = h;
   }
 }

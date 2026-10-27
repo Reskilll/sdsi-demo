@@ -1,48 +1,26 @@
-"""Scheduling engine: barrier stages (M3), critical path (M4), failure (M5)."""
+"""Scheduling engine: barrier stages (M3), critical path (M4), failure (M5).
+
+This module is a thin façade over :class:`scheduler.graph.Graph`. It builds a
+single :class:`Graph` from the validated jobs and delegates every analysis to
+it, so the graph structure is materialised exactly once per request and all
+algorithms run in O(V + E) (plus deterministic sorting overhead).
+"""
 
 from __future__ import annotations
 
-import heapq
 from typing import Sequence
 
-from .graph import build_adjacency, topological_order
+from .graph import Graph
 from .model import CriticalPathReason, Job, JobTiming, Schedule, Stage
 
 
 def build_stages(jobs: Sequence[Job], workers: int) -> tuple[list[Stage], float]:
     """Partition jobs into barrier-based stages under a worker limit.
 
-    Each stage runs at most ``workers`` jobs whose prerequisites have all
-    completed in earlier stages. At every step the lexicographically smallest
-    ready jobs are chosen first (min-heap), so the schedule is deterministic.
-    A stage's duration is the maximum duration of its jobs; the total
-    completion time is the sum of stage durations.
+    See :meth:`Graph.schedule_stages` for the semantics. This function exists
+    for API stability; it builds the graph on demand.
     """
-    adj, indegree = build_adjacency(jobs)
-    durations = {job.id: job.duration for job in jobs}
-
-    heap = [jid for jid, deg in indegree.items() if deg == 0]
-    heapq.heapify(heap)
-
-    stages: list[Stage] = []
-    while heap:
-        # pop up to `workers` ready jobs in lexicographic order
-        batch: list[str] = []
-        for _ in range(min(workers, len(heap))):
-            batch.append(heapq.heappop(heap))
-
-        stage_duration = max(durations[jid] for jid in batch)
-        stages.append(Stage(job_ids=tuple(batch), duration=stage_duration))
-
-        # release newly-ready dependents
-        for jid in batch:
-            for nxt in adj[jid]:
-                indegree[nxt] -= 1
-                if indegree[nxt] == 0:
-                    heapq.heappush(heap, nxt)
-
-    total = sum(stage.duration for stage in stages)
-    return stages, total
+    return Graph(jobs).schedule_stages(workers)
 
 
 def critical_path_analysis(
@@ -50,86 +28,23 @@ def critical_path_analysis(
 ) -> tuple[dict[str, JobTiming], float, list[str]]:
     """Compute critical-path timing over the DAG (unlimited workers).
 
-    Returns ``(job_times, critical_path_duration, critical_path)``:
-
-    * ``job_times[id]`` holds earliest start/finish, where a job's start is the
-      maximum finish among its prerequisites (0 if it has none).
-    * ``critical_path_duration`` is the longest weighted path (max finish over
-      all jobs; 0 for an empty graph).
-    * ``critical_path`` is one representative longest path, tie-broken by
-      smallest id at every choice, giving deterministic output.
+    ``order`` must be a valid topological order of ``jobs``. Returns
+    ``(job_times, critical_path_duration, critical_path)``; see
+    :meth:`Graph.critical_path_analysis`.
     """
-    deps = {job.id: set(job.depends_on) for job in jobs}
-    durations = {job.id: job.duration for job in jobs}
-
-    job_times: dict[str, JobTiming] = {}
-    prev: dict[str, str | None] = {}
-
-    for jid in order:
-        if deps[jid]:
-            best_dep = min(deps[jid])
-            best_finish = job_times[best_dep].earliest_finish
-            for dep in deps[jid]:
-                f = job_times[dep].earliest_finish
-                if f > best_finish or (f == best_finish and dep < best_dep):
-                    best_finish = f
-                    best_dep = dep
-            start = best_finish
-            prev[jid] = best_dep
-        else:
-            start = 0.0
-            prev[jid] = None
-        finish = start + durations[jid]
-        job_times[jid] = JobTiming(earliest_start=start, earliest_finish=finish)
-
-    if not job_times:
-        return {}, 0.0, []
-
-    # endpoint of the longest path, tie-broken by smallest id
-    endpoint = min(job_times, key=lambda jid: (-job_times[jid].earliest_finish, jid))
-    critical_duration = job_times[endpoint].earliest_finish
-
-    path: list[str] = []
-    node: str | None = endpoint
-    while node is not None:
-        path.append(node)
-        node = prev[node]
-    path.reverse()
-
-    return job_times, critical_duration, path
+    return Graph(jobs).critical_path_analysis(order)
 
 
 def propagate_failure(jobs: Sequence[Job], failed_id: str) -> list[str]:
     """Return all transitive downstream dependents of ``failed_id``.
 
-    Includes direct and indirect dependents only; excludes the failed job
-    itself, its prerequisites, and unrelated jobs. The result is sorted
-    lexicographically. Raises ``ValueError`` for an unknown ``failed_id``.
+    See :meth:`Graph.downstream`.
     """
-    known = {job.id for job in jobs}
-    if failed_id not in known:
-        raise ValueError(f"unknown failed job id {failed_id!r}")
-
-    dependents: dict[str, list[str]] = {job.id: [] for job in jobs}
-    for job in jobs:
-        for dep in job.depends_on:
-            dependents[dep].append(job.id)
-
-    # BFS over the dependent graph starting from failed_id's dependents.
-    skipped: set[str] = set()
-    frontier = list(dependents[failed_id])
-    while frontier:
-        node = frontier.pop()
-        if node in skipped:
-            continue
-        skipped.add(node)
-        frontier.extend(dependents[node])
-
-    return sorted(skipped)
+    return Graph(jobs).downstream(failed_id)
 
 
 def explain_critical_path(
-    jobs: Sequence[Job],
+    graph: Graph,
     critical_path: Sequence[str],
     job_times: dict[str, JobTiming],
 ) -> list[CriticalPathReason]:
@@ -143,8 +58,7 @@ def explain_critical_path(
     ``job_times`` supplies the already-computed earliest start/finish so the
     reported numbers match the critical-path analysis exactly.
     """
-    durations = {job.id: job.duration for job in jobs}
-    deps = {job.id: tuple(job.depends_on) for job in jobs}
+    durations = graph.durations
     path = list(critical_path)
     reasons: list[CriticalPathReason] = []
 
@@ -189,12 +103,23 @@ def explain_critical_path(
     return reasons
 
 
-def build_schedule(jobs: Sequence[Job], workers: int) -> Schedule:
-    """Assemble the full analysis for a validated job list."""
-    order = topological_order(jobs)
-    stages, total_time = build_stages(jobs, workers)
-    job_times, cp_duration, cp_path = critical_path_analysis(jobs, order)
-    cp_reasons = explain_critical_path(jobs, cp_path, job_times)
+def build_schedule(
+    jobs: Sequence[Job],
+    workers: int,
+    graph: Graph | None = None,
+) -> Schedule:
+    """Assemble the full analysis for a validated job list.
+
+    Builds one :class:`Graph` (or reuses the supplied ``graph``) and runs every
+    analysis against it, so the adjacency is constructed exactly once per
+    request.
+    """
+    if graph is None:
+        graph = Graph(jobs)
+    order = graph.topological_order()
+    stages, total_time = graph.schedule_stages(workers)
+    job_times, cp_duration, cp_path = graph.critical_path_analysis(order)
+    cp_reasons = explain_critical_path(graph, cp_path, job_times)
     return Schedule(
         topo_order=order,
         stages=stages,

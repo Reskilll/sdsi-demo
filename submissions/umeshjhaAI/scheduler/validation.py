@@ -8,9 +8,10 @@ aggregated list of every independent problem found.
 from __future__ import annotations
 
 import math
-from typing import Any, Optional, Sequence, Tuple
+from typing import Any, Optional, Tuple
 
 from .errors import ValidationError
+from .graph import Graph
 from .model import Job
 
 
@@ -149,10 +150,12 @@ def parse_jobs(
                 continue
             depends.append(d)
 
-        # de-duplicate dependency edges but keep first-seen order
+        # de-duplicate dependency edges in O(k) while keeping first-seen order
         deduped: list[str] = []
+        seen_deps: set[str] = set()
         for d in depends:
-            if d not in deduped:
+            if d not in seen_deps:
+                seen_deps.add(d)
                 deduped.append(d)
 
         jobs.append(Job(id=jid, duration=float(dur), depends_on=tuple(deduped)))
@@ -174,7 +177,7 @@ def parse_jobs(
     # Only check for cycles once everything else is structurally sound; a
     # cycle among already-invalid nodes would produce confusing noise.
     if not errors:
-        cycle = _find_cycle(jobs)
+        cycle = Graph(jobs).find_cycle()
         if cycle is not None:
             errors.append("dependency cycle detected: " + " -> ".join(cycle))
 
@@ -182,52 +185,3 @@ def parse_jobs(
         return [], 0, errors
 
     return jobs, workers, []
-
-
-def _find_cycle(jobs: Sequence[Job]) -> Optional[list[str]]:
-    """Return a representative directed cycle as ``[A, B, C, A]`` or ``None``.
-
-    Implemented as Kahn's algorithm (mirrors ``graph.topological_order``) so a
-    cycle is reported only when no topological order exists. The remaining
-    nodes are guaranteed to contain a cycle; we walk dependents from one of
-    them until a node repeats.
-    """
-    adj: dict[str, list[str]] = {job.id: [] for job in jobs}
-    indegree: dict[str, int] = {job.id: 0 for job in jobs}
-    for job in jobs:
-        for dep in job.depends_on:
-            adj[dep].append(job.id)
-            indegree[job.id] += 1
-
-    # ready = nodes with zero indegree; use a plain list (order irrelevant
-    # here, we only care about whether everything drains)
-    ready = [nid for nid, deg in indegree.items() if deg == 0]
-    remaining = set(indegree)
-    while ready:
-        node = ready.pop()
-        remaining.discard(node)
-        for nxt in adj[node]:
-            indegree[nxt] -= 1
-            if indegree[nxt] == 0:
-                ready.append(nxt)
-
-    if not remaining:
-        return None
-
-    # Remaining nodes form at least one cycle. Walk forward from an arbitrary
-    # remaining node (smallest id for determinism) until we revisit a node.
-    start = min(remaining)
-    path: list[str] = []
-    seen: set[str] = set()
-    current = start
-    while current not in seen:
-        seen.add(current)
-        path.append(current)
-        # pick smallest-dependent-id edge that stays inside `remaining`
-        nxts = [n for n in adj[current] if n in remaining]
-        current = min(nxts) if nxts else start
-
-    # trim the prefix before the first occurrence of the repeated node
-    first = path.index(current)
-    cycle = path[first:] + [current]
-    return cycle

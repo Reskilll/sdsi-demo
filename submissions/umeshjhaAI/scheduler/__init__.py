@@ -7,6 +7,7 @@ critical-path analysis, and downstream failure propagation.
 
 from .engine import build_schedule, propagate_failure
 from .errors import SchedulerError, ValidationError
+from .graph import Graph
 from .model import CriticalPathReason, Job, Stage, Schedule, JobTiming
 from .validation import parse_jobs
 
@@ -16,6 +17,7 @@ __all__ = [
     "Schedule",
     "JobTiming",
     "CriticalPathReason",
+    "Graph",
     "SchedulerError",
     "ValidationError",
     "parse_jobs",

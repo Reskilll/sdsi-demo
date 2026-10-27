@@ -8,7 +8,8 @@ import sys
 from typing import Any, Optional, Sequence
 
 from .errors import ValidationError
-from .engine import build_schedule, propagate_failure
+from .engine import build_schedule
+from .graph import Graph
 from .model import Schedule
 from .validation import parse_jobs
 
@@ -79,11 +80,12 @@ def run(
     if errors:
         raise ValidationError(errors)
 
-    schedule = build_schedule(jobs, workers)
+    graph = Graph(jobs)
+    schedule = build_schedule(jobs, workers, graph=graph)
 
     if failed_job is not None:
         try:
-            skipped = propagate_failure(jobs, failed_job)
+            skipped = graph.downstream(failed_job)
         except ValueError as exc:
             raise ValidationError([str(exc)])
         schedule.skipped = skipped

@@ -323,14 +323,17 @@ class TestFailureSimulation:
         assert "E" not in skipped
 
     def test_multiple_failures_overlap(self):
-        """Overlapping downstream regions are not double-counted."""
+        """Overlapping downstream regions are not double-counted.
+
+        B is itself a *failed* job, so it is not "skipped" — only C is.
+        """
         j = _jobs(
             ("A", 1, []),
             ("B", 1, ["A"]),
             ("C", 1, ["B"]),
         )
         skipped = downstream_of_many(j, ["A", "B"])
-        assert set(skipped) == {"B", "C"}
+        assert set(skipped) == {"C"}
 
     def test_multiple_failures_ignore_unknown(self):
         """Unknown failed IDs are silently ignored."""

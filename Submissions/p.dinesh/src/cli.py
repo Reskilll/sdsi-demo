@@ -26,6 +26,16 @@ except ModuleNotFoundError:
 
 
 def main(argv: list[str] | None = None) -> int:
+    # Reconfigure stdout/stderr to UTF-8 so Unicode box/arrow glyphs don't
+    # crash on Windows consoles whose default code page is cp1252.  Done here
+    # (not just under `__main__`) so both `python -m src.cli` and the installed
+    # `dag-scheduler` console script are covered.
+    for stream in (sys.stdout, sys.stderr):
+        try:
+            stream.reconfigure(encoding="utf-8")
+        except (AttributeError, ValueError):
+            pass  # non-reconfigurable stream (e.g. already closed / piped)
+
     parser = argparse.ArgumentParser(
         prog="dag-scheduler",
         description="Analyse a job DAG and produce an execution plan.",

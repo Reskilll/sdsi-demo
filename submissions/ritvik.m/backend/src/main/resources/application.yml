@@ -1,0 +1,86 @@
+spring:
+  application:
+    name: room-booking
+  datasource:
+    # H2 is the only supported database for this demo.
+    url: jdbc:h2:file:./data/booking;DB_CLOSE_ON_EXIT=FALSE;LOCK_TIMEOUT=10000
+    username: sa
+    password: ""
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: UTC
+        default_batch_fetch_size: 50
+    show-sql: false
+  flyway:
+    enabled: true
+  jackson:
+    default-property-inclusion: non_null
+  mvc:
+    problemdetails:
+      enabled: true
+  lifecycle:
+    timeout-per-shutdown-phase: 20s
+
+server:
+  port: ${PORT:8080}
+  shutdown: graceful
+  error:
+    include-message: never
+    include-stacktrace: never
+  compression:
+    enabled: true
+    mime-types: application/json,text/html,text/css,application/javascript,text/calendar
+  tomcat:
+    max-swallow-size: 2MB
+    max-http-form-post-size: 256KB
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      probes:
+        enabled: true
+      show-details: never
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    operations-sorter: method
+    tags-sorter: alpha
+  api-docs:
+    path: /v3/api-docs
+
+app:
+  office:
+    zone: ${OFFICE_ZONE:Europe/London}
+    opens-at: "09:00"
+    closes-at: "18:00"
+    slot-grid-minutes: 15
+    min-duration-minutes: 15
+    max-page-size: 100
+  security:
+    enabled: ${APP_SECURITY_ENABLED:true}
+    username: ${APP_ADMIN_USERNAME:admin}
+    password: ${APP_ADMIN_PASSWORD:admin123}
+    roles: ADMIN
+  cors:
+    allowed-origins:
+      - http://localhost:5173
+      - http://127.0.0.1:5173
+  seed:
+    rooms-resource: classpath:rooms.json
+
+logging:
+  level:
+    com.sdsi.booking: INFO
+    org.hibernate.SQL: WARN
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%X{requestId:-}] %logger{36} - %msg%n"

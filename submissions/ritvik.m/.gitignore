@@ -1,0 +1,27 @@
+# Java
+backend/target/
+*.class
+*.jar
+*.log
+
+# Local database
+backend/data/
+data/
+
+# Node
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+frontend/coverage/
+
+# IDE / OS
+.idea/
+.vscode/
+*.iml
+.DS_Store
+Thumbs.db
+
+# Local configuration / secrets
+.env
+.env.local
+application-local.yml

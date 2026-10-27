@@ -1,0 +1,59 @@
+{
+  "tickets": [
+    {
+      "ticket_id": "T-1001",
+      "priority": "P1",
+      "assignee_group": "Network",
+      "created_at": "2026-01-12T09:00:00Z",
+      "status_history": [
+        { "status": "ASSIGNED", "timestamp": "2026-01-12T09:30:00Z" },
+        { "status": "IN_PROGRESS", "timestamp": "2026-01-12T10:00:00Z" },
+        { "status": "RESOLVED", "timestamp": "2026-01-12T13:00:00Z" }
+      ]
+    },
+    {
+      "ticket_id": "T-1002",
+      "priority": "P2",
+      "assignee_group": "Database",
+      "created_at": "2026-01-09T16:00:00Z",
+      "status_history": [
+        { "status": "ON_HOLD", "timestamp": "2026-01-09T17:00:00Z" },
+        { "status": "IN_PROGRESS", "timestamp": "2026-01-12T10:00:00Z" },
+        { "status": "RESOLVED", "timestamp": "2026-01-12T12:00:00Z" }
+      ]
+    },
+    {
+      "ticket_id": "T-1003",
+      "priority": "P3",
+      "assignee_group": "Application",
+      "created_at": "2026-01-12T09:00:00Z",
+      "status_history": [
+        { "status": "IN_PROGRESS", "timestamp": "2026-01-12T09:15:00Z" },
+        { "status": "ON_HOLD", "timestamp": "2026-01-12T11:00:00Z" }
+      ]
+    },
+    {
+      "ticket_id": "T-1004",
+      "priority": "P4",
+      "assignee_group": "Hardware",
+      "created_at": "2026-01-12T09:00:00Z",
+      "status_history": [
+        { "status": "ASSIGNED", "timestamp": "2026-01-12T09:10:00Z" },
+        { "status": "RESOLVED", "timestamp": "2026-01-15T10:00:00Z" }
+      ]
+    },
+    {
+      "ticket_id": "T-1005",
+      "priority": "P1",
+      "assignee_group": "Network",
+      "created_at": "2026-01-12T17:00:00Z",
+      "status_history": [
+        { "status": "ON_HOLD", "timestamp": "2026-01-12T17:30:00Z" },
+        { "status": "IN_PROGRESS", "timestamp": "2026-01-13T09:30:00Z" },
+        { "status": "ON_HOLD", "timestamp": "2026-01-13T11:00:00Z" },
+        { "status": "IN_PROGRESS", "timestamp": "2026-01-13T14:00:00Z" },
+        { "status": "RESOLVED", "timestamp": "2026-01-13T15:00:00Z" }
+      ]
+    }
+  ]
+}

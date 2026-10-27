@@ -1,0 +1,264 @@
+{% extends "base.html" %}
+{% block title %}{{ group_name }} — Dashboard{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <h1>{{ group_name }}</h1>
+  <div class="stat-row">
+    <span class="stat"><strong>{{ member_count }}</strong> active members</span>
+    {% if total_member_count != member_count %}
+      <span class="stat muted">({{ total_member_count }} total)</span>
+    {% endif %}
+    <span class="stat"><strong>{{ expense_count }}</strong> expenses</span>
+    <span class="stat">Total spent: <strong>&#x20B9;{{ total_spent }}</strong></span>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- 3-COLUMN LAYOUT: Members | Expenses | Settlements            -->
+<!-- ============================================================ -->
+<div class="grid-3col">
+
+  <!-- COL 1: Members -->
+  <div class="card">
+    <h2>Members</h2>
+
+    <form method="POST" action="/group/{{ group_id }}/member" class="form-inline compact">
+      <input type="text" name="member_name" placeholder="New member name" required maxlength="100">
+      <button type="submit" class="btn btn-sm btn-primary">Add</button>
+    </form>
+
+    <ul class="member-list">
+      {% for member in all_members %}
+      <li class="member-item {% if not member.active %}inactive{% endif %}">
+        <span class="member-name">{{ member.name }}</span>
+        {% if member.active %}
+          <form method="POST" action="/group/{{ group_id }}/deactivate/{{ member.name }}" style="display:inline">
+            <button type="submit" class="btn btn-xs btn-outline" title="Soft-delete — preserves history">✕</button>
+          </form>
+        {% else %}
+          <span class="badge">inactive</span>
+          <form method="POST" action="/group/{{ group_id }}/reactivate/{{ member.name }}" style="display:inline">
+            <button type="submit" class="btn btn-xs btn-outline" title="Reactivate">↻</button>
+          </form>
+        {% endif %}
+      </li>
+      {% endfor %}
+    </ul>
+  </div>
+
+  <!-- COL 2: Balances & Recent Expenses -->
+  <div class="card">
+    <h2>Net Balances</h2>
+    {% if balances %}
+    <table class="balance-table">
+      <thead>
+        <tr><th>Member</th><th>Paid</th><th>Owed</th><th class="right">Net</th></tr>
+      </thead>
+      <tbody>
+        {% for b in balances %}
+        <tr class="
+          {% if b.is_creditor %}creditor{% elif b.is_debtor %}debtor{% else %}settled{% endif %}
+          {% if not b.active %}inactive-row{% endif %}
+        ">
+          <td>{{ b.name }}{% if not b.active %} <span class="badge">inactive</span>{% endif %}</td>
+          <td>&#x20B9;{{ b.paid }}</td>
+          <td>&#x20B9;{{ b.owed }}</td>
+          <td class="right net-value
+            {% if b.is_creditor %}positive{% elif b.is_debtor %}negative{% endif %}
+          ">&#x20B9;{{ b.net }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <p class="empty">No balances yet — add an expense below.</p>
+    {% endif %}
+
+    {% if expenses %}
+    <h3 style="margin-top:1.5rem">Recent Expenses</h3>
+    <ul class="expense-list">
+      {% for e in expenses %}
+      <li><strong>{{ e.desc }}</strong> — {{ e.payer }} paid &#x20B9;{{ e.amount }}</li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+  </div>
+
+  <!-- COL 3: Settlements -->
+  <div class="card">
+    <h2>Settlements</h2>
+    {% if settlements %}
+    <ul class="settlement-list">
+      {% for s in settlements %}
+      <li class="settlement-item">
+        <span class="debtor-name">{{ s.from }}</span>
+        <span class="arrow">→</span>
+        <span class="creditor-name">{{ s.to }}</span>
+        <span class="settlement-amount">&#x20B9;{{ s.amount }}</span>
+      </li>
+      {% endfor %}
+    </ul>
+    {% else %}
+    <p class="empty">All settled — no transactions needed.</p>
+    {% endif %}
+  </div>
+
+</div>
+
+<!-- ============================================================ -->
+<!-- ADD EXPENSE FORM                                             -->
+<!-- ============================================================ -->
+<div class="card" style="margin-top: 2rem;">
+  <h2>Add Expense</h2>
+  <form method="POST" action="/group/{{ group_id }}/expense" id="expense-form">
+
+    <div class="form-row">
+      <label>
+        <span>Description</span>
+        <input type="text" name="description" placeholder="e.g. Dinner at Luigi's" required maxlength="500">
+      </label>
+      <label>
+        <span>Payer</span>
+        <select name="payer" required>
+          <option value="">— select —</option>
+          {% for m in active_members %}
+          <option value="{{ m.name }}">{{ m.name }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <label>
+        <span>Amount (₹)</span>
+        <input type="text" name="amount" placeholder="e.g. 120.00" required pattern="[0-9]+(\.[0-9]{1,2})?">
+      </label>
+    </div>
+
+    <fieldset>
+      <legend>Split Type</legend>
+      <div class="radio-group">
+        <label class="radio-label">
+          <input type="radio" name="split_type" value="equal" checked onchange="toggleSplitFields()"> Equal
+        </label>
+        <label class="radio-label">
+          <input type="radio" name="split_type" value="exact" onchange="toggleSplitFields()"> Exact
+        </label>
+        <label class="radio-label">
+          <input type="radio" name="split_type" value="percentage" onchange="toggleSplitFields()"> Percentage
+        </label>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Participants</legend>
+      <div class="checkbox-group" id="participant-checkboxes">
+        {% for m in active_members %}
+        <label class="checkbox-label">
+          <input type="checkbox" name="participant_{{ m.name }}" value="{{ m.name }}" class="participant-cb" onchange="syncParticipants()"> {{ m.name }}
+        </label>
+        {% endfor %}
+      </div>
+      <input type="hidden" name="participants" id="participants-hidden" value="">
+    </fieldset>
+
+    <!-- Exact amounts: shown only when Exact is selected -->
+    <div id="exact-fields" class="split-detail-fields" style="display:none">
+      <fieldset>
+        <legend>Exact Amounts (₹)</legend>
+        <div id="exact-amounts-container"></div>
+        <input type="hidden" name="split_values" id="split-values-hidden" value="">
+      </fieldset>
+    </div>
+
+    <!-- Percentage fields: shown only when Percentage is selected -->
+    <div id="percentage-fields" class="split-detail-fields" style="display:none">
+      <fieldset>
+        <legend>Percentages (%)</legend>
+        <div id="percentage-amounts-container"></div>
+      </fieldset>
+    </div>
+
+    <div class="form-row" style="margin-top:1rem">
+      <button type="submit" class="btn btn-primary btn-lg">Add Expense</button>
+    </div>
+  </form>
+</div>
+
+<!-- ============================================================ -->
+<!-- JSON UPLOAD                                                  -->
+<!-- ============================================================ -->
+<div class="card" style="margin-top: 2rem;">
+  <h2>Batch Upload (JSON)</h2>
+  <form method="POST" action="/group/{{ group_id }}/upload" enctype="multipart/form-data">
+    <div class="form-row">
+      <label>
+        <span>Select a .json file</span>
+        <input type="file" name="file" accept=".json" required>
+      </label>
+      <button type="submit" class="btn btn-outline">Upload & Process</button>
+    </div>
+  </form>
+  <p class="help-text">Format: <code>{"expenses": [{"description":"...", "payer":"...", "amount":..., "split":{...}}]}</code></p>
+</div>
+
+<!-- ============================================================ -->
+<!-- DYNAMIC FORM JS                                              -->
+<!-- ============================================================ -->
+<script>
+function toggleSplitFields() {
+  const type = document.querySelector('input[name="split_type"]:checked').value;
+  document.getElementById('exact-fields').style.display = (type === 'exact') ? 'block' : 'none';
+  document.getElementById('percentage-fields').style.display = (type === 'percentage') ? 'block' : 'none';
+  syncParticipants();
+}
+
+function syncParticipants() {
+  const checked = [];
+  document.querySelectorAll('.participant-cb:checked').forEach(cb => checked.push(cb.value));
+  document.getElementById('participants-hidden').value = checked.join(',');
+  buildSplitValueFields(checked);
+}
+
+function buildSplitValueFields(participants) {
+  const type = document.querySelector('input[name="split_type"]:checked').value;
+  const exactContainer = document.getElementById('exact-amounts-container');
+  const pctContainer = document.getElementById('percentage-amounts-container');
+
+  exactContainer.innerHTML = '';
+  pctContainer.innerHTML = '';
+
+  if (participants.length === 0) return;
+
+  participants.forEach(name => {
+    if (type === 'exact') {
+      const div = document.createElement('div');
+      div.className = 'form-row';
+      div.innerHTML = '<label><span>' + name + '</span><input type="text" name="exact_' + name + '" placeholder="0.00" onchange="syncSplitValues()"></label>';
+      exactContainer.appendChild(div);
+    } else if (type === 'percentage') {
+      const div = document.createElement('div');
+      div.className = 'form-row';
+      div.innerHTML = '<label><span>' + name + '</span><input type="text" name="pct_' + name + '" placeholder="0" onchange="syncSplitValues()"> %</label>';
+      pctContainer.appendChild(div);
+    }
+  });
+}
+
+function syncSplitValues() {
+  const type = document.querySelector('input[name="split_type"]:checked').value;
+  const pairs = [];
+  if (type === 'exact') {
+    document.querySelectorAll('#exact-amounts-container input').forEach(inp => {
+      const name = inp.name.replace('exact_', '');
+      if (inp.value) pairs.push(name + '=' + inp.value);
+    });
+  } else if (type === 'percentage') {
+    document.querySelectorAll('#percentage-amounts-container input').forEach(inp => {
+      const name = inp.name.replace('pct_', '');
+      if (inp.value) pairs.push(name + '=' + inp.value);
+    });
+  }
+  document.getElementById('split-values-hidden').value = pairs.join(',');
+}
+</script>
+
+{% endblock %}

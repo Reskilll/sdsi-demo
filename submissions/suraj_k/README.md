@@ -1,8 +1,10 @@
 # Splitwise-Lite: Team Outing Expense Settler
 
-A production-grade expense splitting engine — compute net balances and minimize settlement transactions. Zero external dependencies. 119 tests. All edge cases covered.
+A production-grade expense splitting engine — CLI and web dashboard. Compute net balances and minimize settlement transactions. 119 tests. All edge cases covered.
 
 ## Quick Start
+
+### CLI (zero dependencies)
 
 ```bash
 # Process a single JSON file
@@ -19,10 +21,26 @@ python run.py input.json --output result.json
 
 # Balances only (no settlements)
 python run.py input.json --balances-only
-
-# Compact (no indentation)
-python run.py input.json --compact
 ```
+
+### Web Dashboard
+
+```bash
+# Install web dependencies
+pip install -r requirements.txt
+
+# Start the web server
+python web.py
+
+# Open in browser: http://127.0.0.1:8000
+```
+
+The web app provides:
+- **Group management**: Create groups, add/deactivate/reactivate members
+- **Expense entry**: Form with dynamic split fields (Equal/Exact/Percentage)
+- **Live dashboard**: 3-column layout — members, balances, settlements
+- **JSON upload**: Drop a `.json` file to batch-import expenses
+- **REST API**: `GET /group/{id}/api/summary` returns full JSON summary
 
 ## Features
 

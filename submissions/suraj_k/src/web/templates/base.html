@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Splitwise-Lite{% endblock %}</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <header class="site-header">
+    <a href="/" class="logo">&#x20B9; <strong>Splitwise-Lite</strong></a>
+    <nav>
+      {% if group_id %}
+        <a href="/group/{{ group_id }}" class="nav-link">Dashboard</a>
+      {% endif %}
+      <a href="/" class="nav-link">New Group</a>
+    </nav>
+  </header>
+
+  {% if error %}
+  <div class="flash flash-error">{{ error }}</div>
+  {% endif %}
+
+  <main class="container">
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="site-footer">
+    Splitwise-Lite &middot; Team Outing Expense Settler &middot; 119 tests, 0 failures
+  </footer>
+</body>
+</html>

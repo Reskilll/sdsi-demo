@@ -30,8 +30,8 @@ rejected, and which bugs were found by tests rather than by inspection.
 
 - Spring Boot 3.5.16, Java 21 release target (running on the installed JDK 25), Maven.
 - Vue 3 + Vite + TypeScript for the UI; no UI framework.
-- H2 file database for zero-setup runs, Flyway migrations, PostgreSQL driver/profile kept
-  available for production.
+- H2 file database for zero-setup runs, with Flyway migrations. H2 is the only database
+  used (in-memory for tests).
 - Explicitly avoided Docker because the environment has none and the brief asked for
   simplicity.
 

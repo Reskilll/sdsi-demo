@@ -1,4 +1,4 @@
--- Schema is intentionally portable between H2 (default) and PostgreSQL.
+-- Schema for the H2 database (file-backed locally, in-memory in tests).
 -- All times are office wall-clock time (no timezone conversion), see README.
 
 create table room (

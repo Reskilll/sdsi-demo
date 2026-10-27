@@ -124,15 +124,11 @@ npm run build     # vue-tsc type-check + Vite production build
 npm test          # Vitest unit tests
 ```
 
-### PostgreSQL instead of H2
+### Database
 
-The schema is portable and managed by Flyway; the driver is already on the classpath.
-
-```bash
-DB_URL='jdbc:postgresql://localhost:5432/booking' \
-DB_USERNAME=booking DB_PASSWORD=secret \
-mvn spring-boot:run
-```
+H2 is the only database used by this project: file-backed at `backend/data/booking` for
+normal runs and in-memory for tests. Flyway owns the schema. Delete the `backend/data/`
+directory to reset the demo data.
 
 ---
 
@@ -218,7 +214,7 @@ config/     typed properties, security, OpenAPI, room seeding, request id/size f
 | 400 for capacity, 409 for overlap | Capacity is an invalid request against a known room constraint; overlap is a conflict with current state. Both are documented and machine-readable via `code` |
 | Atomic recurrence default | Prevents half-created series; partial creation is an explicit opt-in |
 | `LocalDateTime` wall-clock | Single office; no user-visible offset math; DST-safe for booking hours |
-| H2 file + Flyway + Postgres driver | Zero-setup demo, production-shaped migration path |
+| H2 file + Flyway | Zero-setup demo with schema drift checks and a predictable reset |
 | Basic auth, BCrypt, stateless | Small but real security boundary; env-overridable credentials; CSRF disabled correctly for a stateless API |
 
 ### Edge cases covered (and tested)
@@ -273,8 +269,8 @@ config/     typed properties, security, OpenAPI, room seeding, request id/size f
 - Series edits apply per occurrence only; the series template is immutable (cancel + recreate
   is the supported flow).
 - No rate limiting or audit table (request ids and timestamps are logged).
-- H2 is fine for the demo; use PostgreSQL for multi-instance deployments (the room-row lock
-  then serialises across instances).
+- H2 is single-node; run one backend instance against the file database. The room-row lock
+  serialises writers within that instance.
 - Times are wall-clock for one office; multi-timezone support would require storing UTC
   instants plus an IANA zone per room.
 

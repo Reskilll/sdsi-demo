@@ -1,0 +1,4 @@
+[
+  { "id": "job1", "duration": 4, "dependsOn": [] },
+  { "id": "job2", "duration": 5, "dependsOn": ["job1", "non_existent_database_job"] }
+]

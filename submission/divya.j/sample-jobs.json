@@ -1,0 +1,11 @@
+[
+  { "id": "extract_customers", "duration": 5, "dependsOn": [] },
+  { "id": "extract_orders",    "duration": 7, "dependsOn": [] },
+  { "id": "clean_customers",   "duration": 3, "dependsOn": ["extract_customers"] },
+  { "id": "clean_orders",      "duration": 4, "dependsOn": ["extract_orders"] },
+  { "id": "join_data",         "duration": 6, "dependsOn": ["clean_customers", "clean_orders"] },
+  { "id": "aggregate_kpis",    "duration": 4, "dependsOn": ["join_data"] },
+  { "id": "train_model",       "duration": 10, "dependsOn": ["join_data"] },
+  { "id": "generate_report",   "duration": 2, "dependsOn": ["aggregate_kpis"] },
+  { "id": "publish_dashboard", "duration": 3, "dependsOn": ["generate_report", "train_model"] }
+]

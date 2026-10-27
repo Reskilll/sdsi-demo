@@ -45,7 +45,19 @@ export default tseslint.config(
       },
     },
     rules: {
-      'no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
+      // Ignore intentionally-unused catch bindings and prefixed arguments.
+      '@typescript-eslint/no-unused-vars': 'off',
+      'no-unused-vars': [
+        'error',
+        { argsIgnorePattern: '^_', caughtErrors: 'all', caughtErrorsIgnorePattern: '^_' },
+      ],
+    },
+  },
+  {
+    // CLI scripts print their results to stdout by design.
+    files: ['scripts/**/*.ts'],
+    rules: {
+      'no-console': 'off',
     },
   },
 );

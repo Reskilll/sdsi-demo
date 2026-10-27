@@ -14,7 +14,9 @@ export default defineConfig({
       provider: 'v8',
       reporter: ['text', 'html', 'lcov'],
       include: ['src/**/*.ts'],
-      exclude: ['src/index.ts', 'src/types/**'],
+      // index.ts is the process bootstrap (exercised by the smoke test in CI);
+      // types.ts contains only type declarations, which emit no code.
+      exclude: ['src/index.ts', 'src/types/**', 'src/domain/types.ts'],
       thresholds: {
         lines: 80,
         statements: 80,

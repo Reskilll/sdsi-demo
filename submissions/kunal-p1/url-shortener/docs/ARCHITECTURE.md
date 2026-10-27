@@ -25,7 +25,7 @@ tested in microseconds, and it keeps Express out of the business logic.
 | Layer | Files | Responsibility |
 |---|---|---|
 | Domain | `src/domain/*` | Pure validation and normalisation. Throws `AppError` with stable codes. No I/O. |
-| Persistence | `src/db/*` | Connection + pragmas, forward-only migrations, prepared statements. |
+| Persistence | `src/db/*` | Connection + pragmas, forward-only migrations, prepared statements. Uses Node's built-in `node:sqlite` (no native build). |
 | Service | `src/services/linkService.ts` | Orchestration and transactions: create/resolve/delete/stats/list. |
 | HTTP | `src/app.ts`, `src/routes/*`, `src/middleware/*` | Parsing, auth, limits, headers, status codes, error envelope. |
 | Support | `src/lib/*`, `src/config.ts` | Clock, logging, HMAC/IP hashing, enum-validated env config. |
@@ -218,7 +218,8 @@ scope and called out rather than pretended.
 
 1. **Rate limiting** — replace the in-memory store with Redis so limits are shared.
 2. **Database** — swap SQLite for Postgres; the repository layer is the only code that
-   changes (all SQL lives there). `BEGIN IMMEDIATE` becomes a unique index + retry.
+   changes (all SQL lives there). The `BEGIN IMMEDIATE` create-transaction becomes a unique
+   index + retry loop.
 3. **Cache** — put resolved codes in Redis (they are immutable apart from expiry), with
    the TTL capped at the link's remaining lifetime. Deletes must evict.
 4. **Read replicas** — redirects are read-heavy; stats reads can be served from a replica.
@@ -234,3 +235,17 @@ scope and called out rather than pretended.
 | Soft delete vs. hard delete | Soft | Preserves stats and prevents code reuse for a different destination |
 | Alias vs. generated namespace | Shared, case-sensitive | One `code` column keeps lookup a single indexed read |
 | Code length | 7 (configurable 6–8) | 62⁷ ≈ 3.5T combinations; brief allows 6–8 |
+| Native driver vs. built-in SQLite | `node:sqlite` | `npm install` needs no Python/C++ toolchain, so the project actually runs on a fresh machine |
+
+## Choosing `node:sqlite` over a native driver
+
+`better-sqlite3` is excellent, but it is a native addon: when no prebuilt binary matches the
+platform and ABI it compiles from source, which needs Python and a C++ toolchain and fails
+outright on many machines. Node 22.5+ ships `node:sqlite` with the same synchronous
+ergonomics (`prepare`, `get`, `all`, `run`), so:
+
+- `npm install` is pure JavaScript — no compiler, no Python, no rebuild on Node upgrades.
+- The service layer keeps its synchronous, transaction-based design unchanged.
+- Cost: transactions are managed with explicit `BEGIN`/`COMMIT`/`ROLLBACK` (wrapped in
+  `transaction()` in `src/db/connection.ts`) instead of a `db.transaction()` helper, and the
+  engine version tracks the Node release rather than npm.

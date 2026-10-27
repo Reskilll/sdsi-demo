@@ -1,0 +1,20 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.backends._legacy:_Backend"
+
+[project]
+name = "expense-splitter"
+version = "1.0.0"
+description = "A team-outing expense splitter (Splitwise-lite) with debt simplification."
+requires-python = ">=3.9"
+license = {text = "MIT"}
+readme = {file = "README.md", content-type = "text/markdown"}
+authors = [{name = "SDSI Participant"}]
+
+dependencies = []
+
+[project.optional-dependencies]
+dev = ["pytest>=7", "pytest-cov"]
+
+[project.scripts]
+expense-splitter = "expense_splitter.cli:main"

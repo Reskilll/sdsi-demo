@@ -81,7 +81,7 @@ export async function POST(request: NextRequest) {
 
     // Create session
     await createSession({
-      adminId: admin._id as string,
+      adminId: String(admin._id),
       email: admin.email,
       role: admin.role,
     });

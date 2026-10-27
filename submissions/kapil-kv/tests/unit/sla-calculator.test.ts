@@ -204,12 +204,8 @@ describe("SlaCalculator", () => {
       const result = calculateSla(history, "P1", "RESOLVED", new Date("2026-10-26T06:30:00.000Z"),
         new Date("2026-10-26T06:30:00.000Z"), undefined, testCalendarConfig());
 
-      expect(result.elapsedBusinessMinutes).toBe(175); // 09:00-12:00 minus 5 min before IN_PROGRESS... Actually: 09:00-09:05 pause + 09:05-12:00 = 175
-      // Actually the SLA clock starts at OPEN (first event) which is at 09:00 IST
       // No hold intervals, so 09:00-12:00 = 180 minutes
-      // Wait: OPEN -> IN_PROGRESS (no hold) -> RESOLVED. No holds. So elapsed = 180
-      expect(result.elapsedBusinessMinutes).toBeGreaterThanOrEqual(175);
-      expect(result.elapsedBusinessMinutes).toBeLessThanOrEqual(185);
+      expect(result.elapsedBusinessMinutes).toBe(180);
       expect(result.isBreached).toBe(false);
       expect(result.slaStatus).toBe("RESOLVED");
     });
@@ -303,7 +299,8 @@ describe("SlaCalculator", () => {
     });
 
     it("multiple ON_HOLD intervals are excluded", () => {
-      // 09:00-09:30 (30) + 11:00-12:00 (60) + 13:00-14:00 (60) = 150 min
+      // 09:00 OPEN -> 09:30 ON_HOLD (hold 1) -> 11:00 IN_PROGRESS -> 11:30 ON_HOLD (hold 2) -> 12:30 IN_PROGRESS -> 13:30 RESOLVED
+      // Active: 09:00-09:30 (30) + 11:00-11:30 (30) + 12:30-13:30 (60) = 120 min
       const history = [
         s("2026-10-26T03:30:00.000Z", "OPEN", "created"),
         s("2026-10-26T04:00:00.000Z", "ON_HOLD", "hold 1"),
@@ -315,7 +312,7 @@ describe("SlaCalculator", () => {
       const now = new Date("2026-10-26T08:00:00.000Z");
       const result = calculateSla(history, "P1", "RESOLVED", now, now, undefined, testCalendarConfig());
 
-      expect(result.elapsedBusinessMinutes).toBe(180); // 30+60+60+30=180
+      expect(result.elapsedBusinessMinutes).toBe(120);
     });
 
     it("ticket currently ON_HOLD shows PAUSED status", () => {
@@ -363,10 +360,9 @@ describe("SlaCalculator", () => {
       const history = [
         s("2026-10-26T03:30:00.000Z", "OPEN", "created"),
       ];
-      // Elapsed: 1 hour = 60 min. Remaining: 180 min. 180/240 = 75% remaining, not at risk
-      // For P1, 25% of 240 = 60. So AT_RISK when remaining <= 60, i.e. elapsed >= 180
-      // We need to test at a time where elapsed >= 75% of target but < 100%
-      const now = new Date("2026-10-26T06:10:00.000Z"); // ~11:40 IST = ~160 min elapsed, remaining 80
+      // For P1, 25% of 240 = 60. AT_RISK when remaining <= 60, i.e. elapsed >= 180
+      // 09:00 + 185 min = 12:05 IST -> elapsed ~185 min, remaining ~55 min (within 25%)
+      const now = new Date("2026-10-26T06:35:00.000Z"); // ~12:05 IST
       const result = calculateSla(history, "P1", "OPEN", null, now, undefined, testCalendarConfig());
       expect(result.slaStatus).toBe("AT_RISK");
     });

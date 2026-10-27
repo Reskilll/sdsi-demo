@@ -1,0 +1,40 @@
+{
+  "members": ["Alice", "Bob", "Charlie", "Diana"],
+  "expenses": [
+    {
+      "title": "Team dinner",
+      "total": 4000,
+      "paid_by": "Alice",
+      "split": {
+        "type": "equal",
+        "members": ["Alice", "Bob", "Charlie", "Diana"]
+      }
+    },
+    {
+      "title": "Movie tickets",
+      "total": 1500,
+      "paid_by": "Bob",
+      "split": {
+        "type": "exact",
+        "shares": [
+          {"member": "Alice", "amount": 500},
+          {"member": "Bob", "amount": 500},
+          {"member": "Charlie", "amount": 500}
+        ]
+      }
+    },
+    {
+      "title": "Cab ride",
+      "total": 600,
+      "paid_by": "Charlie",
+      "split": {
+        "type": "percentage",
+        "shares": [
+          {"member": "Alice", "percentage": 50},
+          {"member": "Bob", "percentage": 25},
+          {"member": "Charlie", "percentage": 25}
+        ]
+      }
+    }
+  ]
+}

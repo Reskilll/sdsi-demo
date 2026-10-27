@@ -1,0 +1,7 @@
+[
+  { "id": "init_db",    "duration": 2,   "dependsOn": [] },
+  { "id": "load_users", "duration": 4,   "dependsOn": ["init_db"] },
+  { "id": "load_orders","duration": 5,   "dependsOn": ["init_db"] },
+  { "id": "build_index","duration": 3,   "dependsOn": ["load_users", "load_orders"] },
+  { "id": "send_report","duration": 1,   "dependsOn": ["build_index"] }
+]

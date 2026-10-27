@@ -1,0 +1,7 @@
+[
+  { "id": "step_1", "duration": 2, "dependsOn": [] },
+  { "id": "step_2", "duration": 3, "dependsOn": ["step_1"] },
+  { "id": "step_3", "duration": 1, "dependsOn": ["step_2"] },
+  { "id": "step_4", "duration": 4, "dependsOn": ["step_3"] },
+  { "id": "step_5", "duration": 2, "dependsOn": ["step_4"] }
+]

@@ -1,0 +1,4 @@
+[
+  { "id": "deploy", "duration": 10, "dependsOn": ["build"] },
+  { "id": "notify", "duration": 1,  "dependsOn": ["deploy", "monitor"] }
+]

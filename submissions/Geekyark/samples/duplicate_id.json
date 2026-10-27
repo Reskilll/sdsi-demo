@@ -1,0 +1,4 @@
+[
+  { "id": "task", "duration": 1, "dependsOn": [] },
+  { "id": "task", "duration": 2, "dependsOn": [] }
+]

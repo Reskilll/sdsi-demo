@@ -1,0 +1,5 @@
+[
+  { "id": "island_a", "duration": 1, "dependsOn": [] },
+  { "id": "island_b", "duration": 2, "dependsOn": [] },
+  { "id": "island_c", "duration": 3, "dependsOn": [] }
+]

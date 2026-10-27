@@ -1,0 +1,12 @@
+[
+  { "id": "T1",  "duration": 4,  "dependsOn": [] },
+  { "id": "T2",  "duration": 2,  "dependsOn": [] },
+  { "id": "T3",  "duration": 6,  "dependsOn": ["T1"] },
+  { "id": "T4",  "duration": 3,  "dependsOn": ["T1", "T2"] },
+  { "id": "T5",  "duration": 5,  "dependsOn": ["T2"] },
+  { "id": "T6",  "duration": 7,  "dependsOn": ["T3", "T4"] },
+  { "id": "T7",  "duration": 2,  "dependsOn": ["T4", "T5"] },
+  { "id": "T8",  "duration": 3,  "dependsOn": ["T6", "T7"] },
+  { "id": "T9",  "duration": 4,  "dependsOn": ["T6"] },
+  { "id": "T10", "duration": 1,  "dependsOn": ["T8", "T9"] }
+]

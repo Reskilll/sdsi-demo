@@ -1,0 +1,7 @@
+[
+  {"sku": "PS4-CONSOLE", "name": "PlayStation 4 Console", "stock": 50},
+  {"sku": "PS4-CONTROLLER", "name": "DualShock 4 Controller", "stock": 100},
+  {"sku": "PS4-GAME-TLOU", "name": "The Last of Us Remastered", "stock": 30},
+  {"sku": "PS4-GAME-GOW", "name": "God of War", "stock": 25},
+  {"sku": "PS4-HEADSET", "name": "Wireless Headset", "stock": 15}
+]

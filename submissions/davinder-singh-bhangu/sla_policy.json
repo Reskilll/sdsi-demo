@@ -1,0 +1,14 @@
+{
+  "businessHours": {
+    "start": "09:00",
+    "end": "18:00",
+    "daysOfWeek": [1, 2, 3, 4, 5]
+  },
+  "slaTargets": {
+    "P1": 4,
+    "P2": 8,
+    "P3": 24,
+    "P4": 72
+  },
+  "description": "SLA targets in business hours. P1=4h, P2=8h, P3=24h, P4=72h. Business hours Mon-Fri 09:00-18:00."
+}

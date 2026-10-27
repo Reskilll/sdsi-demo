@@ -1,0 +1,104 @@
+[
+  {
+    "id": "TKT-001",
+    "priority": "P1",
+    "assigneeGroup": "Network",
+    "createdAt": "2026-10-26T09:30:00",
+    "resolvedAt": "2026-10-27T11:45:00",
+    "statusHistory": [
+      { "status": "OPEN", "from": "2026-10-26T09:30:00" },
+      { "status": "IN_PROGRESS", "from": "2026-10-26T09:45:00" },
+      { "status": "ON_HOLD", "from": "2026-10-26T14:00:00" },
+      { "status": "IN_PROGRESS", "from": "2026-10-27T09:15:00" },
+      { "status": "RESOLVED", "from": "2026-10-27T11:45:00" }
+    ]
+  },
+  {
+    "id": "TKT-002",
+    "priority": "P2",
+    "assigneeGroup": "Server",
+    "createdAt": "2026-10-26T10:00:00",
+    "resolvedAt": "2026-10-26T16:30:00",
+    "statusHistory": [
+      { "status": "OPEN", "from": "2026-10-26T10:00:00" },
+      { "status": "IN_PROGRESS", "from": "2026-10-26T10:15:00" },
+      { "status": "RESOLVED", "from": "2026-10-26T16:30:00" }
+    ]
+  },
+  {
+    "id": "TKT-003",
+    "priority": "P1",
+    "assigneeGroup": "Network",
+    "createdAt": "2026-10-24T16:00:00",
+    "resolvedAt": "2026-10-27T10:00:00",
+    "statusHistory": [
+      { "status": "OPEN", "from": "2026-10-24T16:00:00" },
+      { "status": "ON_HOLD", "from": "2026-10-24T17:30:00" },
+      { "status": "IN_PROGRESS", "from": "2026-10-27T09:00:00" },
+      { "status": "RESOLVED", "from": "2026-10-27T10:00:00" }
+    ]
+  },
+  {
+    "id": "TKT-004",
+    "priority": "P3",
+    "assigneeGroup": "Desktop",
+    "createdAt": "2026-10-25T11:00:00",
+    "resolvedAt": "2026-10-27T14:00:00",
+    "statusHistory": [
+      { "status": "OPEN", "from": "2026-10-25T11:00:00" },
+      { "status": "IN_PROGRESS", "from": "2026-10-25T11:30:00" },
+      { "status": "ON_HOLD", "from": "2026-10-26T09:00:00" },
+      { "status": "IN_PROGRESS", "from": "2026-10-27T13:00:00" },
+      { "status": "RESOLVED", "from": "2026-10-27T14:00:00" }
+    ]
+  },
+  {
+    "id": "TKT-005",
+    "priority": "P4",
+    "assigneeGroup": "Server",
+    "createdAt": "2026-10-20T08:30:00",
+    "resolvedAt": "2026-10-26T17:00:00",
+    "statusHistory": [
+      { "status": "OPEN", "from": "2026-10-20T08:30:00" },
+      { "status": "IN_PROGRESS", "from": "2026-10-21T10:00:00" },
+      { "status": "RESOLVED", "from": "2026-10-26T17:00:00" }
+    ]
+  },
+  {
+    "id": "TKT-006",
+    "priority": "P2",
+    "assigneeGroup": "Network",
+    "createdAt": "2026-10-27T08:00:00",
+    "resolvedAt": "2026-10-27T17:30:00",
+    "statusHistory": [
+      { "status": "OPEN", "from": "2026-10-27T08:00:00" },
+      { "status": "IN_PROGRESS", "from": "2026-10-27T08:15:00" },
+      { "status": "RESOLVED", "from": "2026-10-27T17:30:00" }
+    ]
+  },
+  {
+    "id": "TKT-007",
+    "priority": "P1",
+    "assigneeGroup": "Desktop",
+    "createdAt": "2026-10-26T16:30:00",
+    "resolvedAt": "2026-10-27T09:30:00",
+    "statusHistory": [
+      { "status": "OPEN", "from": "2026-10-26T16:30:00" },
+      { "status": "IN_PROGRESS", "from": "2026-10-26T16:45:00" },
+      { "status": "ON_HOLD", "from": "2026-10-26T17:30:00" },
+      { "status": "IN_PROGRESS", "from": "2026-10-27T09:00:00" },
+      { "status": "RESOLVED", "from": "2026-10-27T09:30:00" }
+    ]
+  },
+  {
+    "id": "TKT-008",
+    "priority": "P3",
+    "assigneeGroup": "Server",
+    "createdAt": "2026-10-27T09:00:00",
+    "resolvedAt": null,
+    "statusHistory": [
+      { "status": "OPEN", "from": "2026-10-27T09:00:00" },
+      { "status": "IN_PROGRESS", "from": "2026-10-27T09:30:00" }
+    ]
+  }
+]

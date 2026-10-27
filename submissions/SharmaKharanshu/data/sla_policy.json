@@ -1,0 +1,13 @@
+{
+  "priorities": {
+    "P1": { "label": "Critical", "sla_hours": 4, "sla_minutes": 240 },
+    "P2": { "label": "High", "sla_hours": 8, "sla_minutes": 480 },
+    "P3": { "label": "Medium", "sla_hours": 24, "sla_minutes": 1440 },
+    "P4": { "label": "Low", "sla_hours": 72, "sla_minutes": 4320 }
+  },
+  "business_hours": {
+    "start": "09:00",
+    "end": "18:00",
+    "days": [0, 1, 2, 3, 4]
+  }
+}

@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SLA Tracker Dashboard</title>
+<style>
+  :root { --bg: #0f172a; --card: #1e293b; --text: #e2e8f0; --muted: #94a3b8; --green: #22c55e; --red: #ef4444; --amber: #f59e0b; --blue: #3b82f6; --border: #334155; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); padding: 24px; }
+  h1 { font-size: 1.8rem; margin-bottom: 24px; }
+  h2 { font-size: 1.2rem; margin-bottom: 12px; color: var(--muted); }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 32px; }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; }
+  .kpi-row { display: flex; gap: 16px; }
+  .kpi { flex: 1; background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 16px; text-align: center; }
+  .kpi .value { font-size: 2rem; font-weight: 700; }
+  .kpi .label { font-size: 0.8rem; color: var(--muted); margin-top: 4px; }
+  .breach .value { color: var(--red); }
+  .ok .value { color: var(--green); }
+  table { width: 100%; border-collapse: collapse; }
+  th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--border); font-size: 0.9rem; }
+  th { color: var(--muted); font-weight: 600; }
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 0.75rem; font-weight: 600; }
+  .badge-P1 { background: #7f1d1d; color: #fca5a5; }
+  .badge-P2 { background: #78350f; color: #fcd34d; }
+  .badge-P3 { background: #1e3a5f; color: #93c5fd; }
+  .badge-P4 { background: #1e293b; color: #cbd5e1; }
+  .breach-yes { color: var(--red); font-weight: 700; }
+  .breach-no  { color: var(--green); }
+  .summary-table td { font-size: 0.85rem; }
+  .summary-table .pct { font-weight: 700; }
+  .summary-table .pct.high { color: var(--red); }
+  .summary-table .pct.low { color: var(--green); }
+  .section { margin-bottom: 32px; }
+</style>
+</head>
+<body>
+
+<h1>🔍 SLA Tracker Dashboard</h1>
+
+<!-- KPI Row -->
+<div class="kpi-row">
+  <div class="kpi ok">
+    <div class="value">{{ reports | selectattr('breach', 'false') | list | length }}</div>
+    <div class="label">OK</div>
+  </div>
+  <div class="kpi breach">
+    <div class="value">{{ reports | selectattr('breach', 'true') | list | length }}</div>
+    <div class="label">Breached</div>
+  </div>
+  <div class="kpi">
+    <div class="value">{{ reports | length }}</div>
+    <div class="label">Total Tickets</div>
+  </div>
+  <div class="kpi breach">
+    <div class="value">{{ (reports | selectattr('breach', 'true') | list | length / reports | length * 100) | round(1) if reports else 0 }}%</div>
+    <div class="label">Breach %</div>
+  </div>
+</div>
+
+<!-- Summary Tables -->
+<div class="grid-2 section">
+  <div class="card">
+    <h2>Breach % by Priority</h2>
+    <table class="summary-table">
+      <tr><th>Priority</th><th>Total</th><th>Breached</th><th>Breach %</th></tr>
+      {% for p, d in summary.by_priority.items() %}
+      <tr>
+        <td><span class="badge badge-{{ p }}">{{ p }}</span></td>
+        <td>{{ d.total }}</td>
+        <td>{{ d.breached }}</td>
+        <td class="pct {{ 'high' if d.breach_pct > 0 else 'low' }}">{{ d.breach_pct }}%</td>
+      </tr>
+      {% endfor %}
+    </table>
+  </div>
+  <div class="card">
+    <h2>Breach % by Group</h2>
+    <table class="summary-table">
+      <tr><th>Group</th><th>Total</th><th>Breached</th><th>Breach %</th></tr>
+      {% for g, d in summary.by_assignee_group.items() %}
+      <tr>
+        <td>{{ g }}</td>
+        <td>{{ d.total }}</td>
+        <td>{{ d.breached }}</td>
+        <td class="pct {{ 'high' if d.breach_pct > 0 else 'low' }}">{{ d.breach_pct }}%</td>
+      </tr>
+      {% endfor %}
+    </table>
+  </div>
+</div>
+
+<!-- Ticket Details -->
+<div class="card section">
+  <h2>Ticket Details</h2>
+  <table>
+    <tr><th>ID</th><th>Priority</th><th>Group</th><th>Elapsed (min)</th><th>SLA Target</th><th>Due By</th><th>Breach</th><th>Breach (min)</th><th>Holds</th></tr>
+    {% for r in reports %}
+    <tr>
+      <td><strong>{{ r.ticket_id }}</strong></td>
+      <td><span class="badge badge-{{ r.priority }}">{{ r.priority }}</span></td>
+      <td>{{ r.assignee_group }}</td>
+      <td>{{ r.elapsed_business_minutes }}</td>
+      <td>{{ r.sla_target_minutes }}</td>
+      <td>{{ r.due_by[:16] | replace('T', ' ') }}</td>
+      <td class="breach-{{ 'yes' if r.breach else 'no' }}">{{ '❌' if r.breach else '✅' }}</td>
+      <td>{{ r.breach_minutes }}</td>
+      <td>{{ r.on_hold_periods }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+</div>
+
+</body>
+</html>

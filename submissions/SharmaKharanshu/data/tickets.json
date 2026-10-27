@@ -1,0 +1,62 @@
+[
+  {
+    "id": "TKT-001",
+    "priority": "P1",
+    "assignee_group": "Network",
+    "created_at": "2026-10-26T09:00:00",
+    "resolved_at": "2026-10-26T13:30:00",
+    "status_history": [
+      { "status": "OPEN", "changed_at": "2026-10-26T09:00:00" },
+      { "status": "IN_PROGRESS", "changed_at": "2026-10-26T09:15:00" },
+      { "status": "RESOLVED", "changed_at": "2026-10-26T13:30:00" }
+    ]
+  },
+  {
+    "id": "TKT-002",
+    "priority": "P2",
+    "assignee_group": "Database",
+    "created_at": "2026-10-26T09:00:00",
+    "resolved_at": "2026-10-27T10:00:00",
+    "status_history": [
+      { "status": "OPEN", "changed_at": "2026-10-26T09:00:00" },
+      { "status": "ON_HOLD", "changed_at": "2026-10-26T12:00:00" },
+      { "status": "IN_PROGRESS", "changed_at": "2026-10-27T08:00:00" },
+      { "status": "RESOLVED", "changed_at": "2026-10-27T10:00:00" }
+    ]
+  },
+  {
+    "id": "TKT-003",
+    "priority": "P3",
+    "assignee_group": "Network",
+    "created_at": "2026-10-25T16:00:00",
+    "resolved_at": null,
+    "status_history": [
+      { "status": "OPEN", "changed_at": "2026-10-25T16:00:00" },
+      { "status": "IN_PROGRESS", "changed_at": "2026-10-25T17:00:00" }
+    ]
+  },
+  {
+    "id": "TKT-004",
+    "priority": "P1",
+    "assignee_group": "Security",
+    "created_at": "2026-10-27T07:00:00",
+    "resolved_at": "2026-10-27T08:30:00",
+    "status_history": [
+      { "status": "OPEN", "changed_at": "2026-10-27T07:00:00" },
+      { "status": "RESOLVED", "changed_at": "2026-10-27T08:30:00" }
+    ]
+  },
+  {
+    "id": "TKT-005",
+    "priority": "P4",
+    "assignee_group": "Database",
+    "created_at": "2026-10-20T09:00:00",
+    "resolved_at": "2026-10-24T17:00:00",
+    "status_history": [
+      { "status": "OPEN", "changed_at": "2026-10-20T09:00:00" },
+      { "status": "ON_HOLD", "changed_at": "2026-10-20T14:00:00" },
+      { "status": "IN_PROGRESS", "changed_at": "2026-10-22T10:00:00" },
+      { "status": "RESOLVED", "changed_at": "2026-10-24T17:00:00" }
+    ]
+  }
+]

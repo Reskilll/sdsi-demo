@@ -1,0 +1,33 @@
+{
+  "products": [
+    {
+      "sku": "SNEAKER-X99",
+      "name": "限量運動鞋 X99",
+      "total_stock": 100,
+      "per_user_limit": 2,
+      "reserved": 0,
+      "sold": 0
+    },
+    {
+      "sku": "PHONE-Z5",
+      "name": "Z5 旗艦手機",
+      "total_stock": 50,
+      "per_user_limit": 1,
+      "reserved": 0,
+      "sold": 0
+    },
+    {
+      "sku": "WATCH-A1",
+      "name": "A1 智能手錶",
+      "total_stock": 200,
+      "per_user_limit": 3,
+      "reserved": 0,
+      "sold": 0
+    }
+  ],
+  "config": {
+    "reservation_ttl_seconds": 120,
+    "sweeper_interval_seconds": 1.0,
+    "idempotency_ttl_seconds": 86400
+  }
+}

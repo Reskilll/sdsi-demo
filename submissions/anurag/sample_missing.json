@@ -1,0 +1,4 @@
+{
+  "a": { "duration": 1, "dependsOn": ["ghost"] },
+  "b": { "duration": 2, "dependsOn": ["a"] }
+}

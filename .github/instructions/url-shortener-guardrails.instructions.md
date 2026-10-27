@@ -50,7 +50,8 @@ to reintroduce. If a change requires breaking one, stop and document why in
 16. **All timestamps are epoch milliseconds (UTC integers).** Format to ISO only at the
     service/route boundary via `toIso()`.
 17. **Every write that touches `links` + `clicks` together runs in one transaction**
-    (`db.transaction(...)`), and creation uses `.immediate()`.
+    (`transaction(db, fn)` from `src/db/connection.ts`), and creation uses the default
+    `BEGIN IMMEDIATE` mode.
 18. **Analytics writes are fail-open.** A click-recording failure must be caught and
     logged; it must never turn a redirect into a 5xx.
 19. **All SQL lives in `src/db/*`.** Routes and services must not contain SQL strings.

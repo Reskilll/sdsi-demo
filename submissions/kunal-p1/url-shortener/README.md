@@ -53,6 +53,7 @@ npm run verify
 | `npm start` | Run the compiled server |
 | `npm test` | Vitest unit + integration suite |
 | `npm run test:cov` | Suite with V8 coverage (thresholds enforced) |
+| `npm run test:e2e` | Build, boot the server on port 3111, run the HTTP smoke test |
 | `npm run typecheck` | `tsc --noEmit`, strict |
 | `npm run lint` / `lint:fix` | ESLint 9 flat config |
 | `npm run format` | Prettier |
@@ -275,8 +276,9 @@ re-aggregated for per-day stats.
 ## Testing
 
 ```bash
-npm test               # 100+ assertions across unit + integration
+npm test               # 207 assertions across unit + integration
 npm run test:cov       # coverage with thresholds
+npm run test:e2e       # build + boot + 34 live HTTP checks
 ```
 
 | Area | File |

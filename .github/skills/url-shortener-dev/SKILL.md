@@ -9,8 +9,9 @@ Use this skill for any feature or fix inside `submissions/kunal-p1/url-shortener
 
 ## Project facts
 
-- **Stack**: Node.js 20.19+/22/24, Express 5, better-sqlite3 (synchronous), TypeScript
-  strict, Zod, pino, Vitest + Supertest. No build step for the dashboard.
+- **Stack**: Node.js 22.5+, Express 5, `node:sqlite` (built-in, synchronous), TypeScript
+  strict, Zod, pino, Vitest + Supertest. No build step for the dashboard and no native
+  addon, so `npm install` is pure JavaScript.
 - **Layers**: `domain/` (pure) → `db/` (SQL only) → `services/` (orchestration) →
   `routes/` + `middleware/` (HTTP). Dependencies point inwards.
 - **Run**: `npm run dev` · **Verify**: `npm run verify` · **Coverage**: `npm run test:cov`.
@@ -67,8 +68,10 @@ UTC days.
 - Route order: `/:code` must stay **last**; a new `GET /foo` mounted after it is dead code.
 - `express-rate-limit` needs `trust proxy` set correctly, or all clients share one bucket.
 - Statements must use `COLLATE BINARY` for case-sensitive codes on SQLite.
-- `db.transaction(fn).immediate()` is required for creation; a plain `.deferred()` allows
-  duplicate races.
+- `transaction(db, fn)` is required for creation: it issues `BEGIN IMMEDIATE`, taking the
+  write lock before the read so concurrent requests cannot both insert.
+- `node:sqlite` is synchronous — never `await` inside a transaction callback.
+- Express dispatches `HEAD` to `
 - The dashboard is CSP-restricted: new JS must be in `public/app.js` (external), and DOM
   writes must use `textContent`.
 - `better-sqlite3` is synchronous — never `await` inside a transaction callback.

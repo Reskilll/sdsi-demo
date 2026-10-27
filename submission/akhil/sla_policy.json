@@ -1,0 +1,14 @@
+{
+  "timezone": "UTC",
+  "business_days": [0, 1, 2, 3, 4],
+  "business_hours": {
+    "start": "09:00",
+    "end": "18:00"
+  },
+  "priority_hours": {
+    "P1": 4,
+    "P2": 8,
+    "P3": 24,
+    "P4": 72
+  }
+}

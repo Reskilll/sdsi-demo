@@ -1,0 +1,52 @@
+[
+  {
+    "group": "Weekend Brunch",
+    "members": ["Amit", "Neha", "Karan"],
+    "expenses": [
+      {
+        "description": "Brunch at Cafe Mosaic",
+        "total": 3600,
+        "paid_by": "Amit",
+        "split_type": "equal",
+        "members": ["Amit", "Neha", "Karan"]
+      },
+      {
+        "description": "Uber to cafe",
+        "total": 450,
+        "paid_by": "Neha",
+        "split_type": "exact",
+        "members": ["Amit", "Karan"],
+        "amounts": [225, 225]
+      }
+    ]
+  },
+  {
+    "group": "Office Diwali Party",
+    "members": ["Deepak", "Fatima", "George", "Hina"],
+    "expenses": [
+      {
+        "description": "Catering",
+        "total": 20000,
+        "paid_by": "Deepak",
+        "split_type": "equal",
+        "members": ["Deepak", "Fatima", "George", "Hina"]
+      },
+      {
+        "description": "Decorations",
+        "total": 4800,
+        "paid_by": "Fatima",
+        "split_type": "percentage",
+        "members": ["Deepak", "Fatima", "George", "Hina"],
+        "amounts": [25, 25, 25, 25]
+      },
+      {
+        "description": "DJ charges",
+        "total": 8000,
+        "paid_by": "George",
+        "split_type": "exact",
+        "members": ["Deepak", "Fatima", "George", "Hina"],
+        "amounts": [2000, 2000, 2000, 2000]
+      }
+    ]
+  }
+]

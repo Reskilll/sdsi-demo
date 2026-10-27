@@ -1,0 +1,23 @@
+{
+  "members": ["Amit", "Bina", "Chetan", "Diya"],
+  "expenses": [
+    {
+      "payer": "Amit",
+      "amount": 1000,
+      "description": "Dinner",
+      "split": { "type": "equal", "members": ["Amit", "Bina", "Chetan", "Diya"] }
+    },
+    {
+      "payer": "Bina",
+      "amount": 400,
+      "description": "Taxi",
+      "split": { "type": "exact", "amounts": { "Amit": 150, "Chetan": 150, "Diya": 100 } }
+    },
+    {
+      "payer": "Chetan",
+      "amount": 500,
+      "description": "Tickets",
+      "split": { "type": "percentage", "percentages": { "Amit": 50, "Bina": 30, "Diya": 20 } }
+    }
+  ]
+}

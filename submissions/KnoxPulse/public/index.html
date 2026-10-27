@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KnoxFlow | Agentic Team Email & SLA Monitoring System</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#eff6ff',
+              100: '#dbeafe',
+              500: '#3b82f6',
+              600: '#2563eb',
+              700: '#1d4ed8',
+              900: '#1e3a8a',
+            },
+            slate: {
+              850: '#151f32',
+              900: '#0f172a',
+              950: '#080d1a',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <link rel="stylesheet" href="styles.css">
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="bg-[#0b0f19] text-slate-100 min-h-screen flex flex-col">
+
+  <!-- Top Navigation Bar -->
+  <header class="border-b border-slate-800 bg-slate-900/80 backdrop-blur-md sticky top-0 z-40">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      
+      <!-- Brand & Agent Status -->
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center shadow-lg shadow-blue-500/20">
+          <i data-lucide="shield-check" class="w-6 h-6 text-white"></i>
+        </div>
+        <div>
+          <div class="flex items-center space-x-2">
+            <h1 class="font-bold text-lg text-white tracking-tight">KnoxFlow</h1>
+            <span class="text-xs px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/20 font-medium">Agentic Core v2.4</span>
+          </div>
+          <p class="text-xs text-slate-400">Team Email Response & SLA Intelligence</p>
+        </div>
+      </div>
+
+      <!-- Center: Role Mode Switcher -->
+      <div class="flex items-center bg-slate-950 p-1 rounded-xl border border-slate-800 shadow-inner">
+        <button id="btn-tab-manager" onclick="switchRole('manager')" class="px-4 py-1.5 rounded-lg text-sm font-medium transition-all flex items-center space-x-2 bg-blue-600 text-white shadow-sm">
+          <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
+          <span>Manager Cockpit</span>
+        </button>
+        <button id="btn-tab-employee" onclick="switchRole('employee')" class="px-4 py-1.5 rounded-lg text-sm font-medium transition-all flex items-center space-x-2 text-slate-400 hover:text-white">
+          <i data-lucide="user-check" class="w-4 h-4"></i>
+          <span>Employee Cockpit</span>
+        </button>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="flex items-center space-x-3">
+        <!-- Live Agent Badge -->
+        <div class="hidden md:flex items-center space-x-2 px-3 py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+          <span>Perception Agent Online</span>
+        </div>
+
+        <button onclick="openSimulateModal()" class="px-3.5 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-medium transition flex items-center space-x-1.5 shadow-md shadow-indigo-600/20">
+          <i data-lucide="plus-circle" class="w-4 h-4"></i>
+          <span>Simulate Email</span>
+        </button>
+
+        <a href="/presentation.html" target="_blank" class="px-3 py-1.5 rounded-lg bg-purple-600 hover:bg-purple-500 text-white text-sm font-medium transition flex items-center space-x-1.5 shadow-md shadow-purple-600/20">
+          <i data-lucide="presentation" class="w-4 h-4"></i>
+          <span>Pitch Deck (4 Pages)</span>
+        </a>
+
+        <button onclick="resetBenchmarkData()" title="Reset to benchmark data" class="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-sm transition border border-slate-700">
+          <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
+        </button>
+
+        <!-- Theme Toggle -->
+        <div class="flex items-center space-x-2">
+          <span class="theme-label hidden sm:inline">Dark</span>
+          <button id="theme-toggle" onclick="toggleTheme()" class="theme-toggle-btn" title="Toggle Light/Dark theme" aria-label="Toggle theme">
+            <div class="theme-toggle-knob">
+              <!-- Moon icon (dark mode) -->
+              <svg id="theme-icon-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+              <!-- Sun icon (light mode) — hidden by default -->
+              <svg id="theme-icon-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" style="display:none"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+            </div>
+          </button>
+          <span class="theme-label hidden sm:inline">Light</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Notification Banner / Flash Toast -->
+  <div id="toast-container" class="fixed top-20 right-6 z-50 flex flex-col space-y-2 pointer-events-none"></div>
+
+  <!-- Main Container -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+
+    <!-- ============================================================ -->
+    <!-- SECTION 1: MANAGER COCKPIT                                  -->
+    <!-- ============================================================ -->
+    <section id="manager-view" class="space-y-6">
+      
+      <!-- Top Manager KPI Cards -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+        
+        <!-- Total Inbound -->
+        <div class="glass-panel p-4 rounded-2xl border border-slate-800 flex flex-col justify-between">
+          <div class="flex items-center justify-between text-slate-400 text-xs font-medium uppercase tracking-wider">
+            <span>Total Inbound</span>
+            <i data-lucide="mail" class="w-4 h-4 text-blue-400"></i>
+          </div>
+          <div class="mt-2 flex items-baseline justify-between">
+            <span id="kpi-total-received" class="text-2xl font-bold text-white">0</span>
+            <span id="kpi-tasks-vs-info" class="text-xs text-slate-400">0 Tasks · 0 Info</span>
+          </div>
+          <div class="mt-2 text-[11px] text-slate-500">Autonomous Ingestion Pipeline</div>
+        </div>
+
+        <!-- Responded Rate -->
+        <div class="glass-panel p-4 rounded-2xl border border-slate-800 flex flex-col justify-between">
+          <div class="flex items-center justify-between text-slate-400 text-xs font-medium uppercase tracking-wider">
+            <span>Responded</span>
+            <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400"></i>
+          </div>
+          <div class="mt-2 flex items-baseline justify-between">
+            <span id="kpi-total-responded" class="text-2xl font-bold text-emerald-400">0</span>
+            <span id="kpi-responded-pct" class="text-xs font-semibold px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-300">0%</span>
+          </div>
+          <div class="mt-2 text-[11px] text-slate-500">Categorized & Resolved</div>
+        </div>
+
+        <!-- Pending / Aging -->
+        <div class="glass-panel p-4 rounded-2xl border border-slate-800 flex flex-col justify-between">
+          <div class="flex items-center justify-between text-slate-400 text-xs font-medium uppercase tracking-wider">
+            <span>Pending Aging</span>
+            <i data-lucide="clock" class="w-4 h-4 text-amber-400"></i>
+          </div>
+          <div class="mt-2 flex items-baseline justify-between">
+            <span id="kpi-total-pending" class="text-2xl font-bold text-amber-400">0</span>
+            <span class="text-xs text-amber-300/80">Active in Queue</span>
+          </div>
+          <div class="mt-2 text-[11px] text-slate-500">Awaiting Team Action</div>
+        </div>
+
+        <!-- SLA Breaches -->
+        <div class="glass-panel p-4 rounded-2xl border border-slate-800 flex flex-col justify-between">
+          <div class="flex items-center justify-between text-slate-400 text-xs font-medium uppercase tracking-wider">
+            <span>SLA Breaches</span>
+            <i data-lucide="alert-triangle" class="w-4 h-4 text-rose-400"></i>
+          </div>
+          <div class="mt-2 flex items-baseline justify-between">
+            <span id="kpi-sla-breached" class="text-2xl font-bold text-rose-400">0</span>
+            <span id="kpi-sla-compliance" class="text-xs font-semibold px-1.5 py-0.5 rounded bg-rose-500/10 text-rose-300">100% SLA</span>
+          </div>
+          <div class="mt-2 text-[11px] text-rose-400/80 font-medium">Re-assignment Recommended</div>
+        </div>
+
+        <!-- Avg Turnaround -->
+        <div class="glass-panel p-4 rounded-2xl border border-slate-800 flex flex-col justify-between">
+          <div class="flex items-center justify-between text-slate-400 text-xs font-medium uppercase tracking-wider">
+            <span>Avg Response Time</span>
+            <i data-lucide="zap" class="w-4 h-4 text-indigo-400"></i>
+          </div>
+          <div class="mt-2 flex items-baseline justify-between">
+            <span id="kpi-avg-time" class="text-2xl font-bold text-indigo-400">0.0h</span>
+            <span class="text-xs text-slate-400">Team Mean</span>
+          </div>
+          <div class="mt-2 text-[11px] text-slate-500">Target SLA: &lt; 4.0h</div>
+        </div>
+      </div>
+
+      <!-- Team Workload Distribution & Rebalance Strip -->
+      <div class="space-y-3">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center space-x-2">
+            <i data-lucide="users" class="w-4 h-4 text-blue-400"></i>
+            <h2 class="text-sm font-semibold text-white tracking-wide uppercase">Team Workload & Response Status</h2>
+          </div>
+          <span class="text-xs text-slate-400">Click any teammate to filter their emails below</span>
+        </div>
+
+        <div id="team-cards-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <!-- Dynamically populated team cards -->
+        </div>
+      </div>
+
+      <!-- Email Monitoring & Reassignment Table -->
+      <div class="glass-panel rounded-2xl border border-slate-800 overflow-hidden shadow-xl">
+        
+        <!-- Table Toolbar -->
+        <div class="p-4 border-b border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-3 bg-slate-900/50">
+          <div class="flex items-center space-x-2 w-full sm:w-auto">
+            <div class="relative w-full sm:w-72">
+              <i data-lucide="search" class="w-4 h-4 absolute left-3 top-3 text-slate-400"></i>
+              <input type="text" id="manager-search" oninput="applyFilters()" placeholder="Search subject, sender, task type..." class="w-full bg-slate-950 border border-slate-800 rounded-xl pl-9 pr-4 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 transition">
+            </div>
+          </div>
+
+          <!-- Filter Pills -->
+          <div class="flex items-center space-x-1.5 overflow-x-auto w-full sm:w-auto pb-1 sm:pb-0 text-xs">
+            <button onclick="setTableFilter('all')" class="filter-pill px-3 py-1.5 rounded-lg bg-blue-600 text-white font-medium" data-filter="all">All</button>
+            <button onclick="setTableFilter('pending')" class="filter-pill px-3 py-1.5 rounded-lg bg-slate-800 text-slate-300 hover:text-white font-medium" data-filter="pending">Pending Aging</button>
+            <button onclick="setTableFilter('breached')" class="filter-pill px-3 py-1.5 rounded-lg bg-slate-800 text-slate-300 hover:text-white font-medium" data-filter="breached">Breached SLA</button>
+            <button onclick="setTableFilter('responded')" class="filter-pill px-3 py-1.5 rounded-lg bg-slate-800 text-slate-300 hover:text-white font-medium" data-filter="responded">Responded</button>
+            <button onclick="setTableFilter('general_info')" class="filter-pill px-3 py-1.5 rounded-lg bg-slate-800 text-slate-300 hover:text-white font-medium" data-filter="general_info">General Info</button>
+          </div>
+        </div>
+
+        <!-- Table Content -->
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs">
+            <thead class="bg-slate-950/80 text-slate-400 uppercase tracking-wider text-[11px] border-b border-slate-800">
+              <tr>
+                <th class="py-3 px-4">Email Subject & Sender</th>
+                <th class="py-3 px-4">Category / Task Type</th>
+                <th class="py-3 px-4">Assigned Member</th>
+                <th class="py-3 px-4">Status & SLA Runway</th>
+                <th class="py-3 px-4">Historical Match</th>
+                <th class="py-3 px-4">Resolution Details</th>
+                <th class="py-3 px-4 text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="manager-emails-tbody" class="divide-y divide-slate-800/60 font-normal">
+              <!-- Dynamically populated rows -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 2: EMPLOYEE COCKPIT                                  -->
+    <!-- ============================================================ -->
+    <section id="employee-view" class="space-y-6 hidden">
+      
+      <!-- Employee Profile Switcher & Bar -->
+      <div class="glass-panel p-4 rounded-2xl border border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div class="flex items-center space-x-3">
+          <div id="emp-avatar" class="w-12 h-12 rounded-xl bg-blue-600/30 border border-blue-500/40 flex items-center justify-center font-bold text-blue-300 text-lg">
+            SC
+          </div>
+          <div>
+            <div class="flex items-center space-x-2">
+              <h2 id="emp-name" class="font-bold text-white text-base">Sarah Connor</h2>
+              <span id="emp-dept" class="text-xs px-2 py-0.5 rounded-md bg-slate-800 text-slate-300">Platform Reliability</span>
+            </div>
+            <p id="emp-role" class="text-xs text-slate-400">Senior Cloud Infrastructure Engineer</p>
+            <div id="emp-skills-pills" class="flex flex-wrap gap-1 mt-1.5"></div>
+          </div>
+        </div>
+
+        <!-- Switch Employee Selector -->
+        <div class="flex items-center space-x-2">
+          <label class="text-xs text-slate-400 font-medium">Switch Active Profile:</label>
+          <select id="employee-select" onchange="onEmployeeSelectChange(this.value)" class="bg-slate-950 border border-slate-700 text-white text-xs rounded-xl px-3 py-2 focus:outline-none focus:border-blue-500">
+            <!-- Populated from team.json -->
+          </select>
+        </div>
+      </div>
+
+      <!-- Employee Personal KPI Strip -->
+      <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
+        <div class="glass-panel p-4 rounded-xl border border-slate-800">
+          <span class="text-xs text-slate-400 uppercase font-medium">My Assigned Emails</span>
+          <p id="emp-kpi-assigned" class="text-2xl font-bold text-white mt-1">0</p>
+          <span class="text-[11px] text-slate-500">Total in My Inbox</span>
+        </div>
+        <div class="glass-panel p-4 rounded-xl border border-slate-800">
+          <span class="text-xs text-slate-400 uppercase font-medium">My Responded</span>
+          <p id="emp-kpi-responded" class="text-2xl font-bold text-emerald-400 mt-1">0</p>
+          <span class="text-[11px] text-slate-500">Successfully Handled</span>
+        </div>
+        <div class="glass-panel p-4 rounded-xl border border-slate-800">
+          <span class="text-xs text-slate-400 uppercase font-medium">Action Required (Pending)</span>
+          <p id="emp-kpi-pending" class="text-2xl font-bold text-amber-400 mt-1">0</p>
+          <span class="text-[11px] text-amber-400/80 font-medium">Awaiting My Response</span>
+        </div>
+        <div class="glass-panel p-4 rounded-xl border border-slate-800">
+          <span class="text-xs text-slate-400 uppercase font-medium">My SLA Compliance</span>
+          <p id="emp-kpi-compliance" class="text-2xl font-bold text-indigo-400 mt-1">100%</p>
+          <span class="text-[11px] text-slate-500">On-Time Performance</span>
+        </div>
+      </div>
+
+      <!-- Employee Action Queue -->
+      <div class="space-y-4">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center space-x-2">
+            <i data-lucide="inbox" class="w-4 h-4 text-blue-400"></i>
+            <h3 class="text-sm font-semibold text-white uppercase tracking-wider">My Task Queue & Historical Response Studio</h3>
+          </div>
+          <span class="text-xs text-slate-400">Emails prioritized by SLA urgency</span>
+        </div>
+
+        <div id="employee-task-queue" class="space-y-3">
+          <!-- Dynamically populated action cards -->
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ============================================================ -->
+  <!-- MODAL: RESPONSE STUDIO (HISTORICAL DRAFTS & RESOLUTION)     -->
+  <!-- ============================================================ -->
+  <div id="modal-response-studio" class="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="glass-panel w-full max-w-3xl rounded-2xl border border-slate-700 shadow-2xl flex flex-col max-h-[90vh] overflow-hidden">
+      
+      <!-- Modal Header -->
+      <div class="p-5 border-b border-slate-800 flex items-center justify-between bg-slate-900/80">
+        <div class="flex items-center space-x-3">
+          <div class="w-9 h-9 rounded-lg bg-blue-600/20 text-blue-400 border border-blue-500/30 flex items-center justify-center">
+            <i data-lucide="send" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <h3 class="font-bold text-white text-base">Email Response Studio</h3>
+            <p id="modal-email-ref" class="text-xs text-slate-400">EML-2026-001</p>
+          </div>
+        </div>
+        <button onclick="closeResponseStudio()" class="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <!-- Modal Body (Scrollable) -->
+      <div class="p-6 space-y-5 overflow-y-auto flex-1 text-xs">
+        
+        <!-- Original Inbound Email Summary -->
+        <div class="p-4 rounded-xl bg-slate-950/70 border border-slate-800 space-y-2">
+          <div class="flex items-center justify-between text-slate-400">
+            <div>
+              <span class="font-semibold text-white" id="modal-sender-name">Marcus Vance</span>
+              <span id="modal-sender-email" class="text-slate-500 ml-1">&lt;marcus.v@fintechcorp.com&gt;</span>
+            </div>
+            <span id="modal-received-at" class="text-slate-500">2 hours ago</span>
+          </div>
+          <div class="text-white font-medium text-sm" id="modal-subject">CRITICAL: VPN Gateway Timeout</div>
+          <p id="modal-body" class="text-slate-300 leading-relaxed whitespace-pre-wrap font-sans bg-slate-900/50 p-3 rounded-lg border border-slate-800/80"></p>
+        </div>
+
+        <!-- Agent Perception & Classification Card -->
+        <div class="p-4 rounded-xl bg-gradient-to-r from-blue-950/30 to-indigo-950/30 border border-blue-500/20 space-y-2">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-2 text-blue-400 font-semibold">
+              <i data-lucide="sparkles" class="w-4 h-4"></i>
+              <span>Agentic Perception Assessment</span>
+            </div>
+            <div class="flex items-center space-x-2">
+              <span id="modal-badge-category" class="px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-300 border border-blue-500/30 font-medium">Task</span>
+              <span id="modal-badge-tasktype" class="px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 font-medium">Access & Network</span>
+              <span id="modal-badge-sla" class="px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/30 font-medium">P1 - Critical (2h)</span>
+            </div>
+          </div>
+          <p id="modal-classification-reason" class="text-slate-300 text-xs"></p>
+        </div>
+
+        <!-- Strict Historical Knowledge Recommendation Banner -->
+        <div id="historical-match-container">
+          <!-- Dynamically filled: either green verified draft card or gray no-match disclaimer -->
+        </div>
+
+        <!-- Response Drafting Form -->
+        <form id="form-respond" onsubmit="submitEmailResponse(event)" class="space-y-4">
+          <input type="hidden" id="resp-email-id">
+
+          <!-- Solution Category & Resolution Details -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="block font-semibold text-slate-300 mb-1">
+                Solution Category <span class="text-rose-400">*</span>
+              </label>
+              <input type="text" id="resp-solution-cat" required placeholder="e.g. Gateway Failover & DNS Cache Flush" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-blue-500">
+            </div>
+            <div>
+              <label class="block font-semibold text-slate-300 mb-1">
+                Resolution Details Summary <span class="text-rose-400">*</span>
+              </label>
+              <input type="text" id="resp-resolution-details" required placeholder="e.g. Guided user to backup gateway and cleared DNS cache." class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-blue-500">
+            </div>
+          </div>
+
+          <!-- Email Draft Editor -->
+          <div>
+            <div class="flex items-center justify-between mb-1">
+              <label class="font-semibold text-slate-300">Outgoing Response Body <span class="text-rose-400">*</span></label>
+              <span class="text-slate-500 text-[11px]">Formatted message sent to requester</span>
+            </div>
+            <textarea id="resp-body" rows="6" required class="w-full bg-slate-950 border border-slate-700 rounded-xl p-3 text-white focus:outline-none focus:border-blue-500 leading-relaxed font-mono"></textarea>
+          </div>
+
+          <!-- Add to Historical KB Checkbox -->
+          <div class="flex items-center space-x-2 bg-slate-900/60 p-3 rounded-xl border border-slate-800">
+            <input type="checkbox" id="resp-add-kb" class="w-4 h-4 text-blue-600 bg-slate-950 border-slate-700 rounded focus:ring-blue-500">
+            <label for="resp-add-kb" class="text-slate-300 text-xs">
+              <span class="font-medium text-white">Index into Historical Knowledge Base:</span> Save this verified solution so the agent can automatically suggest it for identical issues in the future.
+            </label>
+          </div>
+
+          <!-- Submit Buttons -->
+          <div class="flex items-center justify-end space-x-3 pt-2">
+            <button type="button" onclick="closeResponseStudio()" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium transition">
+              Cancel
+            </button>
+            <button type="submit" class="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold transition flex items-center space-x-2 shadow-lg shadow-emerald-600/20">
+              <i data-lucide="check" class="w-4 h-4"></i>
+              <span>Send Response & Log Resolution</span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- MODAL: REASSIGN TO TEAM MEMBER (MANAGER VIEW)                -->
+  <!-- ============================================================ -->
+  <div id="modal-reassign" class="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="glass-panel w-full max-w-xl rounded-2xl border border-slate-700 shadow-2xl overflow-hidden">
+      <div class="p-5 border-b border-slate-800 flex items-center justify-between bg-slate-900/80">
+        <div class="flex items-center space-x-2">
+          <i data-lucide="user-plus" class="w-5 h-5 text-amber-400"></i>
+          <div>
+            <h3 class="font-bold text-white text-sm">Resource Re-assignment Studio</h3>
+            <p class="text-[10px] text-slate-400">Skill-based resource intelligence & SLA load balancing</p>
+          </div>
+        </div>
+        <button onclick="closeReassignModal()" class="text-slate-400 hover:text-white">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <form onsubmit="submitReassignment(event)" class="p-5 space-y-4 text-xs">
+        <input type="hidden" id="reassign-email-id">
+        
+        <!-- Email Context Preview -->
+        <div class="p-3.5 rounded-xl bg-slate-950/70 border border-slate-800 space-y-2">
+          <div class="flex items-center justify-between">
+            <span id="reassign-email-id-badge" class="px-2 py-0.5 rounded font-mono font-bold bg-blue-900/40 text-blue-300 border border-blue-700/50 text-[10px]"></span>
+            <span id="reassign-sla-badge" class="px-2 py-0.5 rounded text-[10px] font-semibold"></span>
+          </div>
+          <div id="reassign-subject-preview" class="text-white font-medium text-xs leading-snug"></div>
+          <div class="flex items-center justify-between text-[11px] text-slate-400 pt-1 border-t border-slate-800/80">
+            <span id="reassign-current-assignee"></span>
+            <span id="reassign-category-badge" class="text-indigo-300 font-medium"></span>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-slate-400 mb-1">Select Candidate Resource <span class="text-rose-400">*</span></label>
+          <select id="reassign-target-member" onchange="onReassignTargetChange(this.value)" required class="w-full bg-slate-950 border border-slate-700 text-white rounded-xl px-3 py-2.5 focus:outline-none focus:border-amber-500">
+            <!-- Dynamically populated with team members and primary skills -->
+          </select>
+        </div>
+
+        <!-- Resource Skills & Workload Intelligence Card -->
+        <div id="reassign-resource-intel" class="p-3.5 rounded-xl border border-slate-800 bg-slate-950/80 space-y-2">
+          <!-- Populated live via onReassignTargetChange -->
+        </div>
+
+        <div>
+          <label class="block text-slate-400 mb-1">Reason for Re-assignment (Optional):</label>
+          <input type="text" id="reassign-reason" placeholder="e.g. Skill specialization match / SLA mitigation" class="w-full bg-slate-950 border border-slate-700 text-white rounded-xl px-3 py-2 focus:outline-none focus:border-amber-500">
+        </div>
+
+        <div class="flex items-center justify-end space-x-2 pt-2">
+          <button type="button" onclick="closeReassignModal()" class="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 font-medium">Cancel</button>
+          <button type="submit" class="px-4 py-2 rounded-xl bg-amber-600 hover:bg-amber-500 text-white font-semibold transition flex items-center space-x-1.5">
+            <i data-lucide="arrow-right-left" class="w-4 h-4"></i>
+            <span>Confirm Re-assignment</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- MODAL: SIMULATE NEW INCOMING EMAIL                           -->
+  <!-- ============================================================ -->
+  <div id="modal-simulate" class="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="glass-panel w-full max-w-lg rounded-2xl border border-slate-700 shadow-2xl overflow-hidden">
+      <div class="p-5 border-b border-slate-800 flex items-center justify-between bg-slate-900/80">
+        <div class="flex items-center space-x-2">
+          <i data-lucide="send" class="w-5 h-5 text-indigo-400"></i>
+          <div>
+            <h3 class="font-bold text-white text-sm">Simulate Inbound Email</h3>
+            <p class="text-[10px] text-slate-400">Feed inbound ticket directly into KnoxFlow agentic pipeline</p>
+          </div>
+        </div>
+        <button onclick="closeSimulateModal()" class="text-slate-400 hover:text-white">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="p-5 space-y-4 text-xs">
+        <div>
+          <label class="block text-slate-400 mb-1">Select Preset Demo Scenario:</label>
+          <select id="simulate-preset" onchange="onPresetChange(this.value)" class="w-full bg-slate-950 border border-slate-700 text-white rounded-xl px-3 py-2.5 focus:outline-none focus:border-indigo-500">
+            <option value="vpn">VPN Connection Gateway Timeout (Matches Historical KB-101)</option>
+            <option value="postgres">PostgreSQL Staging DB Access Request (Matches Historical KB-102)</option>
+            <option value="unseen_bug">Unseen Kubernetes Memory Leak Issue (No Historical Match - Pure Manual)</option>
+            <option value="gen_info">Company Global Infrastructure Maintenance (General Info Classification)</option>
+            <option value="custom">-- Custom Email Input --</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-slate-400 mb-1">Email Subject <span class="text-rose-400">*</span>:</label>
+          <input type="text" id="sim-subject" class="w-full bg-slate-950 border border-slate-700 text-white rounded-xl px-3 py-2 focus:outline-none focus:border-indigo-500">
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-slate-400 mb-1">Sender (From) <span class="text-rose-400">*</span></label>
+            <select id="sim-sender-select" onchange="onSenderSelectChange(this.value)" class="w-full bg-slate-950 border border-slate-700 text-white rounded-xl px-3 py-2.5 focus:outline-none focus:border-indigo-500">
+              <!-- Populated dynamically from team -->
+            </select>
+          </div>
+          <div>
+            <label class="block text-slate-400 mb-1">Assign To <span class="text-rose-400">*</span></label>
+            <select id="sim-assign-to" class="w-full bg-slate-950 border border-slate-700 text-white rounded-xl px-3 py-2.5 focus:outline-none focus:border-indigo-500">
+              <!-- Populated dynamically from team -->
+            </select>
+          </div>
+        </div>
+
+        <!-- Custom / Details for Sender -->
+        <div id="sim-custom-sender-row" class="grid grid-cols-2 gap-3 hidden">
+          <div>
+            <label class="block text-slate-400 mb-1">Sender Name:</label>
+            <input type="text" id="sim-sender-name" placeholder="e.g. John Doe" class="w-full bg-slate-950 border border-slate-700 text-white rounded-xl px-3 py-2 focus:outline-none focus:border-indigo-500">
+          </div>
+          <div>
+            <label class="block text-slate-400 mb-1">Sender Email:</label>
+            <input type="email" id="sim-sender-email" placeholder="e.g. john@enterprise.io" class="w-full bg-slate-950 border border-slate-700 text-white rounded-xl px-3 py-2 focus:outline-none focus:border-indigo-500">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-slate-400 mb-1">Email Body Content <span class="text-rose-400">*</span>:</label>
+          <textarea id="sim-body" rows="4" class="w-full bg-slate-950 border border-slate-700 text-white rounded-xl p-3 focus:outline-none focus:border-indigo-500 font-mono"></textarea>
+        </div>
+
+        <div class="flex items-center justify-end space-x-2 pt-2">
+          <button type="button" onclick="closeSimulateModal()" class="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 font-medium">Cancel</button>
+          <button type="button" id="btn-ingest-simulate" onclick="executeSimulation()" class="px-5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold transition flex items-center space-x-1.5 shadow-lg shadow-indigo-600/30">
+            <i data-lucide="play" class="w-4 h-4"></i>
+            <span>Ingest & Process with Agent</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="border-t border-slate-800/80 bg-slate-950/60 py-4 mt-auto">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 gap-2">
+      <div class="flex items-center space-x-2">
+        <span class="w-2 h-2 rounded-full bg-blue-500"></span>
+        <span>KnoxFlow Agentic Email & SLA Monitoring System &bull; Hackathon Edition</span>
+      </div>
+      <div>Zero External Dependencies &bull; JSON Data Fabric &bull; Deterministic Anti-Hallucination Guardrails</div>
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>

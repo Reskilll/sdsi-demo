@@ -1,0 +1,20 @@
+{
+  "name": "knoxflow-agentic-email-sla",
+  "version": "1.0.0",
+  "description": "Autonomous Agentic Email & SLA Monitoring System for Managers & Employees with Zero Dependencies and JSON Data Fabric",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "test": "node test/unit.test.js"
+  },
+  "keywords": [
+    "agentic-ai",
+    "email-monitoring",
+    "sla-tracker",
+    "hackathon",
+    "json-database",
+    "zero-dependency"
+  ],
+  "author": "KnoxFlow Architecture Team",
+  "license": "MIT"
+}

@@ -1,0 +1,423 @@
+[
+  {
+    "id": "EML-2026-015",
+    "subject": "URGENT: Staging PostgreSQL read-only credentials needed for sprint demo",
+    "body": "Hello, I need temporary read-only access to the staging PostgreSQL analytics database to verify user migration data ahead of today's customer demo.",
+    "sender": {
+      "name": "Elena Rostova",
+      "email": "elena.r@partner.com"
+    },
+    "received_at": "2026-10-27T11:15:20.539Z",
+    "assigned_to": "emp_04",
+    "is_responded": false,
+    "response_info": null,
+    "category": "Task",
+    "task_type": "Access Request",
+    "sla_priority": "P1 - Critical (2h)",
+    "sla_target_hours": 2,
+    "classification_reason": "Actionable task categorized under 'Access Request' based on detected technical indicators.",
+    "historical_match": {
+      "matched_kb_id": "KB-102",
+      "kb_title": "PostgreSQL Staging DB Read-Only Access Request",
+      "similarity_score": 0.58,
+      "historical_ticket_id": "TICK-7911",
+      "resolved_by": "Sarah Connor",
+      "resolution_date": "2026-08-20",
+      "solution_category": "Vault OIDC Role Provisioning",
+      "resolution_details": "Attached staging-readonly policy to requester's OIDC role via HashiCorp Vault.",
+      "verified_draft": "Hi Elena Rostova,\n\nYour request for read-only access to the Staging PostgreSQL database has been verified and provisioned per our standard access policy.\n\nConnection Details:\n- Host: pg-staging.internal.knoxflow.io\n- Port: 5432\n- Database: staging_analytics\n- Authorization: Generate temporary 8-hour credentials using Vault: `vault read database/creds/staging-readonly`\n\nPlease ensure all queries respect the 30-second execution timeout.\n\nRegards,\nDavid Kim\nData Platform Team",
+      "source_verification": "100% Sourced from Historical Resolution Record (No Hallucinated AI Output)"
+    },
+    "sla_metrics": {
+      "status": "Within SLA",
+      "status_label": "Within SLA",
+      "badge_color": "green",
+      "aging_hours": 0,
+      "aging_formatted": "0m",
+      "remaining_hours": 2,
+      "time_remaining_formatted": "2h 0m left",
+      "is_breached": false
+    }
+  },
+  {
+    "id": "EML-2026-014",
+    "subject": "Simulated Urgent VPN Outage",
+    "body": "Engineers cannot connect to gateway",
+    "sender": {
+      "name": "Sarah Connor",
+      "email": "sarah.c@knoxflow.io"
+    },
+    "received_at": "2026-10-27T11:10:37.535Z",
+    "assigned_to": "emp_02",
+    "is_responded": false,
+    "response_info": null,
+    "category": "Task",
+    "task_type": "Access & Network",
+    "sla_priority": "P1 - Critical (2h)",
+    "sla_target_hours": 2,
+    "classification_reason": "Actionable task categorized under 'Access & Network' based on detected technical indicators.",
+    "historical_match": null,
+    "sla_metrics": {
+      "status": "Within SLA",
+      "status_label": "Within SLA",
+      "badge_color": "green",
+      "aging_hours": 0,
+      "aging_formatted": "0m",
+      "remaining_hours": 2,
+      "time_remaining_formatted": "2h 0m left",
+      "is_breached": false
+    }
+  },
+  {
+    "id": "EML-2026-013",
+    "subject": "Test VPN issue",
+    "body": "Cannot connect to VPN tunnel",
+    "sender": {
+      "name": "Marcus Vance",
+      "email": "marcus.v@fintechcorp.com"
+    },
+    "received_at": "2026-10-27T10:52:15.828Z",
+    "assigned_to": "emp_03",
+    "is_responded": false,
+    "response_info": null,
+    "category": "Task",
+    "task_type": "Access & Network",
+    "sla_priority": "P1 - Critical (2h)",
+    "sla_target_hours": 2,
+    "classification_reason": "Actionable task categorized under 'Access & Network' based on detected technical indicators.",
+    "historical_match": null,
+    "sla_metrics": {
+      "status": "Within SLA",
+      "status_label": "Within SLA",
+      "badge_color": "green",
+      "aging_hours": 0,
+      "aging_formatted": "0m",
+      "remaining_hours": 2,
+      "time_remaining_formatted": "2h 0m left",
+      "is_breached": false
+    }
+  },
+  {
+    "id": "EML-2026-012",
+    "subject": "URGENT: Staging PostgreSQL read-only credentials needed for sprint demo",
+    "body": "Hello, I need temporary read-only access to the staging PostgreSQL analytics database to verify user migration data ahead of today's customer demo.",
+    "sender": {
+      "name": "Elena Rostova",
+      "email": "elena.r@partner.com"
+    },
+    "received_at": "2026-10-27T10:40:11.815Z",
+    "assigned_to": "emp_03",
+    "is_responded": false,
+    "response_info": null,
+    "category": "Task",
+    "task_type": "Access Request",
+    "sla_priority": "P1 - Critical (2h)",
+    "sla_target_hours": 2,
+    "classification_reason": "Actionable task categorized under 'Access Request' based on detected technical indicators.",
+    "historical_match": {
+      "matched_kb_id": "KB-102",
+      "kb_title": "PostgreSQL Staging DB Read-Only Access Request",
+      "similarity_score": 0.58,
+      "historical_ticket_id": "TICK-7911",
+      "resolved_by": "Sarah Connor",
+      "resolution_date": "2026-08-20",
+      "solution_category": "Vault OIDC Role Provisioning",
+      "resolution_details": "Attached staging-readonly policy to requester's OIDC role via HashiCorp Vault.",
+      "verified_draft": "Hi Elena Rostova,\n\nYour request for read-only access to the Staging PostgreSQL database has been verified and provisioned per our standard access policy.\n\nConnection Details:\n- Host: pg-staging.internal.knoxflow.io\n- Port: 5432\n- Database: staging_analytics\n- Authorization: Generate temporary 8-hour credentials using Vault: `vault read database/creds/staging-readonly`\n\nPlease ensure all queries respect the 30-second execution timeout.\n\nRegards,\nPriya Sharma\nData Platform Team",
+      "source_verification": "100% Sourced from Historical Resolution Record (No Hallucinated AI Output)"
+    },
+    "sla_metrics": {
+      "status": "Within SLA",
+      "status_label": "Within SLA",
+      "badge_color": "green",
+      "aging_hours": 0,
+      "aging_formatted": "0m",
+      "remaining_hours": 2,
+      "time_remaining_formatted": "2h 0m left",
+      "is_breached": false
+    }
+  },
+  {
+    "id": "EML-2026-011",
+    "subject": "CRITICAL: GlobalProtect VPN gateway timeout when connecting to Prod",
+    "body": "Hi team, our remote engineers in London cannot reach the primary VPN portal. GlobalProtect client is reporting tunnel connection timeout and gateway unreachable. We have an active release waiting.",
+    "sender": {
+      "name": "Marcus Vance",
+      "email": "marcus.v@fintechcorp.com"
+    },
+    "received_at": "2026-10-27T10:34:21.232Z",
+    "assigned_to": "emp_01",
+    "is_responded": false,
+    "response_info": null,
+    "category": "Task",
+    "task_type": "Access & Network",
+    "sla_priority": "P1 - Critical (2h)",
+    "sla_target_hours": 2,
+    "classification_reason": "Actionable task categorized under 'Access & Network' based on detected technical indicators.",
+    "historical_match": {
+      "matched_kb_id": "KB-101",
+      "kb_title": "GlobalProtect VPN Gateway Timeout on Primary Connection",
+      "similarity_score": 0.92,
+      "historical_ticket_id": "TICK-8492",
+      "resolved_by": "Alex Mercer",
+      "resolution_date": "2026-09-14",
+      "solution_category": "Gateway Failover & DNS Cache Flush",
+      "resolution_details": "Rerouted user client from overloaded primary gateway to secondary endpoint and flushed stale DNS records.",
+      "verified_draft": "Hello Marcus Vance,\n\nThank you for reaching out regarding the VPN connectivity issue. This matches our verified historical incident (TICK-8492) caused by high gateway load on the primary endpoint.\n\nPlease follow these verified resolution steps:\n1. Open GlobalProtect and go to Settings > Gateway.\n2. Switch your gateway address to 'gw-backup.knoxflow.io'.\n3. Open terminal/PowerShell and execute: ipconfig /flushdns\n4. Re-enter your SSO credentials.\n\nThis will re-route your encrypted tunnel through our alternate cluster.\n\nBest regards,\nSarah Connor\nKnoxFlow Infrastructure Operations",
+      "source_verification": "100% Sourced from Historical Resolution Record (No Hallucinated AI Output)"
+    },
+    "sla_metrics": {
+      "status": "Within SLA",
+      "status_label": "Within SLA",
+      "badge_color": "green",
+      "aging_hours": 0,
+      "aging_formatted": "0m",
+      "remaining_hours": 2,
+      "time_remaining_formatted": "2h 0m left",
+      "is_breached": false
+    }
+  },
+  {
+    "id": "EML-2026-001",
+    "subject": "CRITICAL: GlobalProtect VPN gateway timeout when connecting to Prod",
+    "sender": {
+      "name": "Marcus Vance",
+      "email": "marcus.v@fintechcorp.com"
+    },
+    "received_at": "2026-10-27T08:30:00.000Z",
+    "assigned_to": "emp_04",
+    "category": "Task",
+    "task_type": "Access & Network",
+    "classification_reason": "Actionable technical incident reporting connection failure and tunnel timeout on company VPN.",
+    "sla_priority": "P1 - Critical (2h)",
+    "sla_target_hours": 2,
+    "is_responded": false,
+    "response_info": null,
+    "historical_match": {
+      "matched_kb_id": "KB-101",
+      "kb_title": "GlobalProtect VPN Gateway Timeout on Primary Connection",
+      "similarity_score": 0.75,
+      "historical_ticket_id": "TICK-8492",
+      "resolved_by": "Alex Mercer",
+      "resolution_date": "2026-09-14",
+      "solution_category": "Gateway Failover & DNS Cache Flush",
+      "resolution_details": "Rerouted user client from overloaded primary gateway to secondary endpoint and flushed stale DNS records.",
+      "verified_draft": "Hello Marcus Vance,\n\nThank you for reaching out regarding the VPN connectivity issue. This matches our verified historical incident (TICK-8492) caused by high gateway load on the primary endpoint.\n\nPlease follow these verified resolution steps:\n1. Open GlobalProtect and go to Settings > Gateway.\n2. Switch your gateway address to 'gw-backup.knoxflow.io'.\n3. Open terminal/PowerShell and execute: ipconfig /flushdns\n4. Re-enter your SSO credentials.\n\nThis will re-route your encrypted tunnel through our alternate cluster.\n\nBest regards,\nDavid Kim\nKnoxFlow Infrastructure Operations",
+      "source_verification": "100% Sourced from Historical Resolution Record (No Hallucinated AI Output)"
+    },
+    "reassignment_log": [
+      {
+        "timestamp": "2026-10-27T11:14:38.925Z",
+        "from": "emp_02",
+        "to": "emp_03",
+        "reason": "Manager workload rebalance / SLA escalation"
+      },
+      {
+        "timestamp": "2026-10-27T11:14:48.635Z",
+        "from": "emp_03",
+        "to": "emp_04",
+        "reason": "Manager workload rebalance / SLA escalation"
+      }
+    ]
+  },
+  {
+    "id": "EML-2026-002",
+    "subject": "URGENT: Staging PostgreSQL read-only credentials needed for sprint demo",
+    "sender": {
+      "name": "Elena Rostova",
+      "email": "elena.r@partner.com"
+    },
+    "received_at": "2026-10-26T14:15:00.000Z",
+    "assigned_to": "emp_01",
+    "category": "Task",
+    "task_type": "Access Request",
+    "classification_reason": "Explicit resource permission request for staging database credentials with read-only scope.",
+    "sla_priority": "P2 - High (4h)",
+    "sla_target_hours": 4,
+    "is_responded": false,
+    "response_info": null,
+    "historical_match": {
+      "matched_kb_id": "KB-102",
+      "similarity_score": 0.89,
+      "historical_ticket_id": "TICK-7911",
+      "solution_category": "Vault OIDC Role Provisioning",
+      "verified_draft": "Hi Elena Rostova,\n\nYour request for read-only access to the Staging PostgreSQL database has been verified and provisioned per our standard access policy.\n\nConnection Details:\n- Host: pg-staging.internal.knoxflow.io\n- Port: 5432\n- Database: staging_analytics\n- Authorization: Generate temporary 8-hour credentials using Vault: `vault read database/creds/staging-readonly`\n\nPlease ensure all queries respect the 30-second execution timeout.\n\nRegards,\nSarah Connor\nData Platform Team",
+      "resolution_details": "Attached staging-readonly policy to requester's OIDC role via HashiCorp Vault."
+    }
+  },
+  {
+    "id": "EML-2026-003",
+    "subject": "Custom AI model inference latency anomaly in cluster us-west-2",
+    "sender": {
+      "name": "Dr. Aris Thorne",
+      "email": "aris.t@quantumresearch.ai"
+    },
+    "received_at": "2026-10-26T19:00:00.000Z",
+    "assigned_to": "emp_01",
+    "category": "Task",
+    "task_type": "System & Infrastructure Bug",
+    "classification_reason": "Performance degradation report regarding custom model inference tail latency on GPU nodes.",
+    "sla_priority": "P2 - High (4h)",
+    "sla_target_hours": 4,
+    "is_responded": false,
+    "response_info": null,
+    "historical_match": null
+  },
+  {
+    "id": "EML-2026-004",
+    "subject": "Notification: Scheduled Core Switch Firmware Upgrade this Sunday at 02:00 UTC",
+    "sender": {
+      "name": "NetOps Notification Bot",
+      "email": "noreply-netops@knoxflow.io"
+    },
+    "received_at": "2026-10-27T06:00:00.000Z",
+    "assigned_to": "emp_03",
+    "category": "General Information",
+    "task_type": null,
+    "classification_reason": "Informational maintenance bulletin for scheduled window; no action item or response required.",
+    "sla_priority": null,
+    "sla_target_hours": null,
+    "is_responded": false,
+    "response_info": null,
+    "historical_match": null
+  },
+  {
+    "id": "EML-2026-005",
+    "subject": "SSL Certificate Expiry warning received for *.api.knoxflow.io",
+    "sender": {
+      "name": "Liam Chen",
+      "email": "liam.c@partner.com"
+    },
+    "received_at": "2026-10-27T07:15:00.000Z",
+    "assigned_to": "emp_02",
+    "category": "Task",
+    "task_type": "Infrastructure Bug",
+    "classification_reason": "Actionable security alerting cert expired warning on public API domain endpoints.",
+    "sla_priority": "P1 - Critical (2h)",
+    "sla_target_hours": 2,
+    "is_responded": true,
+    "response_info": {
+      "responded_at": "2026-10-27T08:10:00.000Z",
+      "responded_by": "Alex Mercer",
+      "response_time_hours": 0.92,
+      "solution_category": "ACME Certificate Re-issuance & Ingress Reload",
+      "resolution_details": "Force-renewed Let's Encrypt wildcard certificate via Certbot and reloaded ingress Nginx proxy cluster.",
+      "response_body": "Hi Liam,\n\nThank you for flagging this. We manually renewed the wildcard SSL cert across all ingress pods and reloaded the gateway. The certificate is now valid through October 2027.\n\nBest,\nAlex Mercer"
+    },
+    "historical_match": {
+      "matched_kb_id": "KB-103",
+      "similarity_score": 0.92,
+      "historical_ticket_id": "TICK-9023",
+      "solution_category": "ACME Certificate Re-issuance & Ingress Reload"
+    }
+  },
+  {
+    "id": "EML-2026-006",
+    "subject": "Request for Jira and Confluence license for new hire",
+    "sender": {
+      "name": "Rachel Adams",
+      "email": "rachel.a@hr.knoxflow.io"
+    },
+    "received_at": "2026-10-27T05:30:00.000Z",
+    "assigned_to": "emp_03",
+    "category": "Task",
+    "task_type": "Account & Licensing",
+    "classification_reason": "Employee onboarding access request seeking seat allocation for Atlassian tools.",
+    "sla_priority": "P3 - Medium (8h)",
+    "sla_target_hours": 8,
+    "is_responded": true,
+    "response_info": {
+      "responded_at": "2026-10-27T09:00:00.000Z",
+      "responded_by": "Priya Sharma",
+      "response_time_hours": 3.5,
+      "solution_category": "Okta SCIM License Assignment",
+      "resolution_details": "Added employee to Okta Atlassian group and triggered immediate SCIM sync.",
+      "response_body": "Hi Rachel,\n\nJira and Confluence licenses have been assigned to the new hire via Okta SCIM sync. The invitation email has been dispatched.\n\nRegards,\nPriya Sharma"
+    },
+    "historical_match": {
+      "matched_kb_id": "KB-104",
+      "similarity_score": 0.91,
+      "historical_ticket_id": "TICK-8840",
+      "solution_category": "Okta SCIM License Assignment"
+    }
+  },
+  {
+    "id": "EML-2026-007",
+    "subject": "CI Runner docker build fail with npm err econnreset on build #842",
+    "sender": {
+      "name": "Devin Brooks",
+      "email": "devin.b@frontend.team"
+    },
+    "received_at": "2026-10-27T04:00:00.000Z",
+    "assigned_to": "emp_04",
+    "category": "Task",
+    "task_type": "CI/CD Pipeline Issue",
+    "classification_reason": "Build failure incident caused by socket reset during package installation on runner.",
+    "sla_priority": "P2 - High (4h)",
+    "sla_target_hours": 4,
+    "is_responded": false,
+    "response_info": null,
+    "historical_match": {
+      "matched_kb_id": "KB-105",
+      "similarity_score": 0.88,
+      "historical_ticket_id": "TICK-9150",
+      "solution_category": "Proxy Cache Invalidation & Runner Recycling",
+      "verified_draft": "Hi Devin Brooks,\n\nWe investigated the CI/CD pipeline timeout on runner cluster #4. The issue was traced to stale cached packages in the internal Verdaccio npm registry mirror.\n\nActions taken:\n1. Purged corrupted package chunks from cache storage.\n2. Recycled CI runner pod pool.\n3. Verified upstream synchronization with registry.npmjs.org.\n\nPlease re-run your failed GitHub Actions / GitLab pipeline; it should now resolve dependencies cleanly.\n\nBest regards,\nDavid Kim\nDevOps Support",
+      "resolution_details": "Flushed internal Verdaccio mirror cache and recycled runner docker daemons."
+    }
+  },
+  {
+    "id": "EML-2026-008",
+    "subject": "Quarterly Company Town Hall & Leadership Q&A Recording Available",
+    "sender": {
+      "name": "Internal Comms",
+      "email": "announcements@knoxflow.io"
+    },
+    "received_at": "2026-10-26T16:00:00.000Z",
+    "assigned_to": "emp_04",
+    "category": "General Information",
+    "task_type": null,
+    "classification_reason": "Broad organization announcement sharing internal video recording and slides.",
+    "sla_priority": null,
+    "sla_target_hours": null,
+    "is_responded": false,
+    "response_info": null,
+    "historical_match": null
+  },
+  {
+    "id": "EML-2026-009",
+    "subject": "Need help reviewing schema migration script for billing v2",
+    "sender": {
+      "name": "Chloe Bennett",
+      "email": "chloe.b@finops.io"
+    },
+    "received_at": "2026-10-27T09:45:00.000Z",
+    "assigned_to": "emp_04",
+    "category": "Task",
+    "task_type": "General Technical Query",
+    "classification_reason": "Peer review request for zero-downtime database schema migration script.",
+    "sla_priority": "P3 - Medium (8h)",
+    "sla_target_hours": 8,
+    "is_responded": false,
+    "response_info": null,
+    "historical_match": null
+  },
+  {
+    "id": "EML-2026-010",
+    "subject": "URGENT: Production Kubernetes ingress 502 Bad Gateway spike across EU-Central",
+    "sender": {
+      "name": "PagerDuty Incident Alert",
+      "email": "alerts@pagerduty.com"
+    },
+    "received_at": "2026-10-26T11:00:00.000Z",
+    "assigned_to": "emp_02",
+    "category": "Task",
+    "task_type": "Infrastructure Bug",
+    "classification_reason": "Production outage alert with 502 Bad Gateway status spike on regional ingress gateway.",
+    "sla_priority": "P1 - Critical (2h)",
+    "sla_target_hours": 2,
+    "is_responded": false,
+    "response_info": null,
+    "historical_match": null
+  }
+]

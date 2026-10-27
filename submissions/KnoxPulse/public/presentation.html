@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KnoxFlow | Hackathon Presentation (5 Pages with Appendix)</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#eff6ff',
+              100: '#dbeafe',
+              500: '#3b82f6',
+              600: '#2563eb',
+              700: '#1d4ed8',
+              900: '#1e3a8a',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <link rel="stylesheet" href="styles.css">
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    .slide {
+      display: none;
+      opacity: 0;
+      transform: translateY(12px);
+      transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .slide.active {
+      display: flex;
+      opacity: 1;
+      transform: translateY(0);
+    }
+  </style>
+</head>
+<body class="bg-[#080d1a] text-slate-100 min-h-screen flex flex-col justify-between overflow-x-hidden selection:bg-blue-600 selection:text-white">
+
+  <!-- Top Navigation & Presentation Controls -->
+  <header class="border-b border-slate-800/80 bg-slate-900/60 backdrop-blur-md sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      
+      <!-- Logo & Tagline -->
+      <div class="flex items-center space-x-3">
+        <a href="/" class="flex items-center space-x-2.5 group">
+          <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center shadow-lg shadow-blue-500/20 group-hover:scale-105 transition">
+            <i data-lucide="shield-check" class="w-5 h-5 text-white"></i>
+          </div>
+          <div>
+            <span class="font-bold text-white text-base tracking-tight">KnoxFlow</span>
+            <span class="text-xs text-blue-400 ml-1.5 font-medium px-2 py-0.5 rounded bg-blue-500/10 border border-blue-500/20">Pitch Deck</span>
+          </div>
+        </a>
+      </div>
+
+      <!-- Slide Indicator & Navigation -->
+      <div class="flex items-center space-x-3 bg-slate-950/80 p-1.5 rounded-2xl border border-slate-800">
+        <button onclick="prevSlide()" class="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition">
+          <i data-lucide="chevron-left" class="w-5 h-5"></i>
+        </button>
+
+        <div class="flex items-center space-x-1 px-2 font-mono text-xs font-semibold text-slate-300">
+          <span>PAGE</span>
+          <span id="current-slide-num" class="text-blue-400 text-sm font-bold">1</span>
+          <span class="text-slate-600">/</span>
+          <span>5</span>
+        </div>
+
+        <button onclick="nextSlide()" class="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition">
+          <i data-lucide="chevron-right" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <!-- Quick Action Buttons -->
+      <div class="flex items-center space-x-3">
+        <div class="hidden sm:flex items-center space-x-1.5 text-xs text-slate-400">
+          <kbd class="px-2 py-0.5 rounded bg-slate-800 border border-slate-700 text-[10px] text-slate-300">←</kbd>
+          <kbd class="px-2 py-0.5 rounded bg-slate-800 border border-slate-700 text-[10px] text-slate-300">→</kbd>
+          <span class="text-[11px] text-slate-500">to navigate</span>
+        </div>
+
+        <a href="/" class="px-3.5 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold transition flex items-center space-x-1.5 shadow-md shadow-blue-600/20">
+          <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
+          <span>Open Live Dashboard</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Presentation Main Container -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col justify-center">
+
+    <!-- ============================================================ -->
+    <!-- SLIDE 1: THE PROBLEM & THE KNOXFLOW VISION                   -->
+    <!-- ============================================================ -->
+    <div id="slide-1" class="slide active flex-col space-y-8">
+      
+      <!-- Slide Header -->
+      <div class="space-y-2 text-center sm:text-left">
+        <div class="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-semibold tracking-wide uppercase">
+          <i data-lucide="target" class="w-3.5 h-3.5"></i>
+          <span>Page 1 &bull; The Problem & The Solution</span>
+        </div>
+        <h2 class="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
+          Eliminating the <span class="bg-gradient-to-r from-blue-400 via-indigo-400 to-purple-400 bg-clip-text text-transparent">Email Black Hole</span> with Agentic Precision
+        </h2>
+        <p class="text-sm sm:text-base text-slate-400 max-w-3xl">
+          Support and engineering teams are overwhelmed by inbound email queues, while managers suffer from zero real-time visibility into pending response aging and SLA violations.
+        </p>
+      </div>
+
+      <!-- Problem vs Solution 2-Column Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        
+        <!-- The Problem Card -->
+        <div class="glass-panel p-6 rounded-3xl border border-rose-500/20 bg-gradient-to-br from-rose-950/20 via-slate-900/60 to-slate-950 space-y-4">
+          <div class="flex items-center space-x-3 text-rose-400">
+            <div class="w-10 h-10 rounded-xl bg-rose-500/20 flex items-center justify-center border border-rose-500/30">
+              <i data-lucide="alert-octagon" class="w-5 h-5"></i>
+            </div>
+            <div>
+              <h3 class="font-bold text-white text-lg">The Enterprise Breakdown</h3>
+              <p class="text-xs text-rose-400/80">Why traditional email management fails</p>
+            </div>
+          </div>
+
+          <ul class="space-y-3 text-xs text-slate-300">
+            <li class="flex items-start space-x-2.5">
+              <i data-lucide="x" class="w-4 h-4 text-rose-400 shrink-0 mt-0.5"></i>
+              <div><strong class="text-white">Manager Visibility Void:</strong> Managers have no real-time metrics on which emails are pending, who is overloaded, or how long inquiries have aged unaddressed.</div>
+            </li>
+            <li class="flex items-start space-x-2.5">
+              <i data-lucide="x" class="w-4 h-4 text-rose-400 shrink-0 mt-0.5"></i>
+              <div><strong class="text-white">Repetitive Fatigue:</strong> Engineers spend 40% of their workday drafting duplicate explanations for already-solved historical issues.</div>
+            </li>
+            <li class="flex items-start space-x-2.5">
+              <i data-lucide="x" class="w-4 h-4 text-rose-400 shrink-0 mt-0.5"></i>
+              <div><strong class="text-white">The AI Hallucination Risk:</strong> Standard generative AI models invent speculative configurations and bad commands that trigger production outages.</div>
+            </li>
+          </ul>
+        </div>
+
+        <!-- The KnoxFlow Solution Card -->
+        <div class="glass-panel p-6 rounded-3xl border border-blue-500/20 bg-gradient-to-br from-blue-950/20 via-slate-900/60 to-slate-950 space-y-4">
+          <div class="flex items-center space-x-3 text-blue-400">
+            <div class="w-10 h-10 rounded-xl bg-blue-500/20 flex items-center justify-center border border-blue-500/30">
+              <i data-lucide="zap" class="w-5 h-5"></i>
+            </div>
+            <div>
+              <h3 class="font-bold text-white text-lg">The KnoxFlow Solution</h3>
+              <p class="text-xs text-blue-400/80">Autonomous SLA Intelligence & Zero Dependencies</p>
+            </div>
+          </div>
+
+          <ul class="space-y-3 text-xs text-slate-300">
+            <li class="flex items-start space-x-2.5">
+              <i data-lucide="check" class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5"></i>
+              <div><strong class="text-white">Live SLA Aging & One-Click Rebalancing:</strong> Tracks aging down to the minute; allows managers to rebalance tickets to teammates instantly.</div>
+            </li>
+            <li class="flex items-start space-x-2.5">
+              <i data-lucide="check" class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5"></i>
+              <div><strong class="text-white">Deterministic Historical Precedent:</strong> Automatic drafts are suggested <em>strictly</em> if a problem was previously resolved in team history.</div>
+            </li>
+            <li class="flex items-start space-x-2.5">
+              <i data-lucide="check" class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5"></i>
+              <div><strong class="text-white">Zero External Dependencies:</strong> Runs natively on pure Node.js with a transparent JSON data fabric (`0` npm modules to install!).</div>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Bottom Pillar Badges -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
+        <div class="p-3 rounded-2xl bg-slate-900/70 border border-slate-800">
+          <div class="text-blue-400 font-bold text-lg">&lt; 1s</div>
+          <div class="text-[11px] text-slate-400 mt-0.5">Instant Startup Time</div>
+        </div>
+        <div class="p-3 rounded-2xl bg-slate-900/70 border border-slate-800">
+          <div class="text-emerald-400 font-bold text-lg">100%</div>
+          <div class="text-[11px] text-slate-400 mt-0.5">Anti-Hallucination Bound</div>
+        </div>
+        <div class="p-3 rounded-2xl bg-slate-900/70 border border-slate-800">
+          <div class="text-indigo-400 font-bold text-lg">Zero</div>
+          <div class="text-[11px] text-slate-400 mt-0.5">External npm Packages</div>
+        </div>
+        <div class="p-3 rounded-2xl bg-slate-900/70 border border-slate-800">
+          <div class="text-purple-400 font-bold text-lg">JSON Native</div>
+          <div class="text-[11px] text-slate-400 mt-0.5">Portable Data Fabric</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- SLIDE 2: DUAL-PERSONA EXPERIENCE (MANAGER & EMPLOYEE)        -->
+    <!-- ============================================================ -->
+    <div id="slide-2" class="slide flex-col space-y-8">
+      
+      <!-- Slide Header -->
+      <div class="space-y-2 text-center sm:text-left">
+        <div class="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-xs font-semibold tracking-wide uppercase">
+          <i data-lucide="users" class="w-3.5 h-3.5"></i>
+          <span>Page 2 &bull; Dual-Persona Experience</span>
+        </div>
+        <h2 class="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
+          Tailored Cockpits for <span class="bg-gradient-to-r from-blue-400 via-indigo-400 to-teal-400 bg-clip-text text-transparent">Managers & Engineers</span>
+        </h2>
+        <p class="text-sm sm:text-base text-slate-400 max-w-3xl">
+          KnoxFlow splits the operational domain into two specialized cockpits: high-level workload governance for managers, and frictionless task resolution for employees.
+        </p>
+      </div>
+
+      <!-- Dual Cockpits Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        
+        <!-- Manager Cockpit Feature Card -->
+        <div class="glass-panel p-6 rounded-3xl border border-slate-800 space-y-4 hover:border-blue-500/40 transition">
+          <div class="flex items-center space-x-3">
+            <div class="w-10 h-10 rounded-xl bg-blue-600/20 border border-blue-500/30 flex items-center justify-center text-blue-400 font-bold">
+              <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
+            </div>
+            <div>
+              <h3 class="font-bold text-white text-base">Manager Governance Cockpit</h3>
+              <p class="text-xs text-blue-400">Team SLA Surveillance & Workload Rebalancing</p>
+            </div>
+          </div>
+
+          <div class="space-y-2.5 text-xs text-slate-300">
+            <div class="p-3 rounded-xl bg-slate-950/60 border border-slate-800 flex items-center justify-between">
+              <div>
+                <span class="font-semibold text-white block">Real-Time Aging Ribbon</span>
+                <span class="text-slate-400 text-[11px]">Tracks active pending duration and flags approaching breaches (>75% SLA).</span>
+              </div>
+              <span class="px-2 py-1 rounded bg-amber-500/10 text-amber-300 font-mono text-[10px] font-bold">LIVE AGING</span>
+            </div>
+
+            <div class="p-3 rounded-xl bg-slate-950/60 border border-slate-800 flex items-center justify-between">
+              <div>
+                <span class="font-semibold text-white block">Team Workload Distribution Grid</span>
+                <span class="text-slate-400 text-[11px]">Per-engineer stats on assigned, answered, overdue, and SLA compliance rates.</span>
+              </div>
+              <span class="px-2 py-1 rounded bg-blue-500/10 text-blue-300 font-mono text-[10px] font-bold">CAPACITY</span>
+            </div>
+
+            <div class="p-3 rounded-xl bg-slate-950/60 border border-slate-800 flex items-center justify-between">
+              <div>
+                <span class="font-semibold text-white block">One-Click Escalation & Reassignment</span>
+                <span class="text-slate-400 text-[11px]">Transfer stalled emails to an available teammate with full audit logging.</span>
+              </div>
+              <span class="px-2 py-1 rounded bg-purple-500/10 text-purple-300 font-mono text-[10px] font-bold">REBALANCE</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Employee Cockpit Feature Card -->
+        <div class="glass-panel p-6 rounded-3xl border border-slate-800 space-y-4 hover:border-emerald-500/40 transition">
+          <div class="flex items-center space-x-3">
+            <div class="w-10 h-10 rounded-xl bg-emerald-600/20 border border-emerald-500/30 flex items-center justify-center text-emerald-400 font-bold">
+              <i data-lucide="user-check" class="w-5 h-5"></i>
+            </div>
+            <div>
+              <h3 class="font-bold text-white text-base">Employee Response Studio</h3>
+              <p class="text-xs text-emerald-400">Prioritized Action Queue & Verified Historical Drafts</p>
+            </div>
+          </div>
+
+          <div class="space-y-2.5 text-xs text-slate-300">
+            <div class="p-3 rounded-xl bg-slate-950/60 border border-slate-800 flex items-center justify-between">
+              <div>
+                <span class="font-semibold text-white block">Urgency-Sorted Action Queue</span>
+                <span class="text-slate-400 text-[11px]">Overdue and critical tasks are pinned to the top of the engineer's personal view.</span>
+              </div>
+              <span class="px-2 py-1 rounded bg-rose-500/10 text-rose-300 font-mono text-[10px] font-bold">PRIORITY</span>
+            </div>
+
+            <div class="p-3 rounded-xl bg-slate-950/60 border border-slate-800 flex items-center justify-between">
+              <div>
+                <span class="font-semibold text-white block">Verified Historical Draft Precedent</span>
+                <span class="text-slate-400 text-[11px]">Surfaces prior ticket ID, past solver, and 1-click apply verified response.</span>
+              </div>
+              <span class="px-2 py-1 rounded bg-emerald-500/10 text-emerald-300 font-mono text-[10px] font-bold">VERIFIED</span>
+            </div>
+
+            <div class="p-3 rounded-xl bg-slate-950/60 border border-slate-800 flex items-center justify-between">
+              <div>
+                <span class="font-semibold text-white block">Solution Categorization & Indexing</span>
+                <span class="text-slate-400 text-[11px]">Tags solution category and saves new fixes to KB for future automated matches.</span>
+              </div>
+              <span class="px-2 py-1 rounded bg-indigo-500/10 text-indigo-300 font-mono text-[10px] font-bold">REUSABLE</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Anti-Hallucination Policy Banner -->
+      <div class="p-4 rounded-2xl bg-gradient-to-r from-emerald-950/30 via-slate-900 to-indigo-950/30 border border-emerald-500/30 flex items-center justify-between">
+        <div class="flex items-center space-x-3">
+          <i data-lucide="shield-alert" class="w-6 h-6 text-emerald-400 shrink-0"></i>
+          <div>
+            <span class="font-bold text-white text-xs block">Mission-Critical Anti-Hallucination Guarantee</span>
+            <span class="text-slate-400 text-[11px]">If no verified historical resolution exists in the company records, automated drafting is strictly suppressed. Engineers are prompted to manually investigate.</span>
+          </div>
+        </div>
+        <span class="hidden sm:inline-block px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-xs font-semibold">
+          STRICT POLICY ACTIVE
+        </span>
+      </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- SLIDE 3: HIGH-LEVEL & LOW-LEVEL ARCHITECTURE                 -->
+    <!-- ============================================================ -->
+    <div id="slide-3" class="slide flex-col space-y-8">
+      
+      <!-- Slide Header -->
+      <div class="space-y-2 text-center sm:text-left">
+        <div class="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-400 text-xs font-semibold tracking-wide uppercase">
+          <i data-lucide="cpu" class="w-3.5 h-3.5"></i>
+          <span>Page 3 &bull; System Architecture & Math Engine</span>
+        </div>
+        <h2 class="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
+          Deterministic <span class="bg-gradient-to-r from-purple-400 via-indigo-400 to-blue-400 bg-clip-text text-transparent">Agentic Pipeline & Mathematical Core</span>
+        </h2>
+        <p class="text-sm sm:text-base text-slate-400 max-w-3xl">
+          KnoxFlow orchestrates specialized agents and strict mathematical scoring functions over an atomic JSON data fabric.
+        </p>
+      </div>
+
+      <!-- Architecture Flow & Mathematical Formulation Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        
+        <!-- Multi-Agent Orchestration Flow -->
+        <div class="glass-panel p-5 rounded-3xl border border-slate-800 space-y-3">
+          <h3 class="font-bold text-white text-sm flex items-center space-x-2">
+            <i data-lucide="git-merge" class="w-4 h-4 text-purple-400"></i>
+            <span>3-Stage Agentic Pipeline</span>
+          </h3>
+
+          <div class="space-y-2 text-xs">
+            <!-- Stage 1 -->
+            <div class="p-3 rounded-xl bg-slate-950/70 border border-slate-800 flex items-start space-x-3">
+              <span class="w-6 h-6 rounded-lg bg-blue-600/30 text-blue-400 flex items-center justify-center font-bold text-xs shrink-0">1</span>
+              <div>
+                <strong class="text-white block">Perception & Classification Agent</strong>
+                <span class="text-slate-400 text-[11px]">Classifies into <em>General Information</em> (no SLA) or <em>Task</em>. Identifies task type & assigns priority ($P_1$: 2h, $P_2$: 4h, $P_3$: 8h, $P_4$: 24h).</span>
+              </div>
+            </div>
+
+            <!-- Stage 2 -->
+            <div class="p-3 rounded-xl bg-slate-950/70 border border-slate-800 flex items-start space-x-3">
+              <span class="w-6 h-6 rounded-lg bg-indigo-600/30 text-indigo-400 flex items-center justify-center font-bold text-xs shrink-0">2</span>
+              <div>
+                <strong class="text-white block">SLA & Aging Surveillance Agent</strong>
+                <span class="text-slate-400 text-[11px]">Evaluates dynamic elapsed time $\Delta t_{\text{aging}} = \frac{t_{\text{now}} - t_{\text{rec}}}{3.6 \times 10^6}$ and triggers alerts at $75\%$ and $100\%$ thresholds.</span>
+              </div>
+            </div>
+
+            <!-- Stage 3 -->
+            <div class="p-3 rounded-xl bg-slate-950/70 border border-slate-800 flex items-start space-x-3">
+              <span class="w-6 h-6 rounded-lg bg-emerald-600/30 text-emerald-400 flex items-center justify-center font-bold text-xs shrink-0">3</span>
+              <div>
+                <strong class="text-white block">Deterministic Historical Matcher Gate</strong>
+                <span class="text-slate-400 text-[11px]">Calculates token-overlap similarity with `historical_kb.json`. Binds verified ticket ID and pre-populates template with assignee name.</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Mathematical Models Card -->
+        <div class="glass-panel p-5 rounded-3xl border border-slate-800 space-y-3">
+          <h3 class="font-bold text-white text-sm flex items-center space-x-2">
+            <i data-lucide="binary" class="w-4 h-4 text-indigo-400"></i>
+            <span>Mathematical Formulations</span>
+          </h3>
+
+          <div class="space-y-2.5 text-xs">
+            <!-- Dynamic Aging Formula -->
+            <div class="p-3 rounded-xl bg-slate-950/70 border border-slate-800 space-y-1 font-mono">
+              <div class="text-[10px] text-slate-500 uppercase font-sans font-semibold">1. Dynamic SLA Breach Ratio ($R_{\text{breach}}$)</div>
+              <div class="text-blue-300 text-[11px]">$$\Delta t_{\text{aging}} = \frac{t_{\text{ref}} - t_{\text{received}}}{3.6 \times 10^6 \text{ ms/h}}, \quad R = \frac{\Delta t}{T_{\text{target}}}$$</div>
+              <div class="text-[10px] text-slate-400 font-sans">
+                $R < 0.75 \implies \text{Within SLA}$ &bull; $0.75 \le R < 1.0 \implies \text{Approaching}$ &bull; $R \ge 1.0 \implies \text{Breached}$
+              </div>
+            </div>
+
+            <!-- Historical Matcher Formula -->
+            <div class="p-3 rounded-xl bg-slate-950/70 border border-slate-800 space-y-1 font-mono">
+              <div class="text-[10px] text-slate-500 uppercase font-sans font-semibold">2. Historical Similarity Function & Gate</div>
+              <div class="text-emerald-300 text-[11px]">$$S(Q, K_i) = \frac{|\text{Tokens}(Q) \cap K_i|}{|K_i|} + 0.25 \cdot \mathbf{1}_{[\text{type}]}$$</div>
+              <div class="text-[10px] text-slate-400 font-sans">
+                $\text{Match} = \text{argmax } S \iff |\text{Tokens}| \ge 2 \land \max S \ge 0.50$; else $\mathbf{null}$.
+              </div>
+            </div>
+
+            <!-- JSON Data Fabric -->
+            <div class="p-2.5 rounded-xl bg-slate-900/60 border border-slate-800 flex items-center justify-between text-[11px]">
+              <span class="text-slate-400">Atomic Persistence:</span>
+              <span class="font-mono text-purple-300 font-semibold">team.json &bull; historical_kb.json &bull; emails.json</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Architecture Badges -->
+      <div class="p-3.5 rounded-2xl bg-slate-900/70 border border-slate-800 flex flex-wrap items-center justify-around gap-2 text-xs text-slate-300">
+        <span class="flex items-center space-x-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-blue-400"></i><span>Node.js Native HTTP</span></span>
+        <span class="flex items-center space-x-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-indigo-400"></i><span>Atomic JSON Transactions</span></span>
+        <span class="flex items-center space-x-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-400"></i><span>Zero Native Compilations</span></span>
+        <span class="flex items-center space-x-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-purple-400"></i><span>Full Audit Reassignment Logs</span></span>
+      </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- SLIDE 4: LIVE DEMO FLOW, IMPACT & ROADMAP                    -->
+    <!-- ============================================================ -->
+    <div id="slide-4" class="slide flex-col space-y-8">
+      
+      <!-- Slide Header -->
+      <div class="space-y-2 text-center sm:text-left">
+        <div class="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-semibold tracking-wide uppercase">
+          <i data-lucide="award" class="w-3.5 h-3.5"></i>
+          <span>Page 4 &bull; Demo Script & Enterprise Roadmap</span>
+        </div>
+        <h2 class="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
+          The <span class="bg-gradient-to-r from-emerald-400 via-teal-400 to-blue-400 bg-clip-text text-transparent">3-Minute Demo Pitch & Production Vision</span>
+        </h2>
+        <p class="text-sm sm:text-base text-slate-400 max-w-3xl">
+          A predictable, foolproof demonstration script for judges, highlighting business ROI and a seamless enterprise migration roadmap.
+        </p>
+      </div>
+
+      <!-- Demo Flow vs Enterprise Roadmap Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        
+        <!-- 3-Minute Demo Pitch Script -->
+        <div class="glass-panel p-6 rounded-3xl border border-slate-800 space-y-3.5">
+          <h3 class="font-bold text-white text-base flex items-center space-x-2">
+            <i data-lucide="play-circle" class="w-5 h-5 text-emerald-400"></i>
+            <span>Foolproof 3-Step Demo Script</span>
+          </h3>
+
+          <div class="space-y-3 text-xs">
+            <!-- Step 1 -->
+            <div class="p-3 rounded-xl bg-slate-950/70 border border-slate-800 space-y-1">
+              <div class="flex items-center justify-between text-blue-400 font-semibold">
+                <span>Step 1: Manager Surveillance & Workload Rebalance</span>
+                <span class="text-[10px] text-slate-500">0:00 - 1:00</span>
+              </div>
+              <p class="text-slate-300 text-[11px]">
+                Show `EML-2026-002` breached on Sarah Connor (>20h). Click <strong>Re-assign</strong> &rarr; select Priya Sharma. Point to the instant capacity update on the team matrix.
+              </p>
+            </div>
+
+            <!-- Step 2 -->
+            <div class="p-3 rounded-xl bg-slate-950/70 border border-slate-800 space-y-1">
+              <div class="flex items-center justify-between text-indigo-400 font-semibold">
+                <span>Step 2: Employee Verified Drafting Studio</span>
+                <span class="text-[10px] text-slate-500">1:00 - 2:00</span>
+              </div>
+              <p class="text-slate-300 text-[11px]">
+                Switch to Employee Cockpit (Priya Sharma). Open ticket &rarr; Click <strong>Apply Historical Response Draft</strong> (Ref: #TICK-7911). Send response & log resolution.
+              </p>
+            </div>
+
+            <!-- Step 3 -->
+            <div class="p-3 rounded-xl bg-slate-950/70 border border-slate-800 space-y-1">
+              <div class="flex items-center justify-between text-emerald-400 font-semibold">
+                <span>Step 3: Perception & Anti-Hallucination Gate</span>
+                <span class="text-[10px] text-slate-500">2:00 - 3:00</span>
+              </div>
+              <p class="text-slate-300 text-[11px]">
+                Click <strong>Simulate Email</strong> &rarr; Ingest "Unseen K8s Memory Leak". Show that the agent categorizes it as a Task but strictly suppresses hallucinations.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Production Roadmap Card -->
+        <div class="glass-panel p-6 rounded-3xl border border-slate-800 space-y-3.5">
+          <h3 class="font-bold text-white text-base flex items-center space-x-2">
+            <i data-lucide="compass" class="w-5 h-5 text-blue-400"></i>
+            <span>Production Scaling Roadmap</span>
+          </h3>
+
+          <div class="space-y-3 text-xs">
+            <div class="p-3 rounded-xl bg-slate-950/70 border border-slate-800 space-y-1">
+              <div class="text-white font-semibold flex items-center space-x-2">
+                <i data-lucide="database" class="w-4 h-4 text-blue-400"></i>
+                <span>Enterprise PostgreSQL + pgvector Storage</span>
+              </div>
+              <p class="text-slate-400 text-[11px]">
+                Seamlessly swap JSON files with PostgreSQL ACID tables and hybrid semantic vector search without touching the agent contracts.
+              </p>
+            </div>
+
+            <div class="p-3 rounded-xl bg-slate-950/70 border border-slate-800 space-y-1">
+              <div class="text-white font-semibold flex items-center space-x-2">
+                <i data-lucide="radio" class="w-4 h-4 text-indigo-400"></i>
+                <span>Sub-Second WebSockets Stream</span>
+              </div>
+              <p class="text-slate-400 text-[11px]">
+                Upgrade the 15-second polling loop to bidirectional WebSockets / Server-Sent Events (SSE) for instantaneous team notifications.
+              </p>
+            </div>
+
+            <div class="p-3 rounded-xl bg-slate-950/70 border border-slate-800 space-y-1">
+              <div class="text-white font-semibold flex items-center space-x-2">
+                <i data-lucide="lock" class="w-4 h-4 text-emerald-400"></i>
+                <span>OAuth2 & SCIM Identity Provider Integration</span>
+              </div>
+              <p class="text-slate-400 text-[11px]">
+                Connect with corporate Okta, Google Workspace, and Microsoft Entra ID for automated role-based access control.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- NEW: Where We Will Use LLMs in the Future (Grounded Architecture) -->
+      <div class="glass-panel p-5 rounded-3xl border border-purple-500/30 bg-gradient-to-r from-purple-950/20 via-slate-900/60 to-indigo-950/20 space-y-3">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-800/80 pb-2.5">
+          <div class="flex items-center space-x-2.5">
+            <div class="w-8 h-8 rounded-lg bg-purple-500/20 text-purple-300 border border-purple-500/30 flex items-center justify-center font-bold">
+              <i data-lucide="sparkles" class="w-4 h-4"></i>
+            </div>
+            <div>
+              <h3 class="font-bold text-white text-sm">Where We Will Use LLMs in the Future (Strategic Roadmap)</h3>
+              <p class="text-[11px] text-purple-300">Targeted, grounded intelligence layers that preserve mission-critical safety</p>
+            </div>
+          </div>
+          <span class="px-2.5 py-0.5 rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/30 text-[10px] font-semibold tracking-wide uppercase w-fit">
+            Future Architecture
+          </span>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-xs">
+          <!-- LLM Use 1 -->
+          <div class="p-3 rounded-xl bg-slate-950/70 border border-slate-800 space-y-1 hover:border-purple-500/40 transition">
+            <div class="flex items-center space-x-1.5 text-purple-300 font-semibold text-[11px]">
+              <i data-lucide="search" class="w-3.5 h-3.5"></i>
+              <span>1. Semantic Vector RAG</span>
+            </div>
+            <p class="text-slate-400 text-[11px] leading-relaxed">
+              Replace token-matching with dense vector embeddings (e.g. text-embedding-004) to capture nuanced synonyms, multilingual queries, and phrasing variants.
+            </p>
+          </div>
+
+          <!-- LLM Use 2 -->
+          <div class="p-3 rounded-xl bg-slate-950/70 border border-slate-800 space-y-1 hover:border-blue-500/40 transition">
+            <div class="flex items-center space-x-1.5 text-blue-300 font-semibold text-[11px]">
+              <i data-lucide="feather" class="w-3.5 h-3.5"></i>
+              <span>2. Grounded Tone Polishing</span>
+            </div>
+            <p class="text-slate-400 text-[11px] leading-relaxed">
+              Use LLMs to polish style, tone, and empathy (VIP vs internal) while strictly preserving verified technical resolution steps without altering facts.
+            </p>
+          </div>
+
+          <!-- LLM Use 3 -->
+          <div class="p-3 rounded-xl bg-slate-950/70 border border-slate-800 space-y-1 hover:border-indigo-500/40 transition">
+            <div class="flex items-center space-x-1.5 text-indigo-300 font-semibold text-[11px]">
+              <i data-lucide="file-text" class="w-3.5 h-3.5"></i>
+              <span>3. Long Thread Summarization</span>
+            </div>
+            <p class="text-slate-400 text-[11px] leading-relaxed">
+              Synthesize 15-email thread chains into a 3-bullet executive summary, isolating unresolved error deltas for the assigned engineer.
+            </p>
+          </div>
+
+          <!-- LLM Use 4 -->
+          <div class="p-3 rounded-xl bg-slate-950/70 border border-slate-800 space-y-1 hover:border-emerald-500/40 transition">
+            <div class="flex items-center space-x-1.5 text-emerald-300 font-semibold text-[11px]">
+              <i data-lucide="book-plus" class="w-3.5 h-3.5"></i>
+              <span>4. Auto KB Synthesis</span>
+            </div>
+            <p class="text-slate-400 text-[11px] leading-relaxed">
+              When an engineer manually resolves a novel issue, an LLM post-processor sanitizes PII and generates a structured candidate KB entry for manager review.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Final Call to Action -->
+      <div class="p-4 rounded-2xl bg-gradient-to-r from-blue-900/40 via-indigo-900/40 to-slate-900 border border-blue-500/30 flex flex-col sm:flex-row items-center justify-between gap-3">
+        <div>
+          <span class="font-bold text-white text-sm block">Experience the Working System Live</span>
+          <span class="text-slate-400 text-xs">Test the Manager Cockpit, Employee Response Studio, and Inbound Simulation Engine.</span>
+        </div>
+        <div class="flex items-center space-x-2">
+          <button onclick="nextSlide()" class="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold transition flex items-center space-x-1.5">
+            <span>View Technical Appendix (Page 5)</span>
+            <i data-lucide="chevron-right" class="w-4 h-4"></i>
+          </button>
+          <a href="/" class="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs transition shadow-lg shadow-blue-600/30 flex items-center space-x-2">
+            <span>Launch Live System</span>
+            <i data-lucide="arrow-right" class="w-4 h-4"></i>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- SLIDE 5: APPENDIX & TECHNICAL FAQ                            -->
+    <!-- ============================================================ -->
+    <div id="slide-5" class="slide flex-col space-y-6">
+      
+      <!-- Slide Header -->
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-800/80 gap-2">
+        <div>
+          <span class="text-xs font-bold uppercase tracking-wider text-amber-400">Appendix & Engineering Defense</span>
+          <h1 class="text-2xl sm:text-3xl font-extrabold text-white mt-0.5">Frequently Asked Technical Questions</h1>
+        </div>
+        <div class="flex items-center space-x-2">
+          <span class="text-xs px-2.5 py-1 rounded-full bg-amber-500/10 text-amber-300 border border-amber-500/30 font-semibold">
+            Technical Architecture Review
+          </span>
+        </div>
+      </div>
+
+      <!-- FAQ 2x2 Grid -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        
+        <!-- FAQ 1: Multi-Recipient To/Cc Resolution -->
+        <div class="glass-panel p-5 rounded-2xl border border-slate-800 space-y-3 hover:border-slate-700 transition">
+          <div class="flex items-start space-x-3">
+            <div class="w-8 h-8 rounded-lg bg-blue-600/20 text-blue-400 border border-blue-500/30 flex items-center justify-center shrink-0 mt-0.5">
+              <i data-lucide="users" class="w-4 h-4"></i>
+            </div>
+            <div>
+              <span class="text-[10px] font-bold uppercase tracking-wider text-blue-400">Routing & Accountability</span>
+              <h3 class="text-sm font-bold text-white leading-snug">How to identify ownership when an email is sent to multiple people in "To"?</h3>
+            </div>
+          </div>
+          
+          <div class="text-slate-300 text-xs leading-relaxed space-y-2 bg-slate-950/60 p-3.5 rounded-xl border border-slate-800/80">
+            <p>
+              To eliminate the enterprise <strong>"Bystander Effect"</strong> (diffusion of responsibility where everyone assumes someone else is handling it), KnoxFlow resolves a <strong>single accountable owner</strong> using a 5-step matrix:
+            </p>
+            <ol class="list-decimal list-inside space-y-1 text-slate-400 text-[11px]">
+              <li><strong class="text-slate-200">Greeting / @Mention Priority:</strong> If the email opens with <em>"Hi David"</em> or <em>"@alex.m"</em>, they receive 100% immediate priority.</li>
+              <li><strong class="text-slate-200">Field Hierarchy:</strong> Direct <code class="text-blue-300 font-mono">To</code> recipients take precedence over <code class="text-slate-400 font-mono">Cc</code> observers.</li>
+              <li><strong class="text-slate-200">Skill Affinity Scoring:</strong> Matches email incident type against verified domain skills (e.g. Database vs Network specialist).</li>
+              <li><strong class="text-slate-200">Queue Workload Balancer:</strong> Breaks ties by checking live pending queue and active SLA headroom.</li>
+              <li><strong class="text-slate-200">Owner vs Collaborators:</strong> Non-primary recipients are designated as <em>Collaborators</em> to keep them synchronized without diluting SLA ownership.</li>
+            </ol>
+          </div>
+        </div>
+
+        <!-- FAQ 2: Future Roadmap for LLMs -->
+        <div class="glass-panel p-5 rounded-2xl border border-slate-800 space-y-3 hover:border-slate-700 transition">
+          <div class="flex items-start space-x-3">
+            <div class="w-8 h-8 rounded-lg bg-indigo-600/20 text-indigo-400 border border-indigo-500/30 flex items-center justify-center shrink-0 mt-0.5">
+              <i data-lucide="brain-circuit" class="w-4 h-4"></i>
+            </div>
+            <div>
+              <span class="text-[10px] font-bold uppercase tracking-wider text-indigo-400">Future LLM Integration</span>
+              <h3 class="text-sm font-bold text-white leading-snug">What is the future roadmap for using LLMs and where do they fit?</h3>
+            </div>
+          </div>
+          
+          <div class="text-slate-300 text-xs leading-relaxed space-y-2 bg-slate-950/60 p-3.5 rounded-xl border border-slate-800/80">
+            <p>
+              KnoxFlow adopts a <strong>Bimodal Hybrid Architecture</strong>: deterministic agents enforce SLAs and safety, while LLMs provide cognitive and semantic depth across 5 high-value areas:
+            </p>
+            <ul class="space-y-1 text-slate-400 text-[11px]">
+              <li><strong class="text-slate-200">&bull; Deep Semantic Parsing:</strong> Multilingual support, multi-intent splitting, and urgency detection beyond keywords.</li>
+              <li><strong class="text-slate-200">&bull; Grounded RAG with Vector DBs:</strong> Contextually drafts responses anchored to internal runbooks without altering facts.</li>
+              <li><strong class="text-slate-200">&bull; Zero-Day Incident SRE Co-Pilot:</strong> Synthesizes internal investigation checklists & debug commands for novel bugs.</li>
+              <li><strong class="text-slate-200">&bull; Codebase Skill Routing:</strong> Cross-references stack traces with engineers' recent Git commits.</li>
+              <li><strong class="text-slate-200">&bull; Automated RCA Generation:</strong> Synthesizes post-mortem root cause reports when SLA breaches occur.</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- FAQ 3: Resource Skill Intelligence for Managers -->
+        <div class="glass-panel p-5 rounded-2xl border border-slate-800 space-y-3 hover:border-slate-700 transition">
+          <div class="flex items-start space-x-3">
+            <div class="w-8 h-8 rounded-lg bg-emerald-600/20 text-emerald-400 border border-emerald-500/30 flex items-center justify-center shrink-0 mt-0.5">
+              <i data-lucide="sparkles" class="w-4 h-4"></i>
+            </div>
+            <div>
+              <span class="text-[10px] font-bold uppercase tracking-wider text-emerald-400">Skill-Based Load Balancing</span>
+              <h3 class="text-sm font-bold text-white leading-snug">How does KnoxFlow empower managers with resource skills for re-assignment?</h3>
+            </div>
+          </div>
+          
+          <div class="text-slate-300 text-xs leading-relaxed space-y-2 bg-slate-950/60 p-3.5 rounded-xl border border-slate-800/80">
+            <p>
+              Managers cannot make effective reassignment decisions in the dark. KnoxFlow embeds continuous resource intelligence directly into the manager's workflow:
+            </p>
+            <ul class="space-y-1 text-slate-400 text-[11px]">
+              <li><strong class="text-slate-200">&bull; Verified Domain Matrix:</strong> Each teammate profile tracks verified strengths (e.g. <em>Kubernetes, VPN, PostgreSQL, SecOps</em>) and tenure.</li>
+              <li><strong class="text-slate-200">&bull; Dynamic Fit Recommendation:</strong> The re-assignment studio highlights <span class="text-emerald-300 font-semibold">⭐️ (Skill Match)</span> when candidate skills match the incident body or task type.</li>
+              <li><strong class="text-slate-200">&bull; Real-time Capacity Guardrail:</strong> Live indicators display candidate's active workload, pending emails, and overdue counts to prevent overburdening bottleneck engineers.</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- FAQ 4: Guaranteed Zero Hallucination Design -->
+        <div class="glass-panel p-5 rounded-2xl border border-slate-800 space-y-3 hover:border-slate-700 transition">
+          <div class="flex items-start space-x-3">
+            <div class="w-8 h-8 rounded-lg bg-amber-600/20 text-amber-400 border border-amber-500/30 flex items-center justify-center shrink-0 mt-0.5">
+              <i data-lucide="shield-alert" class="w-4 h-4"></i>
+            </div>
+            <div>
+              <span class="text-[10px] font-bold uppercase tracking-wider text-amber-400">Enterprise Safety & Guardrails</span>
+              <h3 class="text-sm font-bold text-white leading-snug">How is Zero AI Hallucination mathematically guaranteed in production?</h3>
+            </div>
+          </div>
+          
+          <div class="text-slate-300 text-xs leading-relaxed space-y-2 bg-slate-950/60 p-3.5 rounded-xl border border-slate-800/80">
+            <p>
+              In enterprise customer support, sending an inaccurate procedural draft can cause production outages or security breaches. KnoxFlow enforces a strict mathematical gate:
+            </p>
+            <ul class="space-y-1 text-slate-400 text-[11px]">
+              <li><strong class="text-slate-200">&bull; The Historical Gate:</strong> Auto-drafts are triggered <em>strictly if and only if</em> keyword coverage and task type match a verified historical ticket (<code class="text-amber-300 font-mono">&ge; 0.50</code> score).</li>
+              <li><strong class="text-slate-200">&bull; Total Generative Suppression:</strong> If an incident has no verified historical twin, generative invention is 100% suppressed. The response is flagged for human authoring.</li>
+              <li><strong class="text-slate-200">&bull; Human-in-the-Loop Studio:</strong> All drafted responses must be previewed, edited, and verified by an authenticated engineer before dispatch.</li>
+            </ul>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Navigation & Action Bar -->
+      <div class="p-4 rounded-2xl bg-gradient-to-r from-slate-900 via-blue-950/40 to-slate-900 border border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-3">
+        <div class="flex items-center space-x-2 text-xs text-slate-400">
+          <i data-lucide="info" class="w-4 h-4 text-blue-400"></i>
+          <span>Appendix complete. You can navigate back using <kbd class="px-1.5 py-0.5 rounded bg-slate-800 border border-slate-700 text-[10px] text-slate-300">Left Arrow</kbd> or launch the system.</span>
+        </div>
+        <div class="flex items-center space-x-2">
+          <button onclick="showSlide(1)" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold transition">
+            Restart Deck (Page 1)
+          </button>
+          <a href="/" class="px-5 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs transition shadow-lg shadow-blue-600/30 flex items-center space-x-2">
+            <span>Open Live Dashboard</span>
+            <i data-lucide="arrow-right" class="w-4 h-4"></i>
+          </a>
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- Slide Footer & Keyboard Shortcuts -->
+  <footer class="border-t border-slate-800/80 bg-slate-950/80 py-3 mt-auto">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 gap-2">
+      <div class="flex items-center space-x-2">
+        <span class="w-2 h-2 rounded-full bg-blue-500"></span>
+        <span>KnoxFlow Hackathon Slide Deck &bull; Pages 1 through 5 (Includes Appendix)</span>
+      </div>
+      <div class="flex items-center space-x-4">
+        <span>Use <strong class="text-slate-300">Left / Right Arrows</strong> or buttons above to flip slides</span>
+        <span>&bull;</span>
+        <a href="/" class="text-blue-400 hover:underline">Return to Dashboard</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Slide Navigation Script -->
+  <script>
+    let currentSlide = 1;
+    const totalSlides = 5;
+
+    function showSlide(n) {
+      if (n < 1) n = 1;
+      if (n > totalSlides) n = totalSlides;
+      currentSlide = n;
+
+      for (let i = 1; i <= totalSlides; i++) {
+        const slideEl = document.getElementById(`slide-${i}`);
+        if (slideEl) {
+          if (i === currentSlide) {
+            slideEl.classList.add('active');
+          } else {
+            slideEl.classList.remove('active');
+          }
+        }
+      }
+
+      document.getElementById('current-slide-num').textContent = currentSlide;
+      lucide.createIcons();
+    }
+
+    function prevSlide() {
+      if (currentSlide > 1) {
+        showSlide(currentSlide - 1);
+      }
+    }
+
+    function nextSlide() {
+      if (currentSlide < totalSlides) {
+        showSlide(currentSlide + 1);
+      }
+    }
+
+    // Keyboard navigation
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
+        nextSlide();
+      } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+        prevSlide();
+      }
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+      lucide.createIcons();
+    });
+  </script>
+</body>
+</html>

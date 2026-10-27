@@ -1,0 +1,62 @@
+[
+  {
+    "id": "KB-101",
+    "title": "GlobalProtect VPN Gateway Timeout on Primary Connection",
+    "task_type": "Access & Network",
+    "issue_keywords": ["vpn", "globalprotect", "connection failed", "gateway timeout", "vpn portal", "tunnel failed"],
+    "solution_category": "Gateway Failover & DNS Cache Flush",
+    "historical_ticket_id": "TICK-8492",
+    "resolved_by": "Alex Mercer",
+    "resolution_date": "2026-09-14",
+    "verified_draft": "Hello {{sender_name}},\n\nThank you for reaching out regarding the VPN connectivity issue. This matches our verified historical incident (TICK-8492) caused by high gateway load on the primary endpoint.\n\nPlease follow these verified resolution steps:\n1. Open GlobalProtect and go to Settings > Gateway.\n2. Switch your gateway address to 'gw-backup.knoxflow.io'.\n3. Open terminal/PowerShell and execute: ipconfig /flushdns\n4. Re-enter your SSO credentials.\n\nThis will re-route your encrypted tunnel through our alternate cluster.\n\nBest regards,\n{{assignee_name}}\nKnoxFlow Infrastructure Operations",
+    "resolution_details": "Rerouted user client from overloaded primary gateway to secondary endpoint and flushed stale DNS records."
+  },
+  {
+    "id": "KB-102",
+    "title": "PostgreSQL Staging DB Read-Only Access Request",
+    "task_type": "Access Request",
+    "issue_keywords": ["database access", "postgres", "staging db", "read-only", "permission denied", "vault creds"],
+    "solution_category": "Vault OIDC Role Provisioning",
+    "historical_ticket_id": "TICK-7911",
+    "resolved_by": "Sarah Connor",
+    "resolution_date": "2026-08-20",
+    "verified_draft": "Hi {{sender_name}},\n\nYour request for read-only access to the Staging PostgreSQL database has been verified and provisioned per our standard access policy.\n\nConnection Details:\n- Host: pg-staging.internal.knoxflow.io\n- Port: 5432\n- Database: staging_analytics\n- Authorization: Generate temporary 8-hour credentials using Vault: `vault read database/creds/staging-readonly`\n\nPlease ensure all queries respect the 30-second execution timeout.\n\nRegards,\n{{assignee_name}}\nData Platform Team",
+    "resolution_details": "Attached staging-readonly policy to requester's OIDC role via HashiCorp Vault."
+  },
+  {
+    "id": "KB-103",
+    "title": "SSL Certificate Expiry Warning on Subdomain",
+    "task_type": "Infrastructure Bug",
+    "issue_keywords": ["ssl certificate", "cert expired", "https warning", "err_cert_date_invalid", "certbot", "certificate renewal"],
+    "solution_category": "ACME Certificate Re-issuance & Ingress Reload",
+    "historical_ticket_id": "TICK-9023",
+    "resolved_by": "Alex Mercer",
+    "resolution_date": "2026-10-02",
+    "verified_draft": "Hi {{sender_name}},\n\nThank you for flagging the SSL certificate warning. The automated ACME challenge had stalled on edge ingress node #2.\n\nWe have manually re-issued the wildcard certificate via our automated CA pipeline and reloaded the Nginx edge proxy. The certificate is now valid and verified across all geographic edge points.\n\nPlease hard-refresh your browser (Ctrl + Shift + R) to verify.\n\nBest regards,\n{{assignee_name}}\nSRE Team",
+    "resolution_details": "Manually force-renewed wildcard Let's Encrypt certificate and graceful reloaded edge Nginx pods."
+  },
+  {
+    "id": "KB-104",
+    "title": "Jira Software & Confluence License Allocation",
+    "task_type": "Account & Licensing",
+    "issue_keywords": ["jira license", "atlassian invitation", "confluence access", "seat allocation", "jira account"],
+    "solution_category": "Okta SCIM License Assignment",
+    "historical_ticket_id": "TICK-8840",
+    "resolved_by": "Priya Sharma",
+    "resolution_date": "2026-09-28",
+    "verified_draft": "Hello {{sender_name}},\n\nWe have provisioned an active Jira Software and Confluence license for your account through Okta SCIM sync.\n\nYou should receive an Atlassian automated verification email. Please click the invitation link to complete MFA configuration.\n\nIf you encounter an access prompt loop, please log in via the KnoxFlow Okta single sign-on portal.\n\nWarm regards,\n{{assignee_name}}\nIT Support Operations",
+    "resolution_details": "Assigned Jira & Confluence standard entitlement in Okta security group and synchronized via SCIM API."
+  },
+  {
+    "id": "KB-105",
+    "title": "CI/CD Pipeline Build Failure due to NPM Proxy Registry Timeout",
+    "task_type": "CI/CD Pipeline Issue",
+    "issue_keywords": ["docker build fail", "npm err econnreset", "registry timeout", "ci runner", "pipeline failed", "504 gateway timeout"],
+    "solution_category": "Proxy Cache Invalidation & Runner Recycling",
+    "historical_ticket_id": "TICK-9150",
+    "resolved_by": "David Kim",
+    "resolution_date": "2026-10-12",
+    "verified_draft": "Hi {{sender_name}},\n\nWe investigated the CI/CD pipeline timeout on runner cluster #4. The issue was traced to stale cached packages in the internal Verdaccio npm registry mirror.\n\nActions taken:\n1. Purged corrupted package chunks from cache storage.\n2. Recycled CI runner pod pool.\n3. Verified upstream synchronization with registry.npmjs.org.\n\nPlease re-run your failed GitHub Actions / GitLab pipeline; it should now resolve dependencies cleanly.\n\nBest regards,\n{{assignee_name}}\nDevOps Support",
+    "resolution_details": "Flushed internal Verdaccio mirror cache and recycled runner docker daemons."
+  }
+]

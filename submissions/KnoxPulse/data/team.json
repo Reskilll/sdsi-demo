@@ -1,0 +1,46 @@
+[
+  {
+    "id": "emp_01",
+    "name": "Sarah Connor",
+    "email": "sarah.c@knoxflow.io",
+    "role": "Senior Cloud Infrastructure Engineer",
+    "avatar": "SC",
+    "department": "Platform Reliability",
+    "experience": "8+ yrs",
+    "skills": ["Cloud Infrastructure", "Kubernetes & Containers", "VPN & Networking", "High Availability", "Incident Response"],
+    "primary_expertise": "Network & Cloud Infrastructure"
+  },
+  {
+    "id": "emp_02",
+    "name": "Alex Mercer",
+    "email": "alex.m@knoxflow.io",
+    "role": "DevOps & SRE Specialist",
+    "avatar": "AM",
+    "department": "Infrastructure & SecOps",
+    "experience": "6+ yrs",
+    "skills": ["CI/CD Pipelines", "Linux / OS Internals", "Security & Firewalls", "SRE & Monitoring", "Docker"],
+    "primary_expertise": "DevOps, SecOps & Linux Systems"
+  },
+  {
+    "id": "emp_03",
+    "name": "Priya Sharma",
+    "email": "priya.s@knoxflow.io",
+    "role": "Technical Support Lead",
+    "avatar": "PS",
+    "department": "Customer & Team Support",
+    "experience": "7+ yrs",
+    "skills": ["SLA Escalation", "Customer Communication", "ITSM & Access Governance", "General Inquiries", "Policy & Compliance"],
+    "primary_expertise": "SLA Incident Management & Support"
+  },
+  {
+    "id": "emp_04",
+    "name": "David Kim",
+    "email": "david.k@knoxflow.io",
+    "role": "Systems & Database Analyst",
+    "avatar": "DK",
+    "department": "Data Engineering",
+    "experience": "5+ yrs",
+    "skills": ["PostgreSQL & SQL", "Database Optimization", "Data Pipelines", "Access Management", "Redis / Cache"],
+    "primary_expertise": "Database Systems & SQL Optimization"
+  }
+]

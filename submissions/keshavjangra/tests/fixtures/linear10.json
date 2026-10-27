@@ -1,0 +1,12 @@
+[
+  { "id": "step1", "duration": 1, "dependsOn": [] },
+  { "id": "step2", "duration": 1, "dependsOn": ["step1"] },
+  { "id": "step3", "duration": 1, "dependsOn": ["step2"] },
+  { "id": "step4", "duration": 1, "dependsOn": ["step3"] },
+  { "id": "step5", "duration": 1, "dependsOn": ["step4"] },
+  { "id": "step6", "duration": 1, "dependsOn": ["step5"] },
+  { "id": "step7", "duration": 1, "dependsOn": ["step6"] },
+  { "id": "step8", "duration": 1, "dependsOn": ["step7"] },
+  { "id": "step9", "duration": 1, "dependsOn": ["step8"] },
+  { "id": "step10","duration": 1, "dependsOn": ["step9"] }
+]

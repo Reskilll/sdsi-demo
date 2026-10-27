@@ -11,7 +11,7 @@
  */
 
 import rateLimit, { type RateLimitRequestHandler } from 'express-rate-limit';
-import type { Request, Response } from 'express';
+import type { NextFunction, Request, Response } from 'express';
 
 import { AppError, ERROR_CODES } from '../domain/errors.js';
 
@@ -59,7 +59,7 @@ export function createRateLimiters(options: RateLimitOptions): RateLimiters {
     skip: (req: Request) => req.path === '/health',
   };
 
-  const noop: RateLimitRequestHandler = (_req, _res, next) => next();
+  const noop = ((_req: Request, _res: Response, next: NextFunction) => next()) as unknown as RateLimitRequestHandler;
 
   if (options.disabled) {
     return { global: noop, write: noop, redirect: noop };

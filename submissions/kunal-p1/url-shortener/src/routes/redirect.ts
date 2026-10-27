@@ -22,12 +22,13 @@ import type { NextFunction, Request, Response } from 'express';
 import { AppError } from '../domain/errors.js';
 import type { LinkService } from '../services/linkService.js';
 import type { RateLimiters } from '../middleware/rateLimit.js';
+import { firstParam } from './types.js';
 
 export function createRedirectRouter(service: LinkService, limiters: RateLimiters): Router {
   const router = Router();
 
   function resolveHandler(req: Request, res: Response, next: NextFunction): void {
-    const code = req.params.code;
+    const code = firstParam(req.params.code);
     if (!code) {
       next(new AppError('LINK_NOT_FOUND', 'Short code not found'));
       return;

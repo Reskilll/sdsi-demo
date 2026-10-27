@@ -33,8 +33,8 @@ export function createShortenRouter(service: LinkService, requireApiKey: AuthMid
     });
   });
 
-  // Explicit 405s so clients get JSON instead of the catch-all 404.
-  router.all('/shorten', (req, res) => {
+  // Explicit 405 so clients get JSON instead of the catch-all 404.
+  router.all('/shorten', (_req, res) => {
     res.setHeader('Allow', 'POST');
     res.status(405).json({
       error: {

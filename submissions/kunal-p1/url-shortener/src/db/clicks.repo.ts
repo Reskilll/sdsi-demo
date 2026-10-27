@@ -16,7 +16,6 @@ export interface DayBucket {
 }
 
 export class ClicksRepository {
-  readonly #db: DatabaseType;
   readonly #insert;
   readonly #totals;
   readonly #perDay;
@@ -24,7 +23,6 @@ export class ClicksRepository {
   readonly #countAll;
 
   constructor(db: DatabaseType) {
-    this.#db = db;
     this.#insert = db.prepare(`
       INSERT INTO clicks (code, clicked_at, ip_hash, user_agent, referer)
       VALUES (@code, @clickedAt, @ipHash, @userAgent, @referer)
@@ -76,11 +74,11 @@ export class ClicksRepository {
   }
 
   perDay(code: string): DayBucket[] {
-    return this.#perDay.all(code) as DayBucket[];
+    return this.#perDay.all(code) as unknown as DayBucket[];
   }
 
   recent(code: string, limit = 20): ClickRow[] {
-    return this.#recent.all(code, limit) as ClickRow[];
+    return this.#recent.all(code, limit) as unknown as ClickRow[];
   }
 
   countAll(): number {

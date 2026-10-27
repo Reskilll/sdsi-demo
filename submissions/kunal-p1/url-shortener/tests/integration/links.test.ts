@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import request from 'supertest';
 
-import { createTestContext, T0, type TestContext } from '../helpers/testContext.js';
+import { createTestContext, type TestContext } from '../helpers/testContext.js';
 
 let ctx: TestContext;
 

@@ -23,7 +23,6 @@ interface CountRow {
 }
 
 export class LinksRepository {
-  readonly #db: DatabaseType;
   readonly #insert;
   readonly #findByCode;
   readonly #findByCodeIncludingDeleted;
@@ -37,7 +36,6 @@ export class LinksRepository {
   readonly #exists;
 
   constructor(db: DatabaseType) {
-    this.#db = db;
     this.#insert = db.prepare(`
       INSERT INTO links (code, url, url_hash, alias, created_at, expires_at)
       VALUES (@code, @url, @urlHash, @alias, @createdAt, @expiresAt)
@@ -125,7 +123,7 @@ export class LinksRepository {
   }
 
   list(limit: number, offset: number): LinkRow[] {
-    return this.#listAll.all({ limit, offset }) as LinkRow[];
+    return this.#listAll.all({ limit, offset }) as unknown as LinkRow[];
   }
 
   count(): number {

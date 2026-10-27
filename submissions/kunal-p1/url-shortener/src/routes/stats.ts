@@ -4,13 +4,14 @@ import { Router } from 'express';
 
 import { clampInteger } from '../services/linkService.js';
 import type { LinkService } from '../services/linkService.js';
+import { firstParam } from './types.js';
 import type { AuthMiddleware } from './types.js';
 
 export function createStatsRouter(service: LinkService, requireApiKey: AuthMiddleware): Router {
   const router = Router();
 
   router.get('/stats/:code', requireApiKey, (req, res) => {
-    const code = req.params.code ?? '';
+    const code = firstParam(req.params.code);
     const stats = service.getStats(code);
 
     res.setHeader('Cache-Control', 'no-store');
@@ -32,7 +33,7 @@ export function createStatsRouter(service: LinkService, requireApiKey: AuthMiddl
   });
 
   router.get('/stats/:code/clicks', requireApiKey, (req, res) => {
-    const code = req.params.code ?? '';
+    const code = firstParam(req.params.code);
     const requested = Number.parseInt(String(req.query.limit ?? '20'), 10);
     const limit = clampInteger(Number.isFinite(requested) ? requested : 20, 1, 100);
 

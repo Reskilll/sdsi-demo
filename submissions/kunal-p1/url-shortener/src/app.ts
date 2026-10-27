@@ -17,7 +17,7 @@ import { join } from 'node:path';
 
 import express, { type Express } from 'express';
 import helmet from 'helmet';
-import pinoHttp from 'pino-http';
+import { pinoHttp } from 'pino-http';
 
 import type { AppConfig } from './config.js';
 import { createAuthMiddleware } from './middleware/auth.js';
@@ -29,6 +29,7 @@ import { createLinksRouter } from './routes/links.js';
 import { createRedirectRouter } from './routes/redirect.js';
 import { createShortenRouter } from './routes/shorten.js';
 import { createStatsRouter } from './routes/stats.js';
+import type { AuthMiddleware } from './routes/types.js';
 import { LinkService } from './services/linkService.js';
 import type { Clock } from './lib/clock.js';
 import type { Logger } from './lib/logger.js';
@@ -105,10 +106,8 @@ export function buildApp(options: BuildAppOptions): BuiltApp {
     pinoHttp({
       logger,
       // Log the path only: query strings may contain a full target URL.
-      customProps: (req, res) => ({
+      customProps: (_req, res) => ({
         requestId: res.locals.requestId as string | undefined,
-        method: req.method,
-        path: req.url?.split('?')[0],
       }),
       serializers: {
         req: (req: { method?: string; url?: string }) => ({
@@ -120,7 +119,6 @@ export function buildApp(options: BuildAppOptions): BuiltApp {
       autoLogging: {
         ignore: (req) => req.url === '/health',
       },
-      quietReqLogger: true,
     }),
   );
 
@@ -137,7 +135,9 @@ export function buildApp(options: BuildAppOptions): BuiltApp {
   const requireApiKey = createAuthMiddleware(config.apiKeys);
   // Stats are public by default so links can be shared; flip STATS_REQUIRE_AUTH
   // to protect per-link analytics.
-  const statsAuth = config.STATS_REQUIRE_AUTH ? requireApiKey : (_req, _res, next) => next();
+  const statsAuth: AuthMiddleware = config.STATS_REQUIRE_AUTH
+    ? requireApiKey
+    : (_req, _res, next) => next();
 
   app.use(limiters.global);
 

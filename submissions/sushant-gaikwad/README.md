@@ -3,6 +3,9 @@
 A thread-safe, in-memory reservation engine that **prevents overselling** during a flash sale,
 with a JSON REST API, a load simulator, and 73 automated tests.
 
+📋 **[Test report](TEST_REPORT.md):** 73/73 automated tests, live API checks for M1–M5, and a 5,000-buyer
+load simulation with no overselling.
+
 - Java 21+ · Maven · Jackson (JSON) · JUnit 5. No web framework: the API runs on the JDK's built-in
   `HttpServer` with virtual threads.
 
@@ -153,6 +156,9 @@ behaviour (including the exact `expiresAt` boundary) is checked deterministicall
   limiting. In production, put the service behind an API gateway with JWT auth and per-user rate limits.
 
 ## Tests (73)
+
+Full results are in [TEST_REPORT.md](TEST_REPORT.md). To run the live API checks against a freshly started
+server, use `bash scripts/api_check.sh`.
 
 | Suite | Covers |
 |---|---|

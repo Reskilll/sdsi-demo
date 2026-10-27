@@ -1,0 +1,37 @@
+{
+  "group": {
+    "name": "Team Outing 2026",
+    "members": ["Alice", "Bob", "Charlie", "Diana"]
+  },
+  "expenses": [
+    {
+      "description": "Dinner at Luigi's",
+      "payer": "Alice",
+      "amount": 120.00,
+      "split": {
+        "type": "equal",
+        "participants": ["Alice", "Bob", "Charlie", "Diana"]
+      }
+    },
+    {
+      "description": "Taxi",
+      "payer": "Bob",
+      "amount": 45.00,
+      "split": {
+        "type": "exact",
+        "participants": ["Alice", "Bob", "Charlie"],
+        "amounts": { "Alice": 15.00, "Bob": 15.00, "Charlie": 15.00 }
+      }
+    },
+    {
+      "description": "Hotel Suite",
+      "payer": "Diana",
+      "amount": 400.00,
+      "split": {
+        "type": "percentage",
+        "participants": ["Alice", "Diana"],
+        "percentages": { "Alice": 40, "Diana": 60 }
+      }
+    }
+  ]
+}

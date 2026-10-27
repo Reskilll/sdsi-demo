@@ -1,0 +1,18 @@
+{
+  "group": {
+    "name": "Bad Exact Amounts",
+    "members": ["Alice", "Bob"]
+  },
+  "expenses": [
+    {
+      "description": "Should fail",
+      "payer": "Alice",
+      "amount": 100.00,
+      "split": {
+        "type": "exact",
+        "participants": ["Alice", "Bob"],
+        "amounts": { "Alice": 30.00, "Bob": 50.00 }
+      }
+    }
+  ]
+}

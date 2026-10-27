@@ -1,0 +1,17 @@
+{
+  "group": {
+    "name": "Bad Payer",
+    "members": ["Alice", "Bob"]
+  },
+  "expenses": [
+    {
+      "description": "Dinner",
+      "payer": "ZOE",
+      "amount": 100.00,
+      "split": {
+        "type": "equal",
+        "participants": ["Alice", "Bob"]
+      }
+    }
+  ]
+}

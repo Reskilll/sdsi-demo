@@ -1,0 +1,17 @@
+{
+  "group": {
+    "name": "Equal Split Dinner",
+    "members": ["Alice", "Bob", "Charlie", "Diana"]
+  },
+  "expenses": [
+    {
+      "description": "Dinner at Luigi's",
+      "payer": "Alice",
+      "amount": 120.00,
+      "split": {
+        "type": "equal",
+        "participants": ["Alice", "Bob", "Charlie", "Diana"]
+      }
+    }
+  ]
+}

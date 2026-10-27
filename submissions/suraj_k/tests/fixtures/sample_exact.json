@@ -1,0 +1,18 @@
+{
+  "group": {
+    "name": "Exact Split Taxi",
+    "members": ["Alice", "Bob", "Charlie"]
+  },
+  "expenses": [
+    {
+      "description": "Taxi to venue",
+      "payer": "Bob",
+      "amount": 45.00,
+      "split": {
+        "type": "exact",
+        "participants": ["Alice", "Bob", "Charlie"],
+        "amounts": { "Alice": 15.00, "Bob": 15.00, "Charlie": 15.00 }
+      }
+    }
+  ]
+}

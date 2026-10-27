@@ -1,0 +1,18 @@
+{
+  "group": {
+    "name": "Percentage Split Hotel",
+    "members": ["Alice", "Diana", "Bob"]
+  },
+  "expenses": [
+    {
+      "description": "Hotel Suite",
+      "payer": "Diana",
+      "amount": 400.00,
+      "split": {
+        "type": "percentage",
+        "participants": ["Alice", "Diana"],
+        "percentages": { "Alice": 40, "Diana": 60 }
+      }
+    }
+  ]
+}

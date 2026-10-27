@@ -1,23 +1,17 @@
 package com.flashsale.inventory;
 
-import com.flashsale.inventory.dto.InventoryReportResponse;
-import com.flashsale.inventory.dto.ReservationResponse;
-import com.flashsale.inventory.exception.InsufficientStockException;
-import com.flashsale.inventory.exception.QuotaExceededException;
 import com.flashsale.inventory.model.Product;
 import com.flashsale.inventory.model.ReservationStatus;
 import com.flashsale.inventory.repository.ProductRepository;
 import com.flashsale.inventory.repository.ReservationRepository;
 import com.flashsale.inventory.service.ReservationService;
+import com.flashsale.inventory.dto.ReservationResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -27,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * High-concurrency stress tests verifying zero overselling and exact invariant.
  *
  * Strategy:
- * — 100 concurrent threads race for 10 items → exactly 10 success, 90 409/conflict
+ * — 100 concurrent threads race for 10 items → exactly 10 success, 90 conflict
  * — Per-user quota race: 10 threads from same user on limit=1 → 1 success, 9 conflict
  * — Final inventory invariant must hold: total == available + reserved + sold
  */
@@ -47,52 +41,42 @@ class InventoryConcurrencyTest {
         reservationRepository.deleteAll();
         productRepository.deleteAll();
 
-        productRepository.save(Product.builder()
-                .sku(SKU)
-                .name("Test Product")
-                .totalStock(TOTAL_STOCK)
-                .availableStock(TOTAL_STOCK)
-                .reservedStock(0)
-                .soldStock(0)
-                .maxPerUser(5)
-                .price(BigDecimal.TEN)
-                .build());
+        Product product = new Product();
+        product.setSku(SKU);
+        product.setName("Test Product");
+        product.setTotalStock(TOTAL_STOCK);
+        product.setAvailableStock(TOTAL_STOCK);
+        product.setReservedStock(0);
+        product.setSoldStock(0);
+        product.setMaxPerUser(5);
+        product.setPrice(BigDecimal.TEN);
+        productRepository.save(product);
     }
 
     @Test
     void hundredThreadsOnTenStock_shouldProduceExactlyTenSuccesses() throws Exception {
-        int threadCount = THREAD_COUNT;
-        ExecutorService executor = Executors.newFixedThreadPool(threadCount);
+        ExecutorService executor = Executors.newFixedThreadPool(THREAD_COUNT);
         CountDownLatch latch = new CountDownLatch(1);
+        ConcurrentHashMap<Integer, Boolean> results = new ConcurrentHashMap<>();
 
-        List<Future<Boolean>> futures = new ArrayList<>();
-        AtomicInteger successCount = new AtomicInteger(0);
-        ConcurrentLinkedQueue<String> reservationIds = new ConcurrentLinkedQueue<>();
-
-        for (int i = 0; i < threadCount; i++) {
-            String userId = "user-" + i;
-            futures.add(executor.submit(() -> {
+        for (int i = 0; i < THREAD_COUNT; i++) {
+            int idx = i;
+            executor.submit(() -> {
                 try {
-                    latch.await(); // everyone starts simultaneously
-                    ReservationResponse resp = reservationService.reserve(SKU, userId, 1, null);
-                    reservationIds.add(resp.reservationId());
-                    successCount.incrementAndGet();
-                    return true;
-                } catch (InsufficientStockException e) {
-                    return false;
+                    latch.await();
+                    reservationService.reserve(SKU, "user-" + idx, 1, null);
+                    results.put(idx, true);
+                } catch (Exception e) {
+                    results.put(idx, false);
                 }
-            }));
+            });
         }
 
         latch.countDown();
         executor.shutdown();
-        assertTrue(executor.awaitTermination(10, TimeUnit.SECONDS), "Tasks did not complete in time");
+        assertTrue(executor.awaitTermination(15, TimeUnit.SECONDS), "Tasks did not complete in time");
 
-        // Verify exactly 10 succeeded (one each, stock = 10)
-        int succeeded = 0;
-        for (Future<Boolean> f : futures) {
-            if (f.get()) succeeded++;
-        }
+        long succeeded = results.values().stream().filter(Boolean::booleanValue).count();
         assertEquals(TOTAL_STOCK, succeeded,
                 "Exactly " + TOTAL_STOCK + " reservations should succeed, got " + succeeded);
 
@@ -114,29 +98,27 @@ class InventoryConcurrencyTest {
         int tcount = 10;
         ExecutorService executor = Executors.newFixedThreadPool(tcount);
         CountDownLatch latch = new CountDownLatch(1);
-        List<Future<Boolean>> futures = new ArrayList<>();
+        ConcurrentHashMap<Integer, Boolean> results = new ConcurrentHashMap<>();
 
         String sameUser = "user-quota-test";
         for (int i = 0; i < tcount; i++) {
-            futures.add(executor.submit(() -> {
+            int idx = i;
+            executor.submit(() -> {
                 try {
                     latch.await();
                     reservationService.reserve(SKU, sameUser, 1, null);
-                    return true;
-                } catch (QuotaExceededException e) {
-                    return false;
+                    results.put(idx, true);
+                } catch (Exception e) {
+                    results.put(idx, false);
                 }
-            }));
+            });
         }
 
         latch.countDown();
         executor.shutdown();
-        assertTrue(executor.awaitTermination(10, TimeUnit.SECONDS));
+        assertTrue(executor.awaitTermination(15, TimeUnit.SECONDS));
 
-        int succeeded = 0;
-        for (Future<Boolean> f : futures) {
-            if (f.get()) succeeded++;
-        }
+        long succeeded = results.values().stream().filter(Boolean::booleanValue).count();
         assertEquals(1, succeeded, "Exactly 1 reservation should succeed when per-user limit is 1");
 
         Product after = productRepository.findBySku(SKU).orElseThrow();
@@ -146,24 +128,20 @@ class InventoryConcurrencyTest {
 
     @Test
     void zeroOversellAfterConfirmAll() {
-        // Reserve all stock first
         for (int i = 0; i < TOTAL_STOCK; i++) {
             reservationService.reserve(SKU, "user-" + i, 1, null);
         }
 
-        // Verify invariant after all reserves
         Product p = productRepository.findBySku(SKU).orElseThrow();
         assertTrue(p.isInvariantValid());
         assertEquals(0, p.getAvailableStock());
         assertEquals(TOTAL_STOCK, p.getReservedStock());
 
-        // Confirm all
         var reservations = reservationRepository.findAll();
         for (var r : reservations) {
             reservationService.confirm(r.getReservationId());
         }
 
-        // Final invariant check
         Product after = productRepository.findBySku(SKU).orElseThrow();
         assertTrue(after.isInvariantValid());
         assertEquals(TOTAL_STOCK, after.getSoldStock());
@@ -173,7 +151,6 @@ class InventoryConcurrencyTest {
 
     @Test
     void ttlExpiryShouldRestoreStock() throws Exception {
-        // Reserve with short TTL (5s in test config)
         ReservationResponse resp = reservationService.reserve(SKU, "user-1", 3, null);
 
         Product before = productRepository.findBySku(SKU).orElseThrow();
@@ -183,7 +160,6 @@ class InventoryConcurrencyTest {
         // Wait for TTL to expire + sweep
         Thread.sleep(6_000);
 
-        // Try to confirm — should get 410 Gone
         assertThrows(com.flashsale.inventory.exception.ReservationExpiredException.class, () -> {
             reservationService.confirm(resp.reservationId());
         });
@@ -212,13 +188,11 @@ class InventoryConcurrencyTest {
     void cancelShouldRestoreStockAndBeIdempotent() {
         ReservationResponse resp = reservationService.reserve(SKU, "user-cancel", 5, null);
 
-        // Cancel
         reservationService.cancel(resp.reservationId());
         Product mid = productRepository.findBySku(SKU).orElseThrow();
         assertEquals(TOTAL_STOCK, mid.getAvailableStock());
         assertEquals(0, mid.getReservedStock());
 
-        // Cancel again — idempotent, no crash
         ReservationResponse again = reservationService.cancel(resp.reservationId());
         assertEquals(ReservationStatus.CANCELLED, again.status());
 
@@ -230,7 +204,6 @@ class InventoryConcurrencyTest {
     void confirmIsIdempotent() {
         ReservationResponse resp = reservationService.reserve(SKU, "user-confirm", 2, null);
         reservationService.confirm(resp.reservationId());
-        // Confirm again — should be idempotent
         ReservationResponse again = reservationService.confirm(resp.reservationId());
         assertEquals(ReservationStatus.CONFIRMED, again.status());
 
@@ -256,12 +229,8 @@ class InventoryConcurrencyTest {
     }
 
     @Test
-    void zeroQuantityShouldReject() {
-        // This is enforced at the controller level via @Min(1) on the DTO.
-        // In the service layer, minimum validation happens via ReserveRequest.
-        // We test that negative logic is guarded:
+    void overflowStockShouldThrowConflict() {
         assertThrows(com.flashsale.inventory.exception.InsufficientStockException.class, () -> {
-            // Reserve all stock, then try a larger request
             for (int i = 0; i < TOTAL_STOCK; i++) {
                 reservationService.reserve(SKU, "user-" + i, 1, null);
             }

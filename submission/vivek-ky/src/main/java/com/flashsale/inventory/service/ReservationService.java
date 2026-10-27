@@ -103,16 +103,15 @@ public class ReservationService {
 
         // --- Create PENDING reservation ---
         Instant now = Instant.now();
-        Reservation reservation = Reservation.builder()
-                .sku(sku)
-                .userId(userId)
-                .quantity(quantity)
-                .status(ReservationStatus.PENDING)
-                .createdAt(now)
-                .expiresAt(now.plusSeconds(ttlSeconds))
-                .priceAtReservation(product.getPrice())
-                .idempotencyKey(idempotencyKey)
-                .build();
+        Reservation reservation = new Reservation();
+        reservation.setSku(sku);
+        reservation.setUserId(userId);
+        reservation.setQuantity(quantity);
+        reservation.setStatus(ReservationStatus.PENDING);
+        reservation.setCreatedAt(now);
+        reservation.setExpiresAt(now.plusSeconds(ttlSeconds));
+        reservation.setPriceAtReservation(product.getPrice());
+        reservation.setIdempotencyKey(idempotencyKey);
         reservation = reservationRepository.save(reservation);
 
         log.info("Reserved {} x {} for user {} — reservationId={}, expiresAt={}",
@@ -144,12 +143,13 @@ public class ReservationService {
             return toResponse(reservation);
         }
 
-        // Already cancelled or expired
+        // Already cancelled — permanent rejection
         if (reservation.getStatus() == ReservationStatus.CANCELLED) {
             throw new IllegalReservationStateException("Cannot confirm a cancelled reservation: " + reservationId);
         }
+        // Already expired (e.g. by background sweeper) — same semantic as lazy expiry
         if (reservation.getStatus() == ReservationStatus.EXPIRED) {
-            throw new IllegalReservationStateException("Cannot confirm an expired reservation: " + reservationId);
+            throw new ReservationExpiredException("Reservation has expired: " + reservationId);
         }
 
         // --- Lazy expiry: if TTL elapsed, expire now and reject ---
@@ -224,9 +224,6 @@ public class ReservationService {
     //  Get reservation by ID
     // ──────────────────────────────────────────────
 
-    /**
-     * Returns a reservation by its public ID.  Useful for client polling.
-     */
     @Transactional(readOnly = true)
     public ReservationResponse getByReservationId(String reservationId) {
         Reservation reservation = reservationRepository.findByReservationId(reservationId)
@@ -238,10 +235,6 @@ public class ReservationService {
     //  Helpers
     // ──────────────────────────────────────────────
 
-    /**
-     * Expires a reservation and restores its stock to available.
-     * Called both by the background sweeper and lazy-expiry-on-confirm.
-     */
     void expireReservationAndRestoreStock(Reservation reservation) {
         Product product = productRepository.findBySkuWithLock(reservation.getSku())
                 .orElseThrow(() -> new ResourceNotFoundException("SKU not found: " + reservation.getSku()));
@@ -256,7 +249,7 @@ public class ReservationService {
         log.info("Expired reservation {} — {} x {} returned to available", reservation.getReservationId(), reservation.getQuantity(), reservation.getSku());
     }
 
-    private ReservationResponse toResponse(Reservation r) {
+    public static ReservationResponse toResponse(Reservation r) {
         return new ReservationResponse(
                 r.getReservationId(),
                 r.getSku(),

@@ -39,16 +39,15 @@ public class InventorySeeder {
 
                 List<Product> products = new ArrayList<>();
                 for (JsonNode node : productsNode) {
-                    Product p = Product.builder()
-                            .sku(node.get("sku").asText())
-                            .name(node.get("name").asText())
-                            .totalStock(node.get("total_stock").asInt())
-                            .availableStock(node.get("total_stock").asInt()) // all available initially
-                            .reservedStock(0)
-                            .soldStock(0)
-                            .maxPerUser(node.get("max_per_user").asInt())
-                            .price(BigDecimal.valueOf(node.get("price").asDouble()))
-                            .build();
+                    Product p = new Product();
+                    p.setSku(node.get("sku").asText());
+                    p.setName(node.get("name").asText());
+                    p.setTotalStock(node.get("total_stock").asInt());
+                    p.setAvailableStock(node.get("total_stock").asInt()); // all available initially
+                    p.setReservedStock(0);
+                    p.setSoldStock(0);
+                    p.setMaxPerUser(node.get("max_per_user").asInt());
+                    p.setPrice(BigDecimal.valueOf(node.get("price").asDouble()));
                     products.add(p);
                 }
 

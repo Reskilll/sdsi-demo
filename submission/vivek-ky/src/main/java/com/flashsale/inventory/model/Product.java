@@ -4,7 +4,6 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import lombok.*;
 import java.math.BigDecimal;
 
 /**
@@ -15,11 +14,6 @@ import java.math.BigDecimal;
  */
 @Entity
 @Table(name = "products")
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
 public class Product {
 
     @Id
@@ -58,6 +52,25 @@ public class Product {
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal price;
 
+    @Version
+    @Column(nullable = false)
+    private Long version; // optimistic locking backup
+
+    public Product() {
+    }
+
+    public Product(String sku, String name, int totalStock, int availableStock,
+                   int reservedStock, int soldStock, int maxPerUser, BigDecimal price) {
+        this.sku = sku;
+        this.name = name;
+        this.totalStock = totalStock;
+        this.availableStock = availableStock;
+        this.reservedStock = reservedStock;
+        this.soldStock = soldStock;
+        this.maxPerUser = maxPerUser;
+        this.price = price;
+    }
+
     /**
      * Returns true if the inventory invariant holds.
      */
@@ -66,7 +79,75 @@ public class Product {
         return totalStock == availableStock + reservedStock + soldStock;
     }
 
-    @Version
-    @Column(nullable = false)
-    private Long version; // optimistic locking backup
+    public Long getId() {
+        return id;
+    }
+
+    public String getSku() {
+        return sku;
+    }
+
+    public void setSku(String sku) {
+        this.sku = sku;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public int getTotalStock() {
+        return totalStock;
+    }
+
+    public void setTotalStock(int totalStock) {
+        this.totalStock = totalStock;
+    }
+
+    public int getAvailableStock() {
+        return availableStock;
+    }
+
+    public void setAvailableStock(int availableStock) {
+        this.availableStock = availableStock;
+    }
+
+    public int getReservedStock() {
+        return reservedStock;
+    }
+
+    public void setReservedStock(int reservedStock) {
+        this.reservedStock = reservedStock;
+    }
+
+    public int getSoldStock() {
+        return soldStock;
+    }
+
+    public void setSoldStock(int soldStock) {
+        this.soldStock = soldStock;
+    }
+
+    public int getMaxPerUser() {
+        return maxPerUser;
+    }
+
+    public void setMaxPerUser(int maxPerUser) {
+        this.maxPerUser = maxPerUser;
+    }
+
+    public BigDecimal getPrice() {
+        return price;
+    }
+
+    public void setPrice(BigDecimal price) {
+        this.price = price;
+    }
+
+    public Long getVersion() {
+        return version;
+    }
 }

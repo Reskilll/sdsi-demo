@@ -4,7 +4,6 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import lombok.*;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.UUID;
@@ -21,11 +20,6 @@ import java.util.UUID;
     @Index(name = "idx_reservations_status_expires", columnList = "status, expiresAt"),
     @Index(name = "idx_reservations_user_sku_status", columnList = "userId, sku, status")
 })
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
 public class Reservation {
 
     @Id
@@ -69,6 +63,9 @@ public class Reservation {
     @Column(nullable = false)
     private Long version;
 
+    public Reservation() {
+    }
+
     @PrePersist
     public void prePersist() {
         if (this.reservationId == null || this.reservationId.isBlank()) {
@@ -85,5 +82,87 @@ public class Reservation {
     @Transient
     public boolean isExpired() {
         return status == ReservationStatus.PENDING && Instant.now().isAfter(expiresAt);
+    }
+
+    // --- Getters and Setters ---
+
+    public Long getId() {
+        return id;
+    }
+
+    public String getReservationId() {
+        return reservationId;
+    }
+
+    public void setReservationId(String reservationId) {
+        this.reservationId = reservationId;
+    }
+
+    public String getSku() {
+        return sku;
+    }
+
+    public void setSku(String sku) {
+        this.sku = sku;
+    }
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
+    }
+
+    public int getQuantity() {
+        return quantity;
+    }
+
+    public void setQuantity(int quantity) {
+        this.quantity = quantity;
+    }
+
+    public ReservationStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(ReservationStatus status) {
+        this.status = status;
+    }
+
+    public Instant getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(Instant createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public Instant getExpiresAt() {
+        return expiresAt;
+    }
+
+    public void setExpiresAt(Instant expiresAt) {
+        this.expiresAt = expiresAt;
+    }
+
+    public BigDecimal getPriceAtReservation() {
+        return priceAtReservation;
+    }
+
+    public void setPriceAtReservation(BigDecimal priceAtReservation) {
+        this.priceAtReservation = priceAtReservation;
+    }
+
+    public String getIdempotencyKey() {
+        return idempotencyKey;
+    }
+
+    public void setIdempotencyKey(String idempotencyKey) {
+        this.idempotencyKey = idempotencyKey;
+    }
+
+    public Long getVersion() {
+        return version;
     }
 }

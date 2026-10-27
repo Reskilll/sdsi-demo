@@ -1,0 +1,8 @@
+{
+  "products": [
+    {"sku": "MOUSE-PRO", "name": "Pro Wireless Mouse", "stock": 100, "limit_per_user": 2},
+    {"sku": "KB-MECH",   "name": "Mechanical Keyboard",  "stock": 50,  "limit_per_user": 1},
+    {"sku": "MON-4K",    "name": "4K Monitor",           "stock": 25,  "limit_per_user": 1},
+    {"sku": "HEAD-ANC",  "name": "Noise-Cancelling Headphones", "stock": 10, "limit_per_user": 1}
+  ]
+}

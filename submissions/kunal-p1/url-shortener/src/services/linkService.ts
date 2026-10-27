@@ -1,24 +1,20 @@
 /**
  * Link service: the single place where the business rules live.
  *
- * Everything here is synchronous (better-sqlite3) and free of Express types, so
- * the same code path is exercised by unit tests, integration tests and the HTTP
- * layer.
+ * Everything here is synchronous and free of Express types, so the same code
+ * path is exercised by unit tests, integration tests and the HTTP layer.
  *
- * Concurrency: writes run inside `db.transaction(...).immediate()`, which takes
- * SQLite's RESERVED lock *before* the lookup. That serialises the read-then-insert
- * sequence across processes, so two simultaneous requests for the same URL can
- * never produce two codes (requirement M4). The partial unique index is the
- * backstop if a future refactor loses the transaction.
+ * Concurrency: writes run inside `transaction(db, fn, 'immediate')`, which takes
+ * SQLite's RESERVED lock *before* the lookup. That serialises the
+ * read-then-insert sequence across connections, so two simultaneous requests for
+ * the same URL can never produce two codes (requirement M4). The partial unique
+ * index is the backstop if a future refactor loses the transaction.
  */
 
-import type { Database as DatabaseType } from 'better-sqlite3';
-
-import { generateCode } from '../domain/base62.js';
 import { validateAlias } from '../domain/alias.js';
+import { generateCode } from '../domain/base62.js';
 import { AppError } from '../domain/errors.js';
 import { parseExpiresAt, toIso, toUtcDate } from '../domain/expiry.js';
-import { normalizeUrl } from '../domain/url.js';
 import type {
   CreateLinkInput,
   CreateLinkResult,
@@ -29,7 +25,10 @@ import type {
   ListLinksResult,
   NewClick,
 } from '../domain/types.js';
+import { normalizeUrl } from '../domain/url.js';
 import { ClicksRepository } from '../db/clicks.repo.js';
+import { isUniqueViolation, transaction } from '../db/connection.js';
+import type { DatabaseType } from '../db/connection.js';
 import { LinksRepository } from '../db/links.repo.js';
 import type { Clock } from '../lib/clock.js';
 import { hashIp, truncate } from '../lib/crypto.js';
@@ -59,18 +58,7 @@ export interface ClickContext {
 const MAX_ATTEMPTS_DEFAULT = 8;
 const MAX_UA_LENGTH = 512;
 const MAX_REFERER_LENGTH = 512;
-
-/** `SqliteError` shape we care about: UNIQUE constraint violation. */
-function isUniqueViolation(error: unknown): boolean {
-  return (
-    typeof error === 'object' &&
-    error !== null &&
-    'code' in error &&
-    typeof (error as { code?: unknown }).code === 'string' &&
-    ((error as { code: string }).code === 'SQLITE_CONSTRAINT_UNIQUE' ||
-      (error as { code: string }).code === 'SQLITE_CONSTRAINT_PRIMARYKEY')
-  );
-}
+const MS_PER_DAY = 86_400_000;
 
 export class LinkService {
   readonly #db: DatabaseType;
@@ -78,9 +66,14 @@ export class LinkService {
   readonly #clicks: ClicksRepository;
   readonly #clock: Clock;
   readonly #logger: Logger;
-  readonly #options: Required<Omit<LinkServiceOptions, 'db' | 'clock' | 'logger' | 'selfOrigins'>> & {
-    selfOrigins: readonly string[];
-  };
+  readonly #publicBaseUrl: string;
+  readonly #codeLength: number;
+  readonly #maxUrlLength: number;
+  readonly #allowPrivateHosts: boolean;
+  readonly #selfOrigins: readonly string[];
+  readonly #expiryMaxDays: number;
+  readonly #ipSalt: string;
+  readonly #maxCodeAttempts: number;
 
   constructor(options: LinkServiceOptions) {
     this.#db = options.db;
@@ -88,37 +81,35 @@ export class LinkService {
     this.#clicks = new ClicksRepository(options.db);
     this.#clock = options.clock;
     this.#logger = options.logger;
-    this.#options = {
-      publicBaseUrl: options.publicBaseUrl,
-      codeLength: options.codeLength,
-      maxUrlLength: options.maxUrlLength,
-      allowPrivateHosts: options.allowPrivateHosts,
-      selfOrigins: options.selfOrigins,
-      expiryMaxDays: options.expiryMaxDays,
-      ipSalt: options.ipSalt,
-      maxCodeAttempts: options.maxCodeAttempts ?? MAX_ATTEMPTS_DEFAULT,
-    };
+    this.#publicBaseUrl = options.publicBaseUrl;
+    this.#codeLength = options.codeLength;
+    this.#maxUrlLength = options.maxUrlLength;
+    this.#allowPrivateHosts = options.allowPrivateHosts;
+    this.#selfOrigins = options.selfOrigins;
+    this.#expiryMaxDays = options.expiryMaxDays;
+    this.#ipSalt = options.ipSalt;
+    this.#maxCodeAttempts = options.maxCodeAttempts ?? MAX_ATTEMPTS_DEFAULT;
   }
 
-  /** Builds the absolute short URL returned to clients. */
+  /** Absolute short URL returned to clients. */
   shortUrlFor(code: string): string {
-    return `${this.#options.publicBaseUrl}/${code}`;
+    return `${this.#publicBaseUrl}/${code}`;
   }
 
   /**
    * Create (or idempotently return) a short link.
    *
    * - Same URL twice, no alias -> same code, `created: false` (M4).
-   * - Same URL, previously expired -> a fresh code is minted; the old code keeps
+   * - Same URL, only expired links -> a fresh code is minted; the old code keeps
    *   returning 410 so historical stats stay attributable.
-   * - Custom alias: unique namespace, no dedupe, 409 when taken (M4 exemption).
+   * - Custom alias: unique namespace, never deduped, 409 when taken (M4 exemption).
    */
   createLink(input: CreateLinkInput): CreateLinkResult {
     const now = this.#clock.now();
     const normalized = normalizeUrl(input.url, {
-      maxUrlLength: this.#options.maxUrlLength,
-      allowPrivateHosts: this.#options.allowPrivateHosts,
-      selfOrigins: this.#options.selfOrigins,
+      maxUrlLength: this.#maxUrlLength,
+      allowPrivateHosts: this.#allowPrivateHosts,
+      selfOrigins: this.#selfOrigins,
     });
 
     const aliasProvided = input.alias !== undefined && input.alias !== null && input.alias !== '';
@@ -127,18 +118,14 @@ export class LinkService {
     const expiresAt =
       input.expiresAt === undefined || input.expiresAt === null || input.expiresAt === ''
         ? null
-        : parseExpiresAt(input.expiresAt, now, this.#options.expiryMaxDays);
+        : parseExpiresAt(input.expiresAt, now, this.#expiryMaxDays);
 
-    const run = this.#db.transaction((): CreateLinkResult => {
+    return transaction(this.#db, () => {
       if (alias) {
         return this.#createWithAlias(alias, normalized.url, normalized.hash, now, expiresAt);
       }
       return this.#createOrReuse(normalized.url, normalized.hash, now, expiresAt);
     });
-
-    // `.immediate()` acquires the write lock up front; reads inside the callback
-    // therefore cannot race with another creator.
-    return run.immediate();
   }
 
   #createWithAlias(
@@ -188,15 +175,13 @@ export class LinkService {
     now: number,
     expiresAt: number | null,
   ): CreateLinkResult {
-    // M4: reuse a live link for the same canonical URL regardless of expiry
-    // differences; otherwise mint a new code.
     const live = this.#links.findLiveByHash(urlHash, now);
     if (live) {
       return { link: live, shortUrl: this.shortUrlFor(live.code), created: false };
     }
 
-    for (let attempt = 0; attempt < this.#options.maxCodeAttempts; attempt += 1) {
-      const code = generateCode(this.#options.codeLength);
+    for (let attempt = 0; attempt < this.#maxCodeAttempts; attempt += 1) {
+      const code = generateCode(this.#codeLength);
       try {
         const link = this.#links.insert({
           code,
@@ -209,8 +194,8 @@ export class LinkService {
         return { link, shortUrl: this.shortUrlFor(link.code), created: true };
       } catch (error) {
         if (!isUniqueViolation(error)) throw error;
-        // Either the generated code collided (retry) or a concurrent insert beat
-        // us to the dedupe index. Re-check the dedupe row before retrying.
+        // Either the generated code collided (retry) or a concurrent insert won
+        // the dedupe index. Re-check for the winner before retrying.
         const raced = this.#links.findLiveByHash(urlHash, now);
         if (raced) {
           return { link: raced, shortUrl: this.shortUrlFor(raced.code), created: false };
@@ -230,7 +215,7 @@ export class LinkService {
    *
    * @throws AppError LINK_GONE (410) for expired/deleted, LINK_NOT_FOUND (404).
    */
-  resolve(code: string, context: ClickContext = {}): LinkRow {
+  resolve(code: string): LinkRow {
     const link = this.#links.findByCodeIncludingDeleted(code);
     if (!link) {
       throw new AppError('LINK_NOT_FOUND', 'Short code not found', { code });
@@ -258,17 +243,16 @@ export class LinkService {
     const click: NewClick = {
       code,
       clickedAt: this.#clock.now(),
-      ipHash: hashIp(context.ip ?? null, this.#options.ipSalt),
+      ipHash: hashIp(context.ip ?? null, this.#ipSalt),
       userAgent: truncate(context.userAgent, MAX_UA_LENGTH),
       referer: truncate(context.referer, MAX_REFERER_LENGTH),
     };
 
     try {
-      const write = this.#db.transaction(() => {
+      transaction(this.#db, () => {
         this.#clicks.insert(click);
         this.#links.incrementClicks(code, click.clickedAt);
       });
-      write();
     } catch (error) {
       this.#logger.warn({ err: error, code }, 'failed to record click; redirect continues');
     }
@@ -302,7 +286,10 @@ export class LinkService {
   }
 
   /** Recent individual clicks, newest first (dashboard detail view). */
-  recentClicks(code: string, limit = 20) {
+  recentClicks(
+    code: string,
+    limit = 20,
+  ): Array<{ clickedAt: string; userAgent: string | null; referer: string | null }> {
     const link = this.#links.findByCodeIncludingDeleted(code);
     if (!link) {
       throw new AppError('LINK_NOT_FOUND', 'Short code not found', { code });
@@ -354,7 +341,7 @@ export class LinkService {
       if (!existing) {
         throw new AppError('LINK_NOT_FOUND', 'Short code not found', { code });
       }
-      // Already deleted: treat as idempotent success.
+      // Already deleted: treated as idempotent success.
       return;
     }
     this.#logger.info({ code }, 'link soft-deleted');
@@ -363,11 +350,11 @@ export class LinkService {
   /** Remove long-expired links (maintenance command). */
   purgeExpired(olderThanDays: number): number {
     const now = this.#clock.now();
-    const cutoff = now - olderThanDays * 86_400_000;
+    const cutoff = now - olderThanDays * MS_PER_DAY;
     return this.#links.purgeExpiredBefore(cutoff);
   }
 
-  /** Health probe: cheap query that proves the database is readable/writable. */
+  /** Health probe: cheap query that proves the database is readable. */
   checkDatabase(): { ok: boolean; schemaVersion: number } {
     const row = this.#db.prepare('SELECT MAX(id) AS version FROM schema_migrations').get() as
       | { version: number | null }
@@ -398,7 +385,7 @@ export function buildDenseSeries(
   while (cursor <= end) {
     const day = toUtcDate(cursor);
     series.push({ date: day, clicks: counts.get(day) ?? 0 });
-    cursor += 86_400_000;
+    cursor += MS_PER_DAY;
   }
 
   return series.length > maxDays ? series.slice(-maxDays) : series;

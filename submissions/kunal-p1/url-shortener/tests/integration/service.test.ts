@@ -3,7 +3,6 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { AppError } from '../../src/domain/errors.js';
 import { createServiceContext, T0, tempDir, type TestContext } from '../helpers/testContext.js';
 import { openDatabase } from '../../src/db/connection.js';
-
 let ctx: TestContext;
 
 beforeEach(() => {

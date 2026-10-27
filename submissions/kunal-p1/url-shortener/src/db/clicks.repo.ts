@@ -1,7 +1,6 @@
 /** `clicks` table data access and aggregation. */
 
-import type { Database as DatabaseType } from 'better-sqlite3';
-
+import type { DatabaseType } from './connection.js';
 import type { ClickRow, NewClick } from '../domain/types.js';
 
 export interface ClickTotals {
@@ -22,6 +21,7 @@ export class ClicksRepository {
   readonly #totals;
   readonly #perDay;
   readonly #recent;
+  readonly #countAll;
 
   constructor(db: DatabaseType) {
     this.#db = db;
@@ -30,15 +30,15 @@ export class ClicksRepository {
       VALUES (@code, @clickedAt, @ipHash, @userAgent, @referer)
     `);
     this.#totals = db.prepare(`
-      SELECT COUNT(*)                     AS total,
-             COUNT(DISTINCT ip_hash)      AS uniqueVisitors,
-             MIN(clicked_at)              AS first,
-             MAX(clicked_at)              AS last
+      SELECT COUNT(*)                AS total,
+             COUNT(DISTINCT ip_hash) AS uniqueVisitors,
+             MIN(clicked_at)         AS first,
+             MAX(clicked_at)         AS last
         FROM clicks
        WHERE code = ?
     `);
-    // strftime('%Y-%m-%d', ..., 'unixepoch') keeps bucketing in UTC and lets
-    // SQLite use the (code, clicked_at) index for the range scan.
+    // Bucketing happens in UTC inside SQLite, so it cannot drift with a
+    // server's local timezone and it uses the (code, clicked_at) index.
     this.#perDay = db.prepare(`
       SELECT strftime('%Y-%m-%d', clicked_at / 1000, 'unixepoch') AS day,
              COUNT(*) AS clicks
@@ -47,13 +47,20 @@ export class ClicksRepository {
        GROUP BY day
        ORDER BY day ASC
     `);
-    this.#recent = db.prepare(`
-      SELECT * FROM clicks WHERE code = ? ORDER BY clicked_at DESC, id DESC LIMIT ?
-    `);
+    this.#recent = db.prepare(
+      'SELECT * FROM clicks WHERE code = ? ORDER BY clicked_at DESC, id DESC LIMIT ?',
+    );
+    this.#countAll = db.prepare('SELECT COUNT(*) AS total FROM clicks');
   }
 
   insert(click: NewClick): void {
-    this.#insert.run(click);
+    this.#insert.run({
+      code: click.code,
+      clickedAt: click.clickedAt,
+      ipHash: click.ipHash,
+      userAgent: click.userAgent,
+      referer: click.referer,
+    });
   }
 
   totals(code: string): ClickTotals {
@@ -77,9 +84,7 @@ export class ClicksRepository {
   }
 
   countAll(): number {
-    const row = this.#db.prepare('SELECT COUNT(*) AS total FROM clicks').get() as
-      | { total: number }
-      | undefined;
+    const row = this.#countAll.get() as { total: number } | undefined;
     return row?.total ?? 0;
   }
 }

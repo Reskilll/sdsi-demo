@@ -9,12 +9,11 @@ import { mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
-import type { Database as DatabaseType } from 'better-sqlite3';
 import type { Express } from 'express';
 
 import { buildApp } from '../../src/app.js';
 import { parseConfig, type AppConfig } from '../../src/config.js';
-import { openDatabase } from '../../src/db/connection.js';
+import { openDatabase, type DatabaseType } from '../../src/db/connection.js';
 import { fixedClock } from '../../src/lib/clock.js';
 import { silentLogger } from '../../src/lib/logger.js';
 import { LinkService } from '../../src/services/linkService.js';
@@ -86,7 +85,11 @@ export function createTestContext(options: TestContextOptions = {}): TestContext
     app,
     config,
     cleanup: () => {
-      if (db.open) db.close();
+      try {
+        db.close();
+      } catch {
+        // Already closed by the test.
+      }
     },
   };
 }

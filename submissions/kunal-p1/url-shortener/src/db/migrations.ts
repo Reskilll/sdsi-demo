@@ -1,12 +1,12 @@
 /**
  * Forward-only migration runner.
  *
- * Migrations are applied inside a transaction each and recorded in
- * `schema_migrations`, so booting twice is a no-op and a partial upgrade can
- * never leave the schema half-applied.
+ * Each migration runs inside a transaction and is recorded in
+ * `schema_migrations`, so booting twice is a no-op and an interrupted upgrade
+ * can never leave the schema half-applied.
  */
 
-import type { Database as DatabaseType } from 'better-sqlite3';
+import type { DatabaseType } from './connection.js';
 
 interface Migration {
   id: number;
@@ -33,12 +33,12 @@ const migrations: readonly Migration[] = [
           last_accessed_at INTEGER
         );
 
-        -- Codes are globally unique; SQLite's UNIQUE index also gives us the
-        -- atomic insert-or-fail guarantee used for alias collisions.
+        -- Codes are globally unique; the UNIQUE index also provides the atomic
+        -- insert-or-fail guarantee used for alias collisions.
         CREATE UNIQUE INDEX idx_links_code ON links (code);
 
         -- Idempotent shortening lookup (M4): live, non-expiring links only.
-        -- Partial unique index both speeds up the lookup and guarantees that
+        -- The partial unique index both speeds up the lookup and guarantees that
         -- two concurrent requests cannot both create a duplicate.
         CREATE UNIQUE INDEX idx_links_dedupe
           ON links (url_hash)
@@ -67,8 +67,10 @@ const migrations: readonly Migration[] = [
     id: 2,
     name: 'expiry-index',
     up: (db) => {
-      // Supports the prune job and "expired links" reporting.
-      db.exec(`CREATE INDEX idx_links_expires_at ON links (expires_at) WHERE expires_at IS NOT NULL;`);
+      // Supports the prune job and expired-link reporting.
+      db.exec(
+        'CREATE INDEX idx_links_expires_at ON links (expires_at) WHERE expires_at IS NOT NULL;',
+      );
     },
   },
 ];
@@ -90,11 +92,19 @@ export function runMigrations(db: DatabaseType): number {
 
   for (const migration of migrations) {
     if (applied.has(migration.id)) continue;
-    const apply = db.transaction(() => {
+    db.exec('BEGIN IMMEDIATE');
+    try {
       migration.up(db);
       record.run(migration.id, migration.name, Date.now());
-    });
-    apply();
+      db.exec('COMMIT');
+    } catch (error) {
+      try {
+        db.exec('ROLLBACK');
+      } catch {
+        // SQLite already aborted the transaction.
+      }
+      throw error;
+    }
   }
 
   return LATEST_SCHEMA_VERSION;

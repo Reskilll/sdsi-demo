@@ -144,15 +144,82 @@ button {
   padding: 8px 20px; font-size: 0.85rem; font-weight: 600;
   background: var(--seq-450); color: var(--label-on-fill);
   border: none; border-radius: var(--radius-sm); cursor: pointer;
+  position: relative;
+  transition: background 0.15s, opacity 0.15s, transform 0.05s;
 }
 button:hover { background: var(--seq-500); }
-button:active { background: var(--seq-550); }
+button:active { background: var(--seq-550); transform: scale(0.97); }
+button:disabled { opacity: 0.6; cursor: wait; transform: none; }
 .btn-secondary {
   background: transparent; color: var(--text-secondary);
   border: 1px solid var(--baseline);
 }
 .btn-secondary:hover { background: var(--gridline); }
 .btn-secondary:active { background: var(--baseline); }
+.btn-secondary:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* inline button spinner */
+.btn-spinner {
+  display: none; width: 14px; height: 14px; margin-right: 8px;
+  border: 2px solid currentColor; border-top-color: transparent;
+  border-radius: 50%; vertical-align: -2px;
+  animation: spin 0.7s linear infinite;
+}
+button.loading .btn-spinner { display: inline-block; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ==================================================================
+   Loader overlay
+   ================================================================== */
+.loader-overlay {
+  position: fixed; inset: 0; z-index: 200;
+  background: var(--page-plane); opacity: 0;
+  display: flex; flex-direction: column; gap: 16px;
+  align-items: center; justify-content: center;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+.loader-overlay.active {
+  opacity: 1; pointer-events: all;
+}
+.loader-overlay .spinner {
+  width: 44px; height: 44px; border: 3px solid var(--seq-200);
+  border-top-color: var(--seq-450); border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+.loader-overlay .spinner-label {
+  font-size: 0.85rem; color: var(--text-secondary);
+  letter-spacing: 0.02em;
+}
+
+/* ==================================================================
+   Alerts (toasts)
+   ================================================================== */
+.toast-stack {
+  position: fixed; top: 16px; right: 16px; z-index: 300;
+  display: flex; flex-direction: column; gap: 8px; max-width: 320px;
+}
+.toast {
+  background: var(--surface-1); border: 1px solid var(--baseline);
+  border-left: 4px solid var(--seq-450); border-radius: var(--radius-sm);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+  padding: 10px 14px; font-size: 0.85rem; color: var(--text-primary);
+  display: flex; align-items: flex-start; gap: 8px;
+  opacity: 0; transform: translateX(20px);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+.toast.show { opacity: 1; transform: translateX(0); }
+.toast.success { border-left-color: var(--status-good); }
+.toast.error   { border-left-color: var(--status-error); }
+.toast.info    { border-left-color: var(--seq-450); }
+.toast-icon { flex-shrink: 0; font-weight: 700; line-height: 1.3; }
+.toast.success .toast-icon { color: var(--status-good); }
+.toast.error   .toast-icon { color: var(--status-error); }
+.toast.info    .toast-icon { color: var(--seq-450); }
+.toast-msg { line-height: 1.4; }
+
+/* alerts flash on the notification bell/badge-less; keep accessible */
+.toast [role="status"] { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
 
 .error-box {
   background: #fef2f2; border: 1px solid var(--status-error);
@@ -313,7 +380,7 @@ tr.cp-row td:first-child { font-weight: 600; }
       <input type="number" id="inp-workers" value="2" min="1" step="1" placeholder="override">
       <label for="inp-failed">Failed job:</label>
       <input type="text" id="inp-failed" value="" placeholder="e.g. transform" style="width:140px;">
-      <button id="btn-run">Run</button>
+      <button id="btn-run"><span class="btn-spinner"></span>Run</button>
       <button class="btn-secondary" id="btn-reset">Reset</button>
     </div>
   </div>
@@ -375,6 +442,15 @@ tr.cp-row td:first-child { font-weight: 600; }
 <!-- tooltip (singleton) -->
 <div class="tooltip" id="tooltip"></div>
 
+<!-- loader overlay -->
+<div class="loader-overlay" id="loader">
+  <div class="spinner"></div>
+  <div class="spinner-label" id="loader-label">Scheduling…</div>
+</div>
+
+<!-- toast stack -->
+<div class="toast-stack" id="toast-stack" role="status" aria-live="polite"></div>
+
 <script>
 /* ==================================================================
    Constants & state
@@ -388,7 +464,45 @@ const seqSteps = [
 const $ = (s) => document.querySelector(s);
 const tooltip = $('#tooltip');
 
-/* theme toggle */
+/* ==================================================================
+   Loader
+   ================================================================== */
+const loader = $('#loader');
+const loaderLabel = $('#loader-label');
+let loadTimer = null;
+
+function showLoader(label = 'Scheduling…') {
+  loaderLabel.textContent = label;
+  loader.classList.add('active');
+}
+function hideLoader() {
+  loader.classList.remove('active');
+}
+
+/* ==================================================================
+   Toasts (alerts on click)
+   ================================================================== */
+const toastStack = $('#toast-stack');
+const TOAST_ICONS = { success: '✓', error: '✕', info: 'ℹ' };
+
+function toast(message, type = 'info', timeout = 3200) {
+  const el = document.createElement('div');
+  el.className = 'toast ' + type;
+  el.innerHTML = `<span class="toast-icon">${TOAST_ICONS[type] || 'ℹ'}</span><span class="toast-msg">${escHtml(message)}</span>`;
+  toastStack.appendChild(el);
+  // force reflow so the transition fires
+  requestAnimationFrame(() => el.classList.add('show'));
+  setTimeout(() => {
+    el.classList.remove('show');
+    el.addEventListener('transitionend', () => el.remove(), { once: true });
+    // fallback removal if transitionend never fires
+    setTimeout(() => el.remove(), 400);
+  }, timeout);
+}
+
+/* ==================================================================
+   Theme toggle
+   ================================================================== */
 let theme = localStorage.getItem('theme') || 'auto';
 function applyTheme() {
   if (theme === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
@@ -400,30 +514,51 @@ $('#btn-theme').onclick = () => {
   theme = theme === 'dark' ? 'light' : 'dark';
   localStorage.setItem('theme', theme);
   applyTheme();
+  toast(theme === 'dark' ? 'Dark mode enabled' : 'Light mode enabled', 'info', 2200);
 };
 
 /* ==================================================================
    Run scheduler
    ================================================================== */
+const MIN_DELAY_MS = 450;
+
+const delay = (ms) => new Promise((r) => setTimeout(r, ms));
+
 $('#btn-run').onclick = async () => {
+  const runBtn = $('#btn-run');
   const raw = $('#input-json').value.trim();
   const workersVal = $('#inp-workers').value.trim();
   const failedVal = $('#inp-failed').value.trim();
 
+  // pre-flight JSON parse (no network yet)
   let payload;
   try { payload = JSON.parse(raw); } catch (e) {
-    showErrors(['malformed JSON: ' + e.message]); return;
+    showErrors(['malformed JSON: ' + e.message]);
+    toast('Invalid JSON — check the job description', 'error');
+    return;
   }
   if (typeof payload !== 'object' || payload === null || Array.isArray(payload)) {
     showErrors(['JSON must be an object, got ' + (Array.isArray(payload) ? 'array' : typeof payload)]);
+    toast('Input must be a JSON object', 'error');
     return;
   }
   if (workersVal) {
     const w = parseInt(workersVal, 10);
-    if (!isNaN(w) && w >= 1) payload._workers = w;
+    if (isNaN(w) || w < 1) {
+      showErrors(['workers must be an integer >= 1']);
+      toast('Workers must be a positive integer', 'error');
+      return;
+    }
+    payload._workers = w;
   }
   if (failedVal) payload._failed_job = failedVal;
 
+  // enter loading state: disable the button + inline spinner + overlay
+  runBtn.disabled = true;
+  runBtn.classList.add('loading');
+  showLoader('Scheduling jobs…');
+
+  const started = Date.now();
   try {
     const resp = await fetch('/api/schedule', {
       method: 'POST',
@@ -431,20 +566,34 @@ $('#btn-run').onclick = async () => {
       body: JSON.stringify(payload),
     });
     const data = await resp.json();
+
+    // enforce a minimum delay so the loader never flashes
+    const elapsed = Date.now() - started;
+    if (elapsed < MIN_DELAY_MS) await delay(MIN_DELAY_MS - elapsed);
+
     if (data.errors) {
       showErrors(data.errors);
+      toast('Validation failed — see errors below', 'error');
     } else {
       hideErrors();
       render(data);
+      const n = data.topological_order.length;
+      toast(`Schedule ready — ${n} job${n === 1 ? '' : 's'} analyzed`, 'success');
     }
   } catch (e) {
     showErrors(['request failed: ' + e.message]);
+    toast('Request failed — is the server running?', 'error');
+  } finally {
+    runBtn.disabled = false;
+    runBtn.classList.remove('loading');
+    hideLoader();
   }
 };
 
 $('#btn-reset').onclick = () => {
   $('#results').style.display = 'none';
   hideErrors();
+  toast('Results cleared', 'info', 2000);
 };
 
 /* ==================================================================

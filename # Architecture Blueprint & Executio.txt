@@ -1,0 +1,143 @@
+# Architecture Blueprint & Execution Plan: IT Service-Desk SLA Tracker
+
+## Executive Summary
+This project implements an enterprise-grade **IT Service-Desk SLA Tracker** designed for high-precision SLA breach calculation, status history tracking (including `ON_HOLD` pause management), calendar & holiday exclusions, and multi-dimensional reporting (breach rates by priority and assignee group).
+
+The solution is architected with zero external runtime dependencies (using Python standard library for maximum portability and instant evaluation), while featuring high-performance calendar arithmetic ($O(1)$ day-block intervals rather than naive minute-by-minute loops), hardened input validation, comprehensive edge-case handling, interactive terminal reporting, JSON/CSV/HTML reporting, a synthetic benchmark generator, and automated test suites.
+
+---
+
+## 1. Requirements & Milestone Mapping
+
+| Milestone | Requirement | Architectural Design |
+|---|---|---|
+| **M1** | SLA targets by priority: P1 (4h), P2 (8h), P3 (24h), P4 (72h) in business hours (Mon–Fri, 09:00–18:00). | Policy-driven SLA definitions; 540 business minutes per day; interval intersection arithmetic. |
+| **M2** | Exclude holidays from SLA time. | Calendar abstraction (`HolidayCalendar`) supporting `YYYY-MM-DD` date lookups with zero business minutes attributed to official holidays. |
+| **M3** | Pause SLA clock while ticket is `ON_HOLD`. | Event-based state transition timeline. Active vs Paused state partition. Paused intervals are excluded from elapsed time and dynamically advance the due-by wall clock. |
+| **M4** | Per-ticket reporting: elapsed business minutes, due-by time, breach yes/no, breach minutes. | Comprehensive `TicketSLAResult` schema with microsecond precision, ISO-8601 formatting, and exact breach delta computation. |
+| **M5** | Summary: breach % per priority and per assignee group. | Aggregation engine computing total count, breached count, breach rate percentage, average elapsed minutes, and maximum breach severity. |
+
+---
+
+## 2. Deep Edge-Case Analysis & Mitigation Matrix
+
+| Edge Case | Description | Mitigation Strategy |
+|---|---|---|
+| **EC1: Created outside business hours** | Ticket created on Sunday 14:00 or Friday 21:00. | Zero business minutes accumulate until 09:00 on next working day; SLA target begins clocking from that business window start. |
+| **EC2: Resolved outside business hours** | Ticket resolved on Saturday or weekday 21:00. | Elapsed time clamped at 18:00 of the preceding business day. Saturday work does not add ghost business minutes. |
+| **EC3: ON_HOLD over weekend / holiday** | Ticket paused Friday 17:00 and resumed Monday 10:00. | Wall clock elapsed = 65 hrs, but business pause is strictly 2 hrs (1h Fri + 1h Mon). Due-by timestamp shifts forward by exactly 2 business hours. |
+| **EC4: Rapid / Repeated State Transitions** | Multiple `ON_HOLD` $\leftrightarrow$ `IN_PROGRESS` transitions within minutes or seconds. | Chronological timeline normalization: sort transitions, dedup identical consecutive states, handle zero-width intervals cleanly. |
+| **EC5: Open / In-Flight Tickets** | Ticket is not yet `RESOLVED` at evaluation time. | Configurable evaluation cut-off timestamp (`as_of`). Computes elapsed time to `as_of`, determines whether already breached or projected due-by in the future. |
+| **EC6: Ticket created directly in ON_HOLD** | Initial status is `ON_HOLD`. | Clock remains stopped at 0 elapsed business minutes until first active transition. |
+| **EC7: Unassigned or Missing Assignee Group** | `assignee_group` is null, empty, or missing. | Normalized to `"Unassigned"` bucket rather than throwing a key error. |
+| **EC8: Multi-Day & Consecutive Holidays** | Back-to-back holidays (e.g. Thanksgiving & Black Friday) or holidays on weekends. | Set-based $O(1)$ holiday matching; weekend holidays do not result in double-deductions. |
+| **EC9: Mixed Timezones & ISO-8601 Formats** | Tickets with `Z`, `+05:30`, `-04:00`, or local naive timestamps. | Unified timezone-aware normalization to target timezone (default UTC or system local). |
+| **EC10: High-Volume Benchmark Performance** | 100,000 tickets with P4 (72h = 8 business days). | Analytical day-chunking formula ($O(1)$ day jumps) avoiding $O(\text{minutes})$ loops. |
+
+---
+
+## 3. High-Level Architecture & Workflow
+
+```mermaid
+flowchart TD
+    subgraph InputFiles ["Input Data Sources"]
+        T["tickets.json\n(lifecycle & status history)"]
+        P["sla_policy.json\n(priority targets & hours)"]
+        H["holidays.json\n(observed holiday dates)"]
+    end
+
+    subgraph CoreEngine ["SLA Engine & Domain Logic"]
+        VAL["Input Validator & Normalizer\n(schema checks, timestamp sorting)"]
+        CAL["Business Calendar\n(Mon-Fri 09:00-18:00, holiday exclusion)"]
+        TL["Timeline Slicer\n(active vs ON_HOLD paused intervals)"]
+        CALC["SLA Calculator\n(elapsed mins, due-by projection, breach mins)"]
+        AGG["Metrics & Analytics Aggregator\n(priority & assignee group stats)"]
+    end
+
+    subgraph OutputReporters ["Outputs & Interfaces"]
+        CLI["CLI Interface\n(ANSI colored tables, filters)"]
+        JSON_OUT["JSON Report\n(machine readable schema)"]
+        CSV_OUT["CSV Export\n(spreadsheet compatible)"]
+        HTML_OUT["Executive HTML Dashboard\n(standalone, dark mode, visual cards)"]
+    end
+
+    T --> VAL
+    P --> VAL
+    H --> VAL
+    VAL --> CAL
+    VAL --> TL
+    CAL --> CALC
+    TL --> CALC
+    CALC --> AGG
+    CALC --> CLI
+    AGG --> CLI
+    CALC --> JSON_OUT
+    AGG --> JSON_OUT
+    CALC --> CSV_OUT
+    CALC --> HTML_OUT
+```
+
+---
+
+## 4. Component Structure
+
+The project will reside cleanly under `submissions/WincyVS/`:
+
+```text
+submissions/WincyVS/
+├── main.py                     # Root CLI entry point
+├── sla_tracker/
+│   ├── __init__.py
+│   ├── models.py               # Data models: Ticket, StatusTransition, SLAPolicy, etc.
+│   ├── calendar.py             # Business hours, intervals, and holiday logic
+│   ├── engine.py               # Core SLA calculator (M1-M4)
+│   ├── analytics.py            # Summary aggregator (M5: priority & assignee group breach %)
+│   ├── validator.py            # Schema validation, timezone handling, sanitization
+│   ├── reporter.py             # Terminal, JSON, CSV, and interactive HTML generators
+│   └── synthetic.py            # Test dataset generator with tricky edge cases
+├── data/
+│   ├── tickets.json            # Realistic tickets showcasing all criteria and edge cases
+│   ├── sla_policy.json         # P1=4h, P2=8h, P3=24h, P4=72h (9:00-18:00)
+│   └── holidays.json           # 2026/2027 holiday dataset
+├── tests/
+│   ├── test_calendar.py        # Calendar arithmetic & boundary tests
+│   ├── test_engine.py          # Core SLA calculation unit tests
+│   ├── test_analytics.py       # Priority and assignee group aggregation tests
+│   ├── test_edge_cases.py      # Weekend creation, rapid on-hold, midnight resolution, leap year
+│   └── test_validator.py       # Corrupt inputs, missing fields, schema errors
+├── README.md                   # Complete documentation, quickstart, architecture, benchmarks
+└── PROMPTS.md                  # Hackathon AI collaboration and prompt logs
+```
+
+---
+
+## 5. Implementation Milestones & Work Breakdown
+
+1. **Step 1: Setup Git Branch & Clean Workspace**: Check out branch `wincyvs`, ensure clean staging.
+2. **Step 2: Core Domain Models & Calendar Engine**:
+   - `models.py`: Strongly typed dataclasses with serialization/deserialization.
+   - `calendar.py`: Fast interval calculation, business day window checks, holiday filtering.
+3. **Step 3: SLA Engine & Pause Handling (M1-M4)**:
+   - Timeline slicing for `ON_HOLD` intervals.
+   - Elapsed business minutes computation.
+   - Due-by forward projection accounting for pauses.
+   - Breach status and breach minutes.
+4. **Step 4: Analytics Engine (M5)**:
+   - Breach % by priority.
+   - Breach % by assignee group.
+   - Overall health metrics (avg breach time, MTTR, etc.).
+5. **Step 5: Input Validation & Sanitization**:
+   - Schema validation, chronological sorting of transitions, default handling for missing fields.
+6. **Step 6: CLI & Multi-Format Reporting (Terminal, JSON, CSV, HTML)**:
+   - Tabular CLI with breach status color codes.
+   - Self-contained HTML report with dark mode & visual summary cards.
+7. **Step 7: Rich Test Suite (M1-M5 + Edge Cases)**:
+   - Comprehensive test suite in standard `unittest` format with 100% pass rate.
+8. **Step 8: Sample Datasets & Synthetic Data Generator**:
+   - `tickets.json`, `sla_policy.json`, `holidays.json`.
+   - `generate-data` CLI command.
+9. **Step 9: Documentation (README.md & PROMPTS.md)**:
+   - Comprehensive README with problem statement, architecture, verification steps, and run instructions.
+   - Complete PROMPTS.md logging AI collaboration steps.
+10. **Step 10: Git Hygiene & Verification**:
+    - Atomic commits, run test suite, verify end-to-end runnability.

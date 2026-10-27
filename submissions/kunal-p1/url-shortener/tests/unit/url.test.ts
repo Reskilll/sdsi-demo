@@ -48,11 +48,12 @@ describe('URL validation (M3)', () => {
     ['not a url', 'INVALID_URL'],
     ['example.com', 'INVALID_URL'],
     ['http://', 'INVALID_URL'],
-    ['https:///path', 'INVALID_URL'],
     ['//example.com/path', 'INVALID_URL'],
     ['http://exa mple.com', 'INVALID_URL'],
     ['http://example.com/\r\nSet-Cookie: x=1', 'INVALID_URL'],
     ['http://example.com/\u0000', 'INVALID_URL'],
+    // WHATWG URL treats the third slash as the host, which lands as a single-label host.
+    ['https:///path', 'BLOCKED_HOST'],
   ])('rejects malformed input %j', (input, code) => {
     expectCode(() => normalizeUrl(input, options), code);
   });

@@ -424,9 +424,14 @@ describe('M5: click analytics', () => {
     expect(response.body.clicks[0]).not.toHaveProperty('ipHash');
   });
 
-  it('stores only hashed IPs in the database', () => {
+  it('stores only hashed IPs in the database', async () => {
+    const created = await request(ctx.app).post('/shorten').send({ url: 'https://example.com/hash' }).expect(201);
+    await request(ctx.app).get(`/${created.body.code}`).set('X-Forwarded-For', '203.0.113.9').expect(302);
+
     const rows = ctx.db.prepare('SELECT ip_hash FROM clicks').all() as Array<{ ip_hash: string | null }>;
-    expect(rows.every((row) => row.ip_hash === null)).toBe(true);
+    expect(rows).toHaveLength(1);
+    expect(rows[0]?.ip_hash).toMatch(/^[0-9a-f]{32}$/);
+    expect(rows[0]?.ip_hash).not.toContain('203.0.113');
   });
 });
 

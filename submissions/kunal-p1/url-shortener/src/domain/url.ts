@@ -20,9 +20,10 @@ import { isPrivateHostname } from './net.js';
 export const ALLOWED_PROTOCOLS = new Set(['http:', 'https:']);
 const DEFAULT_PORTS: Record<string, string> = { 'http:': '80', 'https:': '443' };
 
-// Control characters and invisible characters used to smuggle past filters.
+// Control characters plus invisible/bidi characters used to smuggle past filters:
+// C0/C1 controls, zero-width space/joiners, bidi marks and overrides, BOM.
 // eslint-disable-next-line no-control-regex
-const FORBIDDEN_CHARS = /[\u0000-\u001F\u007F-\u009F\u200B-\u200F\u2028\u2029\uFEFF]/;
+const FORBIDDEN_CHARS = /[\u0000-\u001F\u007F-\u009F\u200B-\u200F\u202A-\u202E\u2066-\u2069\uFEFF]/;
 const DOMAIN_LABEL = /^(?!-)[a-z0-9-]{1,63}(?<!-)$/;
 
 export interface NormalizeOptions {

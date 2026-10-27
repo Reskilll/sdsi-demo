@@ -12,3 +12,4 @@ from flash_sale.cli import run_flash_sale_simulation
 if __name__ == "__main__":
     inventory_path = Path(__file__).resolve().parent / "inventory.json"
     run_flash_sale_simulation(str(inventory_path), concurrent_users=40)
+

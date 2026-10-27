@@ -68,3 +68,4 @@ class AuditLedger:
         """Clears all audit events."""
         with self._lock:
             self._events.clear()
+

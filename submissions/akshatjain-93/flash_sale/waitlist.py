@@ -93,3 +93,4 @@ class WaitlistManager:
                 e for e in self._waitlists[sku] if e.user_id != user_id
             )
             return len(self._waitlists[sku]) < original_len
+

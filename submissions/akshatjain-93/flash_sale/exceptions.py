@@ -95,3 +95,4 @@ class InvalidStateError(FlashSaleError):
         self.reservation_id = reservation_id
         self.current_state = current_state
         self.attempted_action = attempted_action
+

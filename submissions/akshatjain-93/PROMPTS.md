@@ -85,3 +85,4 @@ This document records the prompt progression, architectural deliberations, trade
 
 - **Distributed Environments**: For a distributed multi-node architecture (e.g. multiple Kubernetes pods), the in-memory per-SKU `RLock` can be substituted with Redis distributed locks (`Redlock`) or Lua scripts (`EVAL`) executing atomic `DECR` and TTL key setting.
 - **Event-Driven Messaging**: Expired reservations can publish Kafka/RabbitMQ events to trigger user notifications and dynamic cart abandonment workflows.
+

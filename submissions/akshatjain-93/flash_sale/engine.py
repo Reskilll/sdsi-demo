@@ -581,3 +581,4 @@ class FlashSaleEngine:
         """Fetch a reservation by ID."""
         with self._global_lock:
             return self._reservations.get(reservation_id)
+

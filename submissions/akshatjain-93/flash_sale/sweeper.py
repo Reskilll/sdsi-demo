@@ -81,3 +81,4 @@ class TTLSweeper:
         while not self._stop_event.is_set():
             self.sweep_expired()
             self._stop_event.wait(timeout=self._interval)
+

@@ -14,8 +14,9 @@ GET  /stats/:code ─▶ { totalClicks, clicksPerDay[], lastAccessedAt, ... }
 
 ## Quick start (zero configuration)
 
-Requires **Node.js 20.19+ or 22/24** (`.nvmrc` pins 22) and a C++ toolchain **only if**
-no prebuilt `better-sqlite3` binary exists for your platform.
+Requires **Node.js 22.5+** (`.nvmrc` pins 22). No compiler, Python or build step is
+needed: persistence uses Node's built-in `node:sqlite` module, so `npm install` is
+pure JavaScript.
 
 ```bash
 cd submissions/kunal-p1/url-shortener
@@ -262,7 +263,7 @@ re-aggregated for per-day stats.
 ### Performance notes
 
 - Redirect path = 1 indexed lookup + 1 small transaction (2 row updates). No joins.
-- Prepared statements are compiled once per process; better-sqlite3 is synchronous, so
+- Prepared statements are compiled once per process; `node:sqlite` is synchronous, so
   there is no async scheduling overhead on the hot path.
 - WAL mode lets stats queries read while redirects write.
 - `idx_clicks_code_time` serves both `GROUP BY day` and `ORDER BY clicked_at DESC`.
@@ -342,7 +343,7 @@ A/B rotation.
 
 | Symptom | Fix |
 |---|---|
-| `better-sqlite3` fails to build | Install Python 3 + a C++ toolchain, or use Node 22 LTS where prebuilt binaries exist |
+| `node:sqlite` unavailable | Use Node 22.5+ (`node -e "new (require('node:sqlite').DatabaseSync)(':memory:')"` to check) |
 | `EADDRINUSE` | Another process owns the port; change `PORT` |
 | `401 UNAUTHORIZED` on writes | `API_KEYS` is set — send `Authorization: Bearer <key>` |
 | `400 BLOCKED_HOST` for localhost | Set `ALLOW_PRIVATE_HOSTS=true` for local demos |

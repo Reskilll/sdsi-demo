@@ -4,7 +4,8 @@ export default defineConfig({
   test: {
     environment: 'node',
     include: ['tests/**/*.test.ts'],
-    // better-sqlite3 is a native addon; worker threads can be flaky on Windows.
+    // node:sqlite is synchronous and per-process; forks give each test file its
+    // own process, which keeps in-memory databases fully isolated.
     pool: 'forks',
     reporters: ['default'],
     clearMocks: true,

@@ -14,7 +14,7 @@ flowchart TD
     A[HTTP: routes + middleware] --> B[LinkService]
     B --> C[Domain rules<br/>base62 · url · alias · expiry · net]
     B --> D[Repositories<br/>links · clicks]
-    D --> E[(SQLite / better-sqlite3)]
+    D --> E[(SQLite via node:sqlite)]
     A --> F[Dashboard static assets]
 ```
 

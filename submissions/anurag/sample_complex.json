@@ -1,0 +1,10 @@
+{
+  "ingest":    { "duration": 3, "dependsOn": [] },
+  "clean_a":  { "duration": 2, "dependsOn": ["ingest"] },
+  "clean_b":  { "duration": 2, "dependsOn": ["ingest"] },
+  "clean_c":  { "duration": 2, "dependsOn": ["ingest"] },
+  "merge":    { "duration": 4, "dependsOn": ["clean_a", "clean_b", "clean_c"] },
+  "validate": { "duration": 1, "dependsOn": ["merge"] },
+  "publish":  { "duration": 2, "dependsOn": ["merge"] },
+  "notify":   { "duration": 1, "dependsOn": ["validate", "publish"] }
+}

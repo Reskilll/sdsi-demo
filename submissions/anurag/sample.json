@@ -1,0 +1,7 @@
+{
+  "fetch":   { "duration": 2, "dependsOn": [] },
+  "parse_a": { "duration": 1, "dependsOn": ["fetch"] },
+  "parse_b": { "duration": 1, "dependsOn": ["fetch"] },
+  "join":    { "duration": 2, "dependsOn": ["parse_a", "parse_b"] },
+  "export":  { "duration": 1, "dependsOn": ["join"] }
+}

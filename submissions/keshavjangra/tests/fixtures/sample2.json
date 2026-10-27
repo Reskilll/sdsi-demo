@@ -1,0 +1,8 @@
+[
+  { "id": "LINT",    "duration": 1, "dependsOn": [] },
+  { "id": "TEST",    "duration": 4, "dependsOn": ["LINT"] },
+  { "id": "BUILD_A", "duration": 6, "dependsOn": ["LINT"] },
+  { "id": "BUILD_B", "duration": 6, "dependsOn": ["LINT"] },
+  { "id": "E2E",     "duration": 5, "dependsOn": ["TEST", "BUILD_A", "BUILD_B"] },
+  { "id": "DEPLOY",  "duration": 2, "dependsOn": ["E2E"] }
+]

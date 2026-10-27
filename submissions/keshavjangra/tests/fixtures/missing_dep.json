@@ -1,0 +1,3 @@
+[
+  { "id": "A", "duration": 1, "dependsOn": ["Z"] }
+]

@@ -126,8 +126,10 @@ func (e *Engine) Reserve(user, sku string, qty int) (*ReserveResult, error) {
 	expiresAt := e.clock().Add(e.defaultTTL)
 	res := &Reservation{ID: id, SKU: sku, User: user, Qty: qty, State: StateReserved, ExpiresAt: expiresAt}
 	e.byID[id] = res
-	l := e.userSKUList(user, sku)
-	*l = append(*l, res)
+	if e.byUserSKU[user] == nil {
+		e.byUserSKU[user] = make(map[string][]*Reservation)
+	}
+	e.byUserSKU[user][sku] = append(e.byUserSKU[user][sku], res)
 	e.reserved[sku] += qty
 	return &ReserveResult{Reservation: res, Available: e.availableLocked(sku), ExpiresAt: expiresAt}, nil
 }
@@ -165,7 +167,8 @@ func (e *Engine) finalize(id string, to State) (*Reservation, error) {
 	// Reserved state: re-check TTL at decision time. Expired holds cannot be
 	// confirmed (the stock was already swept back to available) and a cancel
 	// racing the sweeper simply records itself first.
-	if e.clock().After(res.ExpiresAt) {
+	// Boundary: exactly-at-expiry counts as expired (!Before = expired).
+	if !e.clock().Before(res.ExpiresAt) {
 		e.releaseLocked(res, StateExpired)
 		if to == StateSold {
 			return nil, fmt.Errorf("%w: reservation %q expired at %s", ErrReservationExpired, id, res.ExpiresAt.Format(time.RFC3339))
@@ -203,7 +206,7 @@ func (e *Engine) sweepLocked(sku string) int {
 		if res.SKU != sku || res.State != StateReserved {
 			continue
 		}
-		if now.After(res.ExpiresAt) {
+		if !now.Before(res.ExpiresAt) { // exactly-at-expiry counts as expired
 			e.releaseLocked(res, StateExpired)
 			released += res.Qty
 		}
@@ -237,14 +240,6 @@ func (e *Engine) soldByUserLocked(user, sku string) int {
 		}
 	}
 	return total
-}
-
-func (e *Engine) userSKUList(user, sku string) *[]*Reservation {
-	if e.byUserSKU[user] == nil {
-		e.byUserSKU[user] = make(map[string][]*Reservation)
-	}
-	l := e.byUserSKU[user][sku]
-	return &l
 }
 
 // Report is the per-SKU snapshot for M5.
@@ -288,7 +283,7 @@ func (e *Engine) GetReservation(id string) (*Reservation, error) {
 		return nil, fmt.Errorf("%w: %q", ErrReservationUnknown, id)
 	}
 	// Surface expiry lazily so a read after the TTL shows the true state.
-	if res.State == StateReserved && e.clock().After(res.ExpiresAt) {
+	if res.State == StateReserved && !e.clock().Before(res.ExpiresAt) {
 		e.releaseLocked(res, StateExpired)
 	}
 	return res, nil

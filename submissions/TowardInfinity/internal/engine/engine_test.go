@@ -177,7 +177,7 @@ func TestCancelReleases(t *testing.T) {
 
 func TestTTLExpiryReleases(t *testing.T) {
 	e, clock := newTestEngine(t)
-	r, err := e.Reserve("u1", "SKU-A", 4)
+	r, err := e.Reserve("u1", "SKU-A", 3)
 	if err != nil {
 		t.Fatalf("Reserve: %v", err)
 	}
@@ -213,7 +213,7 @@ func TestConfirmVsExpiryRace(t *testing.T) {
 	// injectable clock we advance time between the reserve and the confirm so
 	// expiry and confirm collide; the engine must pick exactly one winner.
 	e, clock := newTestEngine(t)
-	r, err := e.Reserve("u1", "SKU-A", 5)
+	r, err := e.Reserve("u1", "SKU-A", 3)
 	if err != nil {
 		t.Fatalf("Reserve: %v", err)
 	}
@@ -224,9 +224,9 @@ func TestConfirmVsExpiryRace(t *testing.T) {
 		done <- err
 	}()
 	e.Sweep() // concurrent sweeper
-	err := <-done
-	if err != nil && !errors.Is(err, ErrReservationExpired) {
-		t.Fatalf("unexpected confirm error: %v", err)
+	gotErr := <-done
+	if gotErr != nil && !errors.Is(gotErr, ErrReservationExpired) {
+		t.Fatalf("unexpected confirm error: %v", gotErr)
 	}
 	rep := e.Report()[0]
 	if rep.Sold != 0 || rep.Reserved != 0 || rep.Available != 10 {
@@ -282,7 +282,7 @@ func TestUserLimitReleasedStockFreesQuota(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Reserve: %v", err)
 	}
-	e.Cancel(r1.Reservation.ID)          // released -> quota back
+	e.Cancel(r1.Reservation.ID) // released -> quota back
 	if _, err := e.Reserve("u1", "SKU-A", 3); err != nil {
 		t.Fatalf("after cancel quota should be free: %v", err)
 	}
@@ -305,7 +305,7 @@ func TestUserLimitIndependentPerSKUAndUser(t *testing.T) {
 
 func TestReportNeverDoubleCountsExpired(t *testing.T) {
 	e, clock := newTestEngine(t)
-	if _, err := e.Reserve("u1", "SKU-A", 5); err != nil {
+	if _, err := e.Reserve("u1", "SKU-A", 3); err != nil {
 		t.Fatalf("first reserve: %v", err)
 	}
 	*clock = clock.Add(testTTL + time.Second)
@@ -366,7 +366,7 @@ func TestConcurrentReserveNeverOversells(t *testing.T) {
 
 func TestConcurrentConfirmAndCancel(t *testing.T) {
 	e, _ := newTestEngine(t)
-	r, err := e.Reserve("u1", "SKU-A", 4)
+	r, err := e.Reserve("u1", "SKU-A", 3)
 	if err != nil {
 		t.Fatalf("Reserve: %v", err)
 	}
@@ -385,7 +385,7 @@ func TestConcurrentConfirmAndCancel(t *testing.T) {
 	wg.Wait()
 	rep := e.Report()[0]
 	// exactly one of the two final outcomes, applied once.
-	soldOrCanceled := rep.Sold == 4 && rep.Available == 6 && rep.Reserved == 0
+	soldOrCanceled := rep.Sold == 3 && rep.Available == 7 && rep.Reserved == 0
 	canceled := rep.Sold == 0 && rep.Available == 10 && rep.Reserved == 0
 	if !soldOrCanceled && !canceled {
 		t.Fatalf("torn final state: %+v", rep)

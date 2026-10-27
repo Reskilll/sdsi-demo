@@ -1,0 +1,10 @@
+[
+  { "id": "fetch",   "duration": 5, "dependsOn": [] },
+  { "id": "clean_a", "duration": 3, "dependsOn": ["fetch"] },
+  { "id": "clean_b", "duration": 2, "dependsOn": ["fetch"] },
+  { "id": "train_a", "duration": 8, "dependsOn": ["clean_a"] },
+  { "id": "train_b", "duration": 6, "dependsOn": ["clean_b"] },
+  { "id": "validate", "duration": 4, "dependsOn": ["train_a", "train_b"] },
+  { "id": "deploy",  "duration": 2, "dependsOn": ["validate"] },
+  { "id": "notify",  "duration": 1, "dependsOn": ["deploy"] }
+]

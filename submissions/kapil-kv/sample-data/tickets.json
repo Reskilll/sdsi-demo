@@ -1,0 +1,169 @@
+[
+  {
+    "ticketNumber": "TK-20261020-0001",
+    "title": "P1: Critical server outage (resolved within SLA)",
+    "description": "Production server down. All users affected.",
+    "priority": "P1",
+    "status": "RESOLVED",
+    "assigneeGroup": "Server Team",
+    "createdAt": "2026-10-20T09:30:00.000Z",
+    "resolvedAt": "2026-10-20T12:30:00.000Z",
+    "statusHistory": [
+      { "status": "OPEN", "timestamp": "2026-10-20T09:30:00.000Z", "reason": "Ticket created" },
+      { "status": "IN_PROGRESS", "timestamp": "2026-10-20T09:35:00.000Z", "reason": "Engineer assigned" },
+      { "status": "RESOLVED", "timestamp": "2026-10-20T12:30:00.000Z", "reason": "Server restarted successfully" }
+    ]
+  },
+  {
+    "ticketNumber": "TK-20261020-0002",
+    "title": "P1: Network down (breached)",
+    "description": "Complete network outage in Building A.",
+    "priority": "P1",
+    "status": "RESOLVED",
+    "assigneeGroup": "Network Team",
+    "createdAt": "2026-10-20T09:00:00.000Z",
+    "resolvedAt": "2026-10-20T15:00:00.000Z",
+    "statusHistory": [
+      { "status": "OPEN", "timestamp": "2026-10-20T09:00:00.000Z", "reason": "Ticket created" },
+      { "status": "IN_PROGRESS", "timestamp": "2026-10-20T09:15:00.000Z", "reason": "Network engineer assigned" },
+      { "status": "ON_HOLD", "timestamp": "2026-10-20T11:00:00.000Z", "reason": "Waiting for vendor response" },
+      { "status": "IN_PROGRESS", "timestamp": "2026-10-20T13:00:00.000Z", "reason": "Vendor responded" },
+      { "status": "RESOLVED", "timestamp": "2026-10-20T15:00:00.000Z", "reason": "Network restored" }
+    ]
+  },
+  {
+    "ticketNumber": "TK-20261021-0001",
+    "title": "P2: Email server slow (resolved within SLA)",
+    "description": "Email delivery delayed by 10 minutes.",
+    "priority": "P2",
+    "status": "RESOLVED",
+    "assigneeGroup": "Server Team",
+    "createdAt": "2026-10-21T10:00:00.000Z",
+    "resolvedAt": "2026-10-21T16:00:00.000Z",
+    "statusHistory": [
+      { "status": "OPEN", "timestamp": "2026-10-21T10:00:00.000Z", "reason": "Ticket created" },
+      { "status": "IN_PROGRESS", "timestamp": "2026-10-21T10:30:00.000Z", "reason": "Investigation started" },
+      { "status": "RESOLVED", "timestamp": "2026-10-21T16:00:00.000Z", "reason": "Queue cleared" }
+    ]
+  },
+  {
+    "ticketNumber": "TK-20261023-0001",
+    "title": "P2: Firewall rule update (weekend creation, resolved)",
+    "description": "New firewall rule needed for dev environment.",
+    "priority": "P2",
+    "status": "RESOLVED",
+    "assigneeGroup": "Network Team",
+    "createdAt": "2026-10-23T15:00:00.000Z",
+    "resolvedAt": "2026-10-26T11:00:00.000Z",
+    "statusHistory": [
+      { "status": "OPEN", "timestamp": "2026-10-23T15:00:00.000Z", "reason": "Ticket created on Friday" },
+      { "status": "IN_PROGRESS", "timestamp": "2026-10-26T09:30:00.000Z", "reason": "Monday morning" },
+      { "status": "RESOLVED", "timestamp": "2026-10-26T11:00:00.000Z", "reason": "Rule applied" }
+    ]
+  },
+  {
+    "ticketNumber": "TK-20261024-0001",
+    "title": "P3: Password reset request (open)",
+    "description": "User unable to reset AD password.",
+    "priority": "P3",
+    "status": "OPEN",
+    "assigneeGroup": "Help Desk",
+    "createdAt": "2026-10-24T08:00:00.000Z",
+    "resolvedAt": null,
+    "statusHistory": [
+      { "status": "OPEN", "timestamp": "2026-10-24T08:00:00.000Z", "reason": "Ticket created before business hours" }
+    ]
+  },
+  {
+    "ticketNumber": "TK-20261024-0002",
+    "title": "P3: Printer not working (on hold)",
+    "description": "2nd floor printer offline.",
+    "priority": "P3",
+    "status": "ON_HOLD",
+    "assigneeGroup": "Help Desk",
+    "createdAt": "2026-10-24T10:00:00.000Z",
+    "resolvedAt": null,
+    "statusHistory": [
+      { "status": "OPEN", "timestamp": "2026-10-24T10:00:00.000Z", "reason": "Ticket created" },
+      { "status": "IN_PROGRESS", "timestamp": "2026-10-24T10:15:00.000Z", "reason": "Technician assigned" },
+      { "status": "ON_HOLD", "timestamp": "2026-10-24T11:00:00.000Z", "reason": "Waiting for spare parts" }
+    ]
+  },
+  {
+    "ticketNumber": "TK-20261024-0003",
+    "title": "P3: Multiple hold cycles test",
+    "description": "Ticket that went on hold multiple times.",
+    "priority": "P3",
+    "status": "IN_PROGRESS",
+    "assigneeGroup": "Server Team",
+    "createdAt": "2026-10-24T09:00:00.000Z",
+    "resolvedAt": null,
+    "statusHistory": [
+      { "status": "OPEN", "timestamp": "2026-10-24T09:00:00.000Z", "reason": "Ticket created" },
+      { "status": "IN_PROGRESS", "timestamp": "2026-10-24T09:30:00.000Z", "reason": "First analysis" },
+      { "status": "ON_HOLD", "timestamp": "2026-10-24T10:00:00.000Z", "reason": "First hold - consult vendor" },
+      { "status": "IN_PROGRESS", "timestamp": "2026-10-24T11:00:00.000Z", "reason": "Vendor responded" },
+      { "status": "ON_HOLD", "timestamp": "2026-10-24T12:00:00.000Z", "reason": "Second hold - lunch" },
+      { "status": "IN_PROGRESS", "timestamp": "2026-10-24T13:30:00.000Z", "reason": "Resumed work" },
+      { "status": "ON_HOLD", "timestamp": "2026-10-24T15:00:00.000Z", "reason": "Third hold - awaiting approval" }
+    ]
+  },
+  {
+    "ticketNumber": "TK-20261025-0001",
+    "title": "P4: Software installation request (resolved within SLA)",
+    "description": "MS Office install on new laptop.",
+    "priority": "P4",
+    "status": "RESOLVED",
+    "assigneeGroup": "Help Desk",
+    "createdAt": "2026-10-25T09:00:00.000Z",
+    "resolvedAt": "2026-10-27T14:00:00.000Z",
+    "statusHistory": [
+      { "status": "OPEN", "timestamp": "2026-10-25T09:00:00.000Z", "reason": "Ticket created" },
+      { "status": "IN_PROGRESS", "timestamp": "2026-10-25T10:00:00.000Z", "reason": "Scheduled" },
+      { "status": "RESOLVED", "timestamp": "2026-10-27T14:00:00.000Z", "reason": "Installation complete" }
+    ]
+  },
+  {
+    "ticketNumber": "TK-20261025-0002",
+    "title": "P4: Monitor replacement (breached)",
+    "description": "Flickering monitor for employee #4521.",
+    "priority": "P4",
+    "status": "RESOLVED",
+    "assigneeGroup": "Help Desk",
+    "createdAt": "2026-10-25T09:00:00.000Z",
+    "resolvedAt": "2026-10-27T17:30:00.000Z",
+    "statusHistory": [
+      { "status": "OPEN", "timestamp": "2026-10-25T09:00:00.000Z", "reason": "Ticket created" },
+      { "status": "ON_HOLD", "timestamp": "2026-10-25T09:30:00.000Z", "reason": "Waiting for monitor stock" },
+      { "status": "IN_PROGRESS", "timestamp": "2026-10-27T09:00:00.000Z", "reason": "Monitor arrived" },
+      { "status": "RESOLVED", "timestamp": "2026-10-27T17:30:00.000Z", "reason": "Monitor replaced" }
+    ]
+  },
+  {
+    "ticketNumber": "TK-20261026-0001",
+    "title": "P1: Security breach alert (open)",
+    "description": "Potential intrusion detected on firewall.",
+    "priority": "P1",
+    "status": "IN_PROGRESS",
+    "assigneeGroup": "Security Team",
+    "createdAt": "2026-10-26T14:00:00.000Z",
+    "resolvedAt": null,
+    "statusHistory": [
+      { "status": "OPEN", "timestamp": "2026-10-26T14:00:00.000Z", "reason": "Alert triggered" },
+      { "status": "IN_PROGRESS", "timestamp": "2026-10-26T14:05:00.000Z", "reason": "Security analyst on it" }
+    ]
+  },
+  {
+    "ticketNumber": "TK-20261027-0001",
+    "title": "P2: VPN connectivity issues (created today, open)",
+    "description": "Remote users reporting intermittent VPN drops.",
+    "priority": "P2",
+    "status": "OPEN",
+    "assigneeGroup": "Network Team",
+    "createdAt": "2026-10-27T08:00:00.000Z",
+    "resolvedAt": null,
+    "statusHistory": [
+      { "status": "OPEN", "timestamp": "2026-10-27T08:00:00.000Z", "reason": "Ticket created before business hours" }
+    ]
+  }
+]

@@ -1,0 +1,10 @@
+[
+  { "date": "2026-01-26", "name": "Republic Day", "isActive": true },
+  { "date": "2026-03-17", "name": "Holi", "isActive": true },
+  { "date": "2026-04-14", "name": "Dr. Ambedkar Jayanti", "isActive": true },
+  { "date": "2026-08-15", "name": "Independence Day", "isActive": true },
+  { "date": "2026-10-02", "name": "Gandhi Jayanti", "isActive": true },
+  { "date": "2026-10-24", "name": "Diwali", "isActive": true },
+  { "date": "2026-11-14", "name": "Children's Day", "isActive": true },
+  { "date": "2026-12-25", "name": "Christmas", "isActive": true }
+]

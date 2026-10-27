@@ -1,6 +1,12 @@
 import { randomUUID } from 'node:crypto';
 import { loadRooms, loadBookings, saveBookings } from './db.js';
 
+// ─── Limits ────────────────────────────────────────────────────────
+
+const MAX_STRING_LEN = 200;
+const MAX_ATTENDEES  = 500;
+const MAX_OCCURRENCES = 52; // ~1 year of weekly bookings
+
 // ─── Types ─────────────────────────────────────────────────────────
 
 /**
@@ -95,10 +101,9 @@ export async function getBooking(id) {
 export async function createBooking(data) {
   data = normalizeBooking(data);
 
-  // Validate required fields
-  if (!data.roomId || !data.organiser || !data.start || !data.end) {
-    return { ok: false, error: 'Missing required fields: roomId, organiser, start, end', status: 400 };
-  }
+  const ve = validateFields(data);
+  if (ve) return ve;
+
   if (p(data.start) >= p(data.end)) {
     return { ok: false, error: 'start must be before end', status: 400 };
   }
@@ -179,6 +184,22 @@ export async function deleteBooking(id) {
 }
 
 // ─── Validation helpers ────────────────────────────────────────────
+
+/** Validate field lengths and attendee count. Returns error response or null. */
+function validateFields(data) {
+  if (!data.roomId || !data.organiser || !data.start || !data.end) {
+    return { ok: false, error: 'Missing required fields: roomId, organiser, start, end', status: 400 };
+  }
+  for (const f of ['roomId', 'organiser', 'title']) {
+    if (typeof data[f] === 'string' && data[f].length > MAX_STRING_LEN) {
+      return { ok: false, error: `${f} exceeds max length of ${MAX_STRING_LEN}`, status: 400 };
+    }
+  }
+  if (data.attendees && data.attendees.length > MAX_ATTENDEES) {
+    return { ok: false, error: `Attendee count exceeds max of ${MAX_ATTENDEES}`, status: 400 };
+  }
+  return null;
+}
 
 function normalizeBooking(data) {
   /** @type {Record<string,*>} */
@@ -281,6 +302,9 @@ export async function findSlot(durationMinutes, attendeeCount, date) {
 function diffMinutes(a, b) {
   return (b.getTime() - a.getTime()) / 60_000;
 }
+function diffDays(a, b) {
+  return (b - a) / 86_400_000;
+}
 
 // ─── Recurring bookings ───────────────────────────────────────────
 
@@ -299,6 +323,12 @@ export async function createRecurring(data) {
   // Create the base occurrence (this validates room, capacity & overlap)
   const base = await createBookingInner(data);
   if (!base.ok) return base;
+
+  // Cap total occurrences to prevent abuse
+  const estOccurrences = Math.ceil(diffDays(p(data.start), p(data.recurrenceEnd)) / 7) + 1;
+  if (estOccurrences > MAX_OCCURRENCES) {
+    return { ok: false, error: `Recurrence range exceeds max of ${MAX_OCCURRENCES} occurrences (${estOccurrences} estimated)`, status: 400 };
+  }
 
   // Expand weekly occurrences
   const occurrences = [];
@@ -365,9 +395,8 @@ export async function createRecurring(data) {
 async function createBookingInner(data) {
   data = normalizeBooking(data);
 
-  if (!data.roomId || !data.organiser || !data.start || !data.end) {
-    return { ok: false, error: 'Missing required fields', status: 400 };
-  }
+  const ve = validateFields(data);
+  if (ve) return ve;
   if (p(data.start) >= p(data.end)) {
     return { ok: false, error: 'start must be before end', status: 400 };
   }

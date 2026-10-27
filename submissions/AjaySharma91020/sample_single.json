@@ -1,0 +1,7 @@
+{
+  "description": "Single dinner",
+  "paid_by": "Alice",
+  "amount": 500,
+  "split_type": "equal",
+  "members": ["Alice", "Bob"]
+}

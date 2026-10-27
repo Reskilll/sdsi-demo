@@ -1,0 +1,48 @@
+[
+  {
+    "description": "Dinner at Punjabi Dhaba",
+    "paid_by": "Ajay",
+    "amount": 2400,
+    "split_type": "equal",
+    "members": ["Ajay", "Priya", "Rohan", "Neha"]
+  },
+  {
+    "description": "Taxi to the fort",
+    "paid_by": "Priya",
+    "amount": 600,
+    "split_type": "equal",
+    "members": ["Ajay", "Priya", "Rohan", "Neha"]
+  },
+  {
+    "description": "Museum entry tickets",
+    "paid_by": "Rohan",
+    "amount": 1000,
+    "split_type": "exact",
+    "members": ["Ajay", "Priya", "Rohan"],
+    "shares": {
+      "Ajay": 500,
+      "Priya": 300,
+      "Rohan": 200
+    }
+  },
+  {
+    "description": "Snacks and drinks",
+    "paid_by": "Neha",
+    "amount": 800,
+    "split_type": "percentage",
+    "members": ["Ajay", "Priya", "Rohan", "Neha"],
+    "shares": {
+      "Ajay": 30,
+      "Priya": 25,
+      "Rohan": 25,
+      "Neha": 20
+    }
+  },
+  {
+    "description": "Boat ride on the lake",
+    "paid_by": "Ajay",
+    "amount": 1200,
+    "split_type": "equal",
+    "members": ["Ajay", "Priya", "Rohan", "Neha"]
+  }
+]

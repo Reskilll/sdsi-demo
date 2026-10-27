@@ -14,6 +14,9 @@ from src.engine import (
     plan_stages,
     critical_path,
     downstream_of,
+    downstream_of_many,
+    list_schedule,
+    slack_analysis,
     build_plan,
     to_dot,
     ValidationResult,
@@ -305,6 +308,34 @@ class TestFailureSimulation:
         )
         skipped = downstream_of(j, "B")
         assert set(skipped) == {"C", "D"}
+
+    def test_multiple_failures_union(self):
+        """Failing two independent sources skips the union of their downstreams."""
+        j = _jobs(
+            ("A", 1, []),
+            ("B", 1, ["A"]),
+            ("C", 1, []),
+            ("D", 1, ["C"]),
+            ("E", 1, []),
+        )
+        skipped = downstream_of_many(j, ["A", "C"])
+        assert set(skipped) == {"B", "D"}
+        assert "E" not in skipped
+
+    def test_multiple_failures_overlap(self):
+        """Overlapping downstream regions are not double-counted."""
+        j = _jobs(
+            ("A", 1, []),
+            ("B", 1, ["A"]),
+            ("C", 1, ["B"]),
+        )
+        skipped = downstream_of_many(j, ["A", "B"])
+        assert set(skipped) == {"B", "C"}
+
+    def test_multiple_failures_ignore_unknown(self):
+        """Unknown failed IDs are silently ignored."""
+        j = _jobs(("A", 1, []), ("B", 1, ["A"]))
+        assert downstream_of_many(j, ["Z", "A"]) == ["B"]
 
 
 # ===================================================================
@@ -605,3 +636,181 @@ class TestDotOutput:
         assert 'fillcolor="#ffcccc"' in dot  # failed node highlight
         assert 'fillcolor="#eeeeee"' in dot  # skipped node grayed
         assert 'style=dashed' in dot  # skipped edges dashed
+
+
+# ===================================================================
+# Bonus: Concrete list scheduling
+# ===================================================================
+
+class TestListSchedule:
+    def test_single_job(self):
+        sched = list_schedule(_jobs(("A", 5, []),), worker_limit=2)
+        assert sched.makespan == 5
+        assert len(sched.jobs) == 1
+        assert sched.jobs[0].id == "A"
+        assert (sched.jobs[0].start, sched.jobs[0].finish) == (0, 5)
+
+    def test_serial_chain(self):
+        """A→B: B cannot start until A finishes, even on 2 workers."""
+        sched = list_schedule(_jobs(("A", 5, []), ("B", 3, ["A"])), worker_limit=2)
+        assert sched.makespan == 8
+        b = next(s for s in sched.jobs if s.id == "B")
+        assert b.start == 5
+
+    def test_two_independent_on_one_worker(self):
+        """Independent jobs must serialise onto a single worker."""
+        sched = list_schedule(_jobs(("A", 2, []), ("B", 3, [])), worker_limit=1)
+        assert sched.makespan == 5
+        assert sched.worker_count == 1
+
+    def test_two_independent_on_two_workers(self):
+        """Independent jobs run in parallel on separate workers."""
+        sched = list_schedule(_jobs(("A", 2, []), ("B", 3, [])), worker_limit=2)
+        assert sched.makespan == 3
+        assert {s.worker for s in sched.jobs} == {0, 1}
+
+    def test_dependency_forced_wait_while_worker_free(self):
+        """B depends on A; a second independent C can backfill worker 1.
+
+        A(5)→B(2), plus C(1) independent.  With 2 workers, C runs on worker 1
+        while A runs on worker 0, then B runs right after A — makespan 7.
+        """
+        j = _jobs(("A", 5, []), ("B", 2, ["A"]), ("C", 1, []))
+        sched = list_schedule(j, worker_limit=2)
+        assert sched.makespan == 7
+
+    def test_rejects_zero_workers(self):
+        with pytest.raises(ValueError, match="worker_limit"):
+            list_schedule(_jobs(("A", 1, []),), worker_limit=0)
+
+    def test_empty(self):
+        sched = list_schedule([], worker_limit=2)
+        assert sched.makespan == 0
+        assert sched.jobs == []
+
+
+# ===================================================================
+# Bonus: Slack / float analysis
+# ===================================================================
+
+class TestSlackAnalysis:
+    def test_critical_chain_all_zero_slack(self):
+        j = _jobs(("A", 2, []), ("B", 3, ["A"]), ("C", 4, ["B"]))
+        slack = {s.id: s for s in slack_analysis(j)}
+        assert slack["A"].is_critical
+        assert slack["B"].is_critical
+        assert slack["C"].is_critical
+        assert slack["C"].earliest_start == 5
+
+    def test_non_critical_branch_has_slack(self):
+        """A→(B heavy 5, C light 3)→D: C has float, B does not."""
+        j = _jobs(
+            ("A", 2, []),
+            ("B", 5, ["A"]),
+            ("C", 3, ["A"]),
+            ("D", 1, ["B", "C"]),
+        )
+        slack = {s.id: s for s in slack_analysis(j)}
+        assert slack["B"].is_critical
+        assert slack["C"].total_slack == 2  # 5 - 3
+        assert not slack["C"].is_critical
+        assert slack["A"].is_critical
+        assert slack["D"].is_critical
+
+    def test_multiple_critical_paths_flag_all(self):
+        """Two equal-length branches are both critical (tie handled)."""
+        j = _jobs(
+            ("A", 1, []),
+            ("B", 5, ["A"]),
+            ("C", 5, ["A"]),
+        )
+        slack = {s.id: s for s in slack_analysis(j)}
+        assert slack["B"].is_critical and slack["C"].is_critical
+
+    def test_empty(self):
+        assert slack_analysis([]) == []
+
+
+# ===================================================================
+# Empty-input / defensive guards
+# ===================================================================
+
+class TestEmptyInputs:
+    def test_build_plan_empty(self):
+        plan = build_plan([], worker_limit=4)
+        assert plan.valid is True
+        assert plan.topological_order == []
+        assert plan.stages == []
+        assert plan.critical_path == []
+        assert plan.critical_path_time == 0
+
+    def test_critical_path_empty(self):
+        cp = critical_path([])
+        assert cp.path == []
+        assert cp.total_time == 0
+
+    def test_plan_stages_empty(self):
+        assert plan_stages([], worker_limit=4) == []
+
+    def test_plan_stages_rejects_zero_workers(self):
+        with pytest.raises(ValueError, match="worker_limit"):
+            plan_stages(_jobs(("A", 1, []),), worker_limit=0)
+
+    def test_build_plan_rejects_zero_workers(self):
+        with pytest.raises(ValueError, match="worker_limit"):
+            build_plan(_jobs(("A", 1, []),), worker_limit=0)
+
+
+# ===================================================================
+# CLI smoke tests (the --only regression)
+# ===================================================================
+
+class TestCLI:
+    def test_only_flag_registered(self, tmp_path):
+        """Regression: --only was referenced but never registered → AttributeError.
+
+        A bare `--only stages` on a valid graph must exit 0 (not crash).
+        """
+        import json
+        from src.cli import main
+        jf = tmp_path / "j.json"
+        jf.write_text(json.dumps([{"id": "A", "duration": 1}]))
+        assert main([str(jf), "--only", "stages"]) == 0
+
+    def test_only_validate_valid(self, tmp_path):
+        import json
+        from src.cli import main
+        jf = tmp_path / "j.json"
+        jf.write_text(json.dumps([{"id": "A", "duration": 1}]))
+        assert main([str(jf), "--only", "validate"]) == 0
+
+    def test_only_validate_invalid(self, tmp_path):
+        import json
+        from src.cli import main
+        jf = tmp_path / "j.json"
+        jf.write_text(json.dumps([{"id": "A", "duration": 1, "dependsOn": ["Z"]}]))
+        assert main([str(jf), "--only", "validate"]) == 1
+
+    def test_only_slack(self, tmp_path):
+        import json
+        from src.cli import main
+        jf = tmp_path / "j.json"
+        jf.write_text(json.dumps([
+            {"id": "A", "duration": 2},
+            {"id": "B", "duration": 5, "dependsOn": ["A"]},
+            {"id": "C", "duration": 3, "dependsOn": ["A"]},
+        ]))
+        assert main([str(jf), "--only", "slack"]) == 0
+
+    def test_multiple_fails_flag(self, tmp_path):
+        import json
+        from src.cli import main
+        jf = tmp_path / "j.json"
+        jf.write_text(json.dumps([
+            {"id": "A", "duration": 1},
+            {"id": "B", "duration": 1, "dependsOn": ["A"]},
+            {"id": "C", "duration": 1},
+            {"id": "D", "duration": 1, "dependsOn": ["C"]},
+        ]))
+        # --only fail with --fails A,C should skip B and D
+        assert main([str(jf), "--only", "fail", "--fails", "A,C"]) == 0

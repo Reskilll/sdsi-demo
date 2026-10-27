@@ -47,7 +47,23 @@ def main(argv: list[str] | None = None) -> int:
         type=str,
         default=None,
         metavar="JOB",
-        help="Simulate failure of a job; report all downstream jobs skipped.",
+        help="Simulate failure of a single job; report downstream jobs skipped.",
+    )
+    parser.add_argument(
+        "--fails",
+        type=str,
+        default=None,
+        metavar="JOB[,JOB...]",
+        help="Simulate failure of multiple jobs (comma-separated).",
+    )
+    parser.add_argument(
+        "--only",
+        type=str,
+        choices=["validate", "topo", "stages", "critical", "schedule", "slack", "fail"],
+        default=None,
+        metavar="MODE",
+        help="Print a single section: validate, topo, stages, critical, "
+             "schedule, slack, or fail.",
     )
     parser.add_argument(
         "--json",
@@ -81,6 +97,7 @@ def main(argv: list[str] | None = None) -> int:
         jobs,
         worker_limit=args.workers,
         failed_job=args.fail,
+        failed_jobs=[f for f in args.fails.split(",") if f.strip()] if args.fails else None,
     )
 
     # --only mode: print just one section
@@ -109,12 +126,23 @@ def main(argv: list[str] | None = None) -> int:
             print(f"Path: {' → '.join(plan.critical_path or [])}")
             print(f"Time:  {plan.critical_path_time}s")
             return 0
+        if args.only == "schedule":
+            for s in plan.schedule.jobs if plan.schedule else []:
+                print(f"t={s.start:3d}→{s.finish:3d} worker {s.worker}  {s.id}")
+            if plan.schedule:
+                print(f"Makespan: {plan.schedule.makespan}s")
+            return 0
+        if args.only == "slack":
+            for s in plan.slack or []:
+                print(f"{s.id:<16} ES {s.earliest_start:3d} LS {s.latest_start:3d} "
+                      f"slack {s.total_slack}s" + ("  [CRITICAL]" if s.is_critical else ""))
+            return 0
         if args.only == "fail":
-            if not plan.failed_job:
-                print("Error: --only fail requires --fail <JOB>", file=sys.stderr)
+            if not plan.failed_jobs:
+                print("Error: --only fail requires --fail/--fails <JOB>", file=sys.stderr)
                 return 1
             skipped = plan.skipped_jobs or []
-            print(f"Failed: {plan.failed_job}")
+            print(f"Failed: {', '.join(plan.failed_jobs)}")
             print(f"Skipped ({len(skipped)}): {', '.join(skipped)}")
             return 0
 

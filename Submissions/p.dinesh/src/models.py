@@ -70,8 +70,47 @@ class Stage:
 
 
 @dataclass
+class ScheduledJob:
+    """A single job's placement in a concrete worker schedule."""
+
+    id: str
+    start: int
+    finish: int
+    worker: int
+
+    @property
+    def duration(self) -> int:
+        return self.finish - self.start
+
+
+@dataclass
+class Schedule:
+    """A concrete parallel schedule produced by list scheduling."""
+
+    jobs: list[ScheduledJob]
+    makespan: int
+    worker_count: int
+
+
+@dataclass
+class SlackInfo:
+    """Float/slack analysis for a single job."""
+
+    id: str
+    earliest_start: int
+    earliest_finish: int
+    latest_start: int
+    latest_finish: int
+    total_slack: int
+
+    @property
+    def is_critical(self) -> bool:
+        return self.total_slack == 0
+
+
+@dataclass
 class ValidationResult:
-    """Result of DAG validation — defined in engine.py, re-exported here."""
+    """Result of DAG validation (canonical definition, imported by engine.py)."""
 
     valid: bool
     cycle_path: Optional[list[str]] = None
@@ -95,7 +134,11 @@ class ExecutionPlan:
     critical_path_time: Optional[int] = None
 
     failed_job: Optional[str] = None
+    failed_jobs: list[str] = field(default_factory=list)
     skipped_jobs: Optional[list[str]] = None
+
+    schedule: Optional[Schedule] = None
+    slack: Optional[list[SlackInfo]] = None
 
     # ------------------------------------------------------------------
     # Formatted output
@@ -146,11 +189,29 @@ class ExecutionPlan:
             print(f"  Minimum time:    {self.critical_path_time}s")
         print()
 
+        # Concrete schedule (list scheduling)
+        print("─" * 60)
+        print("  CONCRETE SCHEDULE (list scheduling)")
+        if self.schedule:
+            for s in self.schedule.jobs:
+                print(f"  t={s.start:3d}→{s.finish:3d}  worker {s.worker}  {s.id}")
+            print(f"  Makespan:        {self.schedule.makespan}s "
+                  f"with {self.schedule.worker_count} worker(s)")
+        print()
+
+        # Slack analysis
+        print("─" * 60)
+        print("  SLACK ANALYSIS (total float)")
+        for s in self.slack or []:
+            crit = "CRITICAL" if s.is_critical else f"slack {s.total_slack}s"
+            print(f"  {s.id:<16} ES {s.earliest_start:3d}  LS {s.latest_start:3d}  {crit}")
+        print()
+
         # Failure simulation
-        if self.failed_job:
+        if self.failed_jobs:
             print("─" * 60)
             print("  FAILURE SIMULATION")
-            print(f"  Failed job:      {self.failed_job}")
+            print(f"  Failed job(s):   {', '.join(self.failed_jobs)}")
             if self.skipped_jobs is not None:
                 if self.skipped_jobs:
                     print(f"  Skipped:         {', '.join(self.skipped_jobs)}")
@@ -196,9 +257,30 @@ class ExecutionPlan:
                 "path": self.critical_path,
                 "total_time": self.critical_path_time,
             }
-            if self.failed_job:
+            if self.schedule:
+                d["schedule"] = {
+                    "makespan": self.schedule.makespan,
+                    "worker_count": self.schedule.worker_count,
+                    "jobs": [
+                        {"id": s.id, "start": s.start, "finish": s.finish, "worker": s.worker}
+                        for s in self.schedule.jobs
+                    ],
+                }
+            d["slack"] = [
+                {
+                    "id": s.id,
+                    "earliest_start": s.earliest_start,
+                    "earliest_finish": s.earliest_finish,
+                    "latest_start": s.latest_start,
+                    "latest_finish": s.latest_finish,
+                    "total_slack": s.total_slack,
+                    "critical": s.is_critical,
+                }
+                for s in (self.slack or [])
+            ]
+            if self.failed_jobs:
                 d["failure_simulation"] = {
-                    "failed_job": self.failed_job,
+                    "failed_jobs": self.failed_jobs,
                     "skipped_jobs": self.skipped_jobs,
                 }
         return d

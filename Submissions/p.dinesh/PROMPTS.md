@@ -58,23 +58,65 @@ serialise the full analysis so other tools can consume it.
 
 ---
 
+### Prompt 4 — "Add something advanced" (stretch features + bug fix)
+
+> **Prompt**:
+> *Start working on PS5: Job Scheduler with Dependency Resolution. Where you
+> left off, add something advanced, etc.*
+
+**What happened** — The agent audited the existing code, found a latent bug
+(the `--only` flag was referenced in `cli.py` but never registered, so *every*
+CLI invocation raised `AttributeError`), fixed it, and then added three
+stretch features on top:
+
+1. **Concrete list scheduling** (`list_schedule`, `--only schedule`) — greedy
+   longest-job-first packing onto `N` workers, returning per-job
+   `(start, finish, worker)` and a real makespan.  This is a 2-approximation
+   for `P | prec | C_max` and is more faithful than stage scheduling.
+2. **Slack / float analysis** (`slack_analysis`, `--only slack`) — forward +
+   backward pass computing total float per job, flagging *every* critical job
+   (including ties).
+3. **Multiple-failure simulation** (`--fails a,b,c`) — the union of all
+   transitively downstream jobs across several failed jobs.
+
+It also guarded empty-input edge cases that previously crashed (`critical_path([])`,
+`build_plan([])`, `worker_limit=0`) and added CLI smoke tests so the `--only`
+regression can't recur.
+
+**Why it worked well**
+- The agent first *ran* the CLI and read the code before writing — the bug
+  surfaced because it exercised the path the README advertises rather than
+  trusting the docs.
+- The stretch features were chosen to map directly to the rubric's
+  "performance awareness" (a real makespan, not level-boundary padding) and
+  "testing" (slack flags critical ties a single path can't express).
+
+---
+
 ### Reflection
 
 **What the agent did well**
 - Broke the problem into small, testable pure functions.
-- Used standard algorithms (3-colour DFS, Kahn's, longest-path-in-DAG) with
-  clear comments so the code is self-documenting.
-- Wrote 45+ tests covering happy path, error paths, and edge cases.
+- Used standard algorithms (3-colour DFS, Kahn's, longest-path-in-DAG, list
+  scheduling, CPM forward/backward pass) with clear comments so the code is
+  self-documenting.
+- Wrote 60+ tests covering happy path, error paths, and edge cases.
 - Used `pyproject.toml` for modern packaging with `pip install -e ".[dev]"`.
+- Caught and fixed a shipped bug (`--only`) that the docs claimed worked.
 
 **Where I needed to guide**
 - I had to explicitly ask for JSON output and `--only` flags (the rubric
   values "runnability", and a JSON mode lets other tools pipe in).
 - Edge-case coverage benefited from a second prompt asking for specific
   scenarios the initial test set didn't explore.
+- The stretch features (list scheduling, slack) were the agent's initiative in
+  response to "add something advanced" — a good prompt, because it delegated
+  *what* to build while leaving *how* (and *how well*) to the agent.
 
 **For future projects**
 - State "JSON output" and "extract individual modes" in the initial prompt
   to get them in the first pass.
 - Include "zero-duration jobs" and "disconnected components" in the
   acceptance criteria up front rather than as a follow-up.
+- Add CLI smoke tests early: the `--only` regression slipped through precisely
+  because only the library functions were unit-tested, never the entry point.

@@ -20,11 +20,16 @@ dag-scheduler samples/complex.json --workers 3
 # Simulate a failure
 dag-scheduler samples/complex.json --fail train_a
 
+# Simulate multiple failures (comma-separated)
+dag-scheduler samples/complex.json --fails train_a,train_b
+
 # JSON output
 dag-scheduler samples/basic.json --json
 
 # Extract a single mode
 dag-scheduler samples/basic.json --only stages
+dag-scheduler samples/complex.json --only schedule
+dag-scheduler samples/complex.json --only slack
 
 # Graphviz DOT output (pipe into `dot -Tpng` to render)
 dag-scheduler samples/complex.json --dot
@@ -107,7 +112,7 @@ p.dinesh/
   │   └── cli.py         # Command-line interface
   ├── tests/
   │   ├── __init__.py
-  │   └── test_engine.py # Full test suite (45+ tests)
+  │   └── test_engine.py # Full test suite (60+ tests)
   ├── samples/
   │   ├── basic.json
   │   ├── cycle.json
@@ -130,7 +135,9 @@ pytest -v
 Tests cover all M1–M5 modules plus edge cases:
 zero-duration jobs, disconnected components, fan-in/fan-out,
 strict chains, multiple roots/sinks, worker-limit serialisation,
-duplicate/empty dependency entries, and model-validation for malformed input.
+duplicate/empty dependency entries, model-validation for malformed input,
+concrete list scheduling, slack analysis, multiple-failure simulation,
+empty-input guards, and CLI smoke tests.
 
 ---
 
@@ -144,7 +151,18 @@ duplicate/empty dependency entries, and model-validation for malformed input.
 - **JSON machine output** (`--json`) — full plan as structured JSON for
   piping into other tools.
 - **Single-mode extraction** (`--only`) — run just one analysis (`validate`,
-  `topo`, `stages`, `critical`, `fail`) for quick checks.
+  `topo`, `stages`, `critical`, `schedule`, `slack`, `fail`) for quick checks.
+- **Concrete list scheduling** — a greedy worker-allocation schedule
+  (longest-job-first list scheduling, a 2-approximation for `P | prec | C_max`)
+  that assigns each job to a specific worker and start time.  Unlike stage
+  scheduling, a worker that finishes early immediately picks up the next ready
+  job, so the reported **makespan** reflects real packing, not just level
+  boundaries.
+- **Slack / float analysis** — a forward/backward pass computes total float for
+  every job, flagging *every* critical job (including ties that a single
+  critical path cannot represent).
+- **Multiple failure simulation** (`--fails a,b,c`) — simulate several failing
+  jobs at once and report the union of their skipped downstream jobs.
 
 ---
 
@@ -161,3 +179,8 @@ duplicate/empty dependency entries, and model-validation for malformed input.
   pass with Earliest Start Time propagation.  O(V + E).
 - **Failure simulation** — Simple BFS from the failed node through the
   adjacency list to collect all transitive dependents.
+- **List scheduling** — Greedy packing of ready jobs (longest-duration-first,
+  then topological order for determinism) onto the first free worker; releases
+  a job as soon as all its dependencies finish.
+- **Slack analysis** — Forward pass for earliest start/finish, backward pass for
+  latest start/finish; `total_slack = LS - ES`.

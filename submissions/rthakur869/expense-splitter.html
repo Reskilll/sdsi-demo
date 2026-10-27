@@ -23,7 +23,12 @@ body { font-family: system-ui, -apple-system, sans-serif; background: var(--bg);
 .container { max-width: 800px; margin: 0 auto; padding: 20px; }
 
 h1 { font-size: 1.6rem; margin-bottom: 6px; }
-.subtitle { color: var(--muted); font-size: 0.9rem; margin-bottom: 24px; }
+.subtitle { color: var(--muted); font-size: 0.9rem; margin-bottom: 16px; }
+
+.trip-bar { display: flex; gap: 8px; align-items: center; margin-bottom: 20px; flex-wrap: wrap; }
+.trip-bar select { flex: 1; min-width: 150px; padding: 8px 10px; border: 1px solid var(--border); border-radius: 6px; font-size: 0.9rem; background: var(--card); cursor: pointer; }
+.trip-bar select:focus { outline: 2px solid var(--accent); outline-offset: -1px; }
+.trip-count { font-size: 0.8rem; color: var(--muted); white-space: nowrap; }
 
 .card { background: var(--card); border-radius: var(--radius); padding: 20px; margin-bottom: 16px; border: 1px solid var(--border); }
 .card h2 { font-size: 1.1rem; margin-bottom: 14px; }
@@ -71,7 +76,7 @@ h1 { font-size: 1.6rem; margin-bottom: 6px; }
 .toast { position: fixed; bottom: 20px; right: 20px; padding: 10px 18px; background: #333; color: #fff; border-radius: 8px; font-size: 0.85rem; opacity: 0; transition: opacity 0.3s; z-index: 999; }
 .toast.show { opacity: 1; }
 
-@media (max-width: 500px) { .row { flex-direction: column; } }
+@media (max-width: 500px) { .row { flex-direction: column; } .trip-bar { flex-direction: column; align-items: stretch; } }
 </style>
 </head>
 <body>
@@ -79,6 +84,15 @@ h1 { font-size: 1.6rem; margin-bottom: 6px; }
 
 <h1>Expense Splitter</h1>
 <p class="subtitle">Team-outing settler with simplified debt settlement</p>
+
+<!-- TRIP SELECTOR -->
+<div class="trip-bar">
+  <select id="tripSelect" onchange="switchTrip(parseInt(this.value))"></select>
+  <button class="btn btn-sm btn-primary" onclick="newTrip()">+ New Trip</button>
+  <button class="btn btn-sm btn-outline" onclick="renameTrip()">Rename</button>
+  <button class="btn btn-sm btn-danger" onclick="deleteTrip()">Delete</button>
+  <span class="trip-count" id="tripCount"></span>
+</div>
 
 <!-- MEMBERS -->
 <div class="card">
@@ -114,17 +128,18 @@ h1 { font-size: 1.6rem; margin-bottom: 6px; }
   <h2>Import / Export</h2>
   <div class="file-area" onclick="document.getElementById('fileInput').click()">
     Click to select a <code>expenses.json</code> file
-    <br><small>or paste JSON below (single object or array)</small>
+    <br><small>or paste JSON below (single object, array, or full export)</small>
   </div>
   <input type="file" id="fileInput" accept=".json" style="display:none" onchange="handleFile(event)">
-  <textarea id="jsonPaste" rows="4" style="width:100%;margin-top:10px;padding:8px;border:1px solid var(--border);border-radius:6px;font-family:monospace;font-size:0.8rem" placeholder='Paste JSON here — single expense or array'></textarea>
+  <textarea id="jsonPaste" rows="4" style="width:100%;margin-top:10px;padding:8px;border:1px solid var(--border);border-radius:6px;font-family:monospace;font-size:0.8rem" placeholder='Paste JSON here'></textarea>
   <p class="error" id="importError"></p>
   <div class="storage-bar">
     <button class="btn btn-primary" onclick="importJSON()">Import</button>
-    <button class="btn btn-outline" onclick="exportJSON()">Export .json</button>
-    <button class="btn btn-danger btn-sm" onclick="resetAll()">Reset All</button>
+    <button class="btn btn-outline" onclick="exportJSON()">Export All</button>
+    <button class="btn btn-outline btn-sm" onclick="exportCurrentTrip()">Export This Trip</button>
+    <button class="btn btn-danger btn-sm" onclick="resetCurrentTrip()">Reset Trip</button>
   </div>
-  <p style="font-size:0.75rem;color:var(--muted);margin-top:8px">Data auto-saves to browser localStorage. Export to get a portable .json file.</p>
+  <p style="font-size:0.75rem;color:var(--muted);margin-top:8px">Data auto-saves to browser localStorage. Export for portable backup.</p>
 </div>
 
 <!-- EXPENSES LIST -->
@@ -147,19 +162,84 @@ h1 { font-size: 1.6rem; margin-bottom: 6px; }
 <div class="toast" id="toast"></div>
 
 <script>
-// ── state ──────────────────────────────────────────
-var members = [];
-var expenses = [];
+// ── state (trip-based) ──────────────────────────────
+var STORAGE_KEY = 'expense_splitter_v2';
+var EPSILON = 0.01;
+
+var trips = [];         // [{ id: string, name: string, members: [], expenses: [] }, ...]
+var activeTripIdx = -1;
+var members = [];       // convenience ref → active trip's members
+var expenses = [];      // convenience ref → active trip's expenses
+
+// ── trip helpers ────────────────────────────────────
+function ensureTrip() {
+  if (activeTripIdx >= 0 && activeTripIdx < trips.length) return true;
+  // auto-create first trip
+  newTrip('Default Trip');
+  return false;
+}
+
+function syncFromActive() {
+  if (activeTripIdx < 0 || activeTripIdx >= trips.length) return;
+  var t = trips[activeTripIdx];
+  members = t.members;
+  expenses = t.expenses;
+}
+
+function syncToActive() {
+  if (activeTripIdx < 0 || activeTripIdx >= trips.length) return;
+  trips[activeTripIdx].members = members;
+  trips[activeTripIdx].expenses = expenses;
+}
+
+function switchTrip(idx) {
+  if (idx < 0 || idx >= trips.length) return;
+  syncToActive();
+  activeTripIdx = idx;
+  syncFromActive();
+  saveToStorage();
+  renderAll();
+}
+
+function newTrip(name) {
+  syncToActive();
+  var tripName = name || prompt('Trip name:', 'Trip ' + (trips.length + 1));
+  if (!tripName || !tripName.trim()) return;
+  trips.push({ id: Date.now() + '', name: tripName.trim(), members: [], expenses: [] });
+  activeTripIdx = trips.length - 1;
+  syncFromActive();
+  saveToStorage();
+  renderAll();
+}
+
+function renameTrip() {
+  if (activeTripIdx < 0) return;
+  var cur = trips[activeTripIdx].name;
+  var nn = prompt('Rename trip:', cur);
+  if (!nn || !nn.trim()) return;
+  trips[activeTripIdx].name = nn.trim();
+  saveToStorage();
+  renderAll();
+}
+
+function deleteTrip() {
+  if (trips.length <= 1) { showToast('Cannot delete the last trip'); return; }
+  var cur = trips[activeTripIdx].name;
+  if (!confirm('Delete trip "' + cur + '" and all its data?')) return;
+  trips.splice(activeTripIdx, 1);
+  if (activeTripIdx >= trips.length) activeTripIdx = trips.length - 1;
+  syncFromActive();
+  saveToStorage();
+  renderAll();
+}
 
 // ── persistence (localStorage) ─────────────────────
-var STORAGE_KEY = 'expense_splitter_data';
-var EPSILON = 0.01;  // tolerance for floating-point comparisons
-
 function saveToStorage() {
   try {
-    var data = { members: members, expenses: expenses };
+    syncToActive();
+    var data = { trips: trips, activeTripIdx: activeTripIdx };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-  } catch (e) { /* quota exceeded, ignore */ }
+  } catch (e) { /* quota exceeded */ }
 }
 
 function loadFromStorage() {
@@ -167,72 +247,101 @@ function loadFromStorage() {
     var raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return false;
     var data = JSON.parse(raw);
-    if (data.members && Array.isArray(data.members)) members = data.members;
-    if (data.expenses && Array.isArray(data.expenses)) expenses = data.expenses;
-    return true;
+
+    if (data.trips && Array.isArray(data.trips) && data.trips.length) {
+      trips = data.trips;
+      activeTripIdx = (data.activeTripIdx >= 0 && data.activeTripIdx < trips.length) ? data.activeTripIdx : 0;
+      syncFromActive();
+      return true;
+    }
+
+    // Migration from v1 format: { members, expenses }
+    if (data.members || data.expenses) {
+      trips = [{ id: Date.now() + '', name: 'Default Trip', members: data.members || [], expenses: data.expenses || [] }];
+      activeTripIdx = 0;
+      syncFromActive();
+      return true;
+    }
+    return false;
   } catch (e) { return false; }
 }
 
 // ── export ─────────────────────────────────────────
-function exportJSON() {
-  // Build a portable JSON. For percent splits we use the saved raw percentages;
-  // for exact we use the amounts; equal has no shares field.
-  var exportData = expenses.map(function(e) {
+function exportCurrentTrip() {
+  ensureTrip();
+  syncToActive();
+  var t = trips[activeTripIdx];
+  var exportData = t.expenses.map(function(e) {
     var entry = { description: e.description, amount: e.amount, paidBy: e.paidBy, split: e.split };
-    if (e.split === 'exact') {
-      entry.shares = e.shares;
-    } else if (e.split === 'percent') {
-      if (e._rawPct) {
-        entry.shares = e._rawPct; // original percentages, lossless round-trip
-      } else {
-        // Fallback: reconstruct percentages from resolved amounts (older data)
+    if (e.split === 'exact') { entry.shares = e.shares; }
+    else if (e.split === 'percent') {
+      if (e._rawPct) { entry.shares = e._rawPct; }
+      else {
         var pct = {};
         var keys = Object.keys(e.shares);
-        for (var j = 0; j < keys.length; j++) {
-          pct[keys[j]] = Math.round((e.shares[keys[j]] / e.amount) * 100);
-        }
+        for (var i = 0; i < keys.length; i++) { pct[keys[i]] = Math.round((e.shares[keys[i]] / e.amount) * 100); }
         entry.shares = pct;
       }
     }
-    // equal: no shares field
     return entry;
   });
+  downloadJSON({ tripName: t.name, members: t.members, expenses: exportData }, 'expenses-' + t.name.replace(/[^a-zA-Z0-9]/g, '-') + '.json');
+  showToast('Exported: ' + t.name);
+}
 
-  var json = JSON.stringify({ members: members, expenses: exportData }, null, 2);
+function exportJSON() {
+  syncToActive();
+  var allTrips = trips.map(function(t) {
+    var expensesOut = t.expenses.map(function(e) {
+      var entry = { description: e.description, amount: e.amount, paidBy: e.paidBy, split: e.split };
+      if (e.split === 'exact') { entry.shares = e.shares; }
+      else if (e.split === 'percent') {
+        if (e._rawPct) { entry.shares = e._rawPct; }
+        else {
+          var pct = {};
+          var keys = Object.keys(e.shares);
+          for (var i = 0; i < keys.length; i++) { pct[keys[i]] = Math.round((e.shares[keys[i]] / e.amount) * 100); }
+          entry.shares = pct;
+        }
+      }
+      return entry;
+    });
+    return { name: t.name, members: t.members, expenses: expensesOut };
+  });
+  downloadJSON({ trips: allTrips, activeTripIdx: activeTripIdx }, 'all-expenses.json');
+  showToast('Exported all trips');
+}
+
+function downloadJSON(obj, filename) {
+  var json = JSON.stringify(obj, null, 2);
   var blob = new Blob([json], { type: 'application/json' });
   var url = URL.createObjectURL(blob);
-  var a = document.createElement('a');
-  a.href = url;
-  a.download = 'expenses.json';
-  a.click();
+  var a = document.createElement('a'); a.href = url; a.download = filename; a.click();
   URL.revokeObjectURL(url);
-  showToast('Exported expenses.json');
 }
 
 // ── reset ──────────────────────────────────────────
-function resetAll() {
-  if (!confirm('Clear all members and expenses?')) return;
-  members = [];
-  expenses = [];
-  localStorage.removeItem(STORAGE_KEY);
+function resetCurrentTrip() {
+  ensureTrip();
+  var t = trips[activeTripIdx];
+  if (!confirm('Clear all data for trip "' + t.name + '"?')) return;
+  t.members = [];
+  t.expenses = [];
+  syncFromActive();
+  saveToStorage();
   renderAll();
-  showToast('Cleared');
+  showToast('Trip cleared');
 }
 
 // ── toast ──────────────────────────────────────────
 function showToast(msg) {
   var t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
+  t.textContent = msg; t.classList.add('show');
   clearTimeout(t._timeout);
   t._timeout = setTimeout(function() { t.classList.remove('show'); }, 1800);
 }
 
 // ── M5: input validation ───────────────────────────
-// `rawShares` format depends on split:
-//   equal:   not used (or placeholder amounts)
-//   exact:   { Alice: 300, Bob: 600 }          — amounts, must sum to amt
-//   percent: { Alice: 50, Bob: 30, Charlie: 20 } — raw %, must sum to 100
 function validateExpense(desc, amt, payer, split, rawShares, memberSet) {
   var ctx = memberSet || members;
   if (!desc || !desc.trim()) return 'Please enter a description.';
@@ -268,44 +377,27 @@ function validateExpense(desc, amt, payer, split, rawShares, memberSet) {
     }
   }
 
-  // equal: validated implicitly
   return null;
 }
 
-// Build a resolved expense object.
-//   percent rawShares: { Alice: 50, Bob: 30, Charlie: 20 } → we convert to ₹ in shares
-//   exact   rawShares: { Alice: 300, Bob: 600 } → kept as-is
-//   equal   rawShares: unused, we compute from all members
-//
-// For percent splits, we ALSO store the original raw percentages on the object
-// so export can reproduce them exactly (no round-trip rounding).
 function buildExpense(desc, amt, payer, split, rawShares, memberSet) {
   var ctx = memberSet || members;
   var resolved = {};
-
   if (split === 'equal') {
-    for (var i = 0; i < ctx.length; i++) {
-      resolved[ctx[i]] = amt / ctx.length;
-    }
+    for (var i = 0; i < ctx.length; i++) { resolved[ctx[i]] = amt / ctx.length; }
   } else if (split === 'exact') {
     var keys = Object.keys(rawShares);
-    for (var j = 0; j < keys.length; j++) {
-      if (rawShares[keys[j]] > 0) resolved[keys[j]] = rawShares[keys[j]];
-    }
+    for (var j = 0; j < keys.length; j++) { if (rawShares[keys[j]] > 0) resolved[keys[j]] = rawShares[keys[j]]; }
   } else if (split === 'percent') {
     var pkeys = Object.keys(rawShares);
-    for (var k = 0; k < pkeys.length; k++) {
-      if (rawShares[pkeys[k]] > 0) resolved[pkeys[k]] = (rawShares[pkeys[k]] / 100) * amt;
-    }
+    for (var k = 0; k < pkeys.length; k++) { if (rawShares[pkeys[k]] > 0) resolved[pkeys[k]] = (rawShares[pkeys[k]] / 100) * amt; }
   }
-
   var exp = { description: desc.trim(), amount: amt, paidBy: payer, split: split, shares: resolved };
-  // Preserve original raw percentages for lossless export
   if (split === 'percent') exp._rawPct = rawShares;
   return exp;
 }
 
-// ── M1: add expense with split types ───────────────
+// ── M1: add expense ─────────────────────────────────
 function addExpense() {
   var desc = document.getElementById('expDesc').value;
   var amt = parseFloat(document.getElementById('expAmt').value);
@@ -316,31 +408,25 @@ function addExpense() {
   var rawShares = {};
   if (split === 'percent') {
     document.querySelectorAll('#splitDetails input.pct-val').forEach(function(inp) {
-      var v = parseFloat(inp.value) || 0;
-      if (v > 0) rawShares[inp.dataset.member] = v;
+      var v = parseFloat(inp.value) || 0; if (v > 0) rawShares[inp.dataset.member] = v;
     });
   } else if (split === 'exact') {
     document.querySelectorAll('#splitDetails input.exact-val').forEach(function(inp) {
-      var v = parseFloat(inp.value) || 0;
-      if (v > 0) rawShares[inp.dataset.member] = v;
+      var v = parseFloat(inp.value) || 0; if (v > 0) rawShares[inp.dataset.member] = v;
     });
   }
-  // equal: rawShares stays empty — validated by buildExpense
 
   var err = validateExpense(desc, amt, payer, split, rawShares);
   if (err) { errEl.textContent = err; return; }
   errEl.textContent = '';
 
-  var exp = buildExpense(desc, amt, payer, split, rawShares);
-  expenses.push(exp);
+  expenses.push(buildExpense(desc, amt, payer, split, rawShares));
   clearExpenseForm();
   saveToStorage();
   renderAll();
 }
 
-function onSplitChange() {
-  renderSplitDetails(document.getElementById('expSplit').value);
-}
+function onSplitChange() { renderSplitDetails(document.getElementById('expSplit').value); }
 
 function renderSplitDetails(split) {
   var container = document.getElementById('splitDetails');
@@ -375,31 +461,25 @@ function addMember() {
   if (!name) { errEl.textContent = 'Enter a name.'; return; }
   if (members.includes(name)) { errEl.textContent = '"' + name + '" already added.'; return; }
   members.push(name);
-  inp.value = '';
-  errEl.textContent = '';
+  inp.value = ''; errEl.textContent = '';
   saveToStorage();
   renderAll();
 }
 
 function removeMember(name) {
   members = members.filter(function(m) { return m !== name; });
-
-  // Clean expenses: drop ones whose payer is removed; remove member from shares
   var kept = [];
   for (var i = 0; i < expenses.length; i++) {
     var e = expenses[i];
-    if (e.paidBy === name) continue; // drop this expense
+    if (e.paidBy === name) continue;
     if (e.shares && e.shares[name]) delete e.shares[name];
     if (e.split === 'equal') {
       e.shares = {};
-      for (var j = 0; j < members.length; j++) {
-        e.shares[members[j]] = e.amount / members.length;
-      }
+      for (var j = 0; j < members.length; j++) { e.shares[members[j]] = e.amount / members.length; }
     }
     if (Object.keys(e.shares || {}).length > 0) kept.push(e);
   }
   expenses = kept;
-
   saveToStorage();
   renderAll();
 }
@@ -412,43 +492,33 @@ function computeBalances() {
     var e = expenses[j];
     bal[e.paidBy] = (bal[e.paidBy] || 0) + e.amount;
     var shareKeys = Object.keys(e.shares || {});
-    for (var k = 0; k < shareKeys.length; k++) {
-      var m = shareKeys[k];
-      bal[m] = (bal[m] || 0) - e.shares[m];
-    }
+    for (var k = 0; k < shareKeys.length; k++) { var m = shareKeys[k]; bal[m] = (bal[m] || 0) - e.shares[m]; }
   }
   return bal;
 }
 
-// ── M3: debt simplification (greedy) ───────────────
+// ── M3: debt simplification ────────────────────────
 function simplifyDebts(balances) {
   var creditors = [], debtors = [];
   for (var i = 0; i < members.length; i++) {
-    var m = members[i];
-    var b = balances[m] || 0;
+    var m = members[i], b = balances[m] || 0;
     if (b > EPSILON) creditors.push({ name: m, amount: b });
     else if (b < -EPSILON) debtors.push({ name: m, amount: -b });
   }
-
   creditors.sort(function(a, b) { return b.amount - a.amount; });
   debtors.sort(function(a, b) { return b.amount - a.amount; });
-
-  var settlements = [];
-  var ci = 0, di = 0;
+  var settlements = [], ci = 0, di = 0;
   while (ci < creditors.length && di < debtors.length) {
     var pay = Math.min(creditors[ci].amount, debtors[di].amount);
-    if (pay > EPSILON) {
-      settlements.push({ from: debtors[di].name, to: creditors[ci].name, amount: pay });
-    }
-    creditors[ci].amount -= pay;
-    debtors[di].amount -= pay;
+    if (pay > EPSILON) settlements.push({ from: debtors[di].name, to: creditors[ci].name, amount: pay });
+    creditors[ci].amount -= pay; debtors[di].amount -= pay;
     if (creditors[ci].amount < EPSILON) ci++;
     if (debtors[di].amount < EPSILON) di++;
   }
   return settlements;
 }
 
-// ── settle debts ────────────────────────────────
+// ── settle debts ───────────────────────────────────
 window._currentSettlements = [];
 
 function __settle(idx) {
@@ -458,13 +528,7 @@ function __settle(idx) {
 }
 
 function settleDebt(from, to, amount) {
-  var exp = {
-    description: 'Settlement: ' + from + ' → ' + to,
-    amount: amount,
-    paidBy: from,
-    split: 'exact',
-    shares: {}
-  };
+  var exp = { description: 'Settlement: ' + from + ' → ' + to, amount: amount, paidBy: from, split: 'exact', shares: {} };
   exp.shares[to] = amount;
   expenses.push(exp);
   saveToStorage();
@@ -478,13 +542,7 @@ function settleAll() {
   if (!confirm('Record all ' + sels.length + ' settlements?')) return;
   for (var i = 0; i < sels.length; i++) {
     var s = sels[i];
-    var exp = {
-      description: 'Settlement: ' + s.from + ' → ' + s.to,
-      amount: s.amount,
-      paidBy: s.from,
-      split: 'exact',
-      shares: {}
-    };
+    var exp = { description: 'Settlement: ' + s.from + ' → ' + s.to, amount: s.amount, paidBy: s.from, split: 'exact', shares: {} };
     exp.shares[s.to] = s.amount;
     expenses.push(exp);
   }
@@ -493,14 +551,12 @@ function settleAll() {
   showToast('All settled!');
 }
 
-// ── M4: import JSON — single object or array ───────
+// ── M4: import JSON ────────────────────────────────
 function handleFile(event) {
   var file = event.target.files[0];
   if (!file) return;
   var reader = new FileReader();
-  reader.onload = function(e) {
-    document.getElementById('jsonPaste').value = e.target.result;
-  };
+  reader.onload = function(e) { document.getElementById('jsonPaste').value = e.target.result; };
   reader.readAsText(file);
 }
 
@@ -513,31 +569,86 @@ function importJSON() {
   var parsed;
   try { parsed = JSON.parse(raw); } catch (e) { errEl.textContent = 'Invalid JSON: ' + e.message; return; }
 
-  // Accept single object or array
-  var formatHasMembers = false;
-  var data;
-  if (Array.isArray(parsed)) {
-    data = parsed;
-  } else if (typeof parsed === 'object' && parsed !== null) {
-    // Top-level { members: [...], expenses: [...] } format (from export)
-    if (parsed.expenses && Array.isArray(parsed.expenses)) {
-      data = parsed.expenses;
-      formatHasMembers = true;
-    } else {
-      data = [parsed];
+  // Full export format: { trips: [...], activeTripIdx: N }
+  if (parsed.trips && Array.isArray(parsed.trips) && parsed.trips.length) {
+    syncToActive();
+    var imported = parsed.trips;
+    for (var ti = 0; ti < imported.length; ti++) {
+      var t = imported[ti];
+      if (!t.name) t.name = 'Trip ' + (ti + 1);
+      if (!t.members || !Array.isArray(t.members)) t.members = [];
+      if (!t.expenses || !Array.isArray(t.expenses)) t.expenses = [];
+      // Resolve shares for each expense
+      for (var ei = 0; ei < t.expenses.length; ei++) {
+        var e = t.expenses[ei];
+        if (!e.split) e.split = 'equal';
+        if (!e.shares) e.shares = {};
+        var resolved = {};
+        if (e.split === 'equal') {
+          for (var mj = 0; mj < t.members.length; mj++) { resolved[t.members[mj]] = e.amount / t.members.length; }
+        } else if (e.split === 'percent') {
+          var pk = Object.keys(e.shares);
+          for (var mp = 0; mp < pk.length; mp++) { resolved[pk[mp]] = e.shares[pk[mp]] / 100 * e.amount; }
+          e._rawPct = e.shares;
+        } else { resolved = e.shares; }
+        e.shares = resolved;
+      }
+      trips.push({ id: Date.now() + ti + '', name: t.name, members: t.members, expenses: t.expenses });
     }
-  } else {
-    errEl.textContent = 'Expected a JSON object or array of objects.';
+    activeTripIdx = trips.length - 1;
+    syncFromActive();
+    saveToStorage();
+    renderAll();
+    showToast('Imported ' + imported.length + ' trip(s)');
+    document.getElementById('jsonPaste').value = '';
+    document.getElementById('fileInput').value = '';
     return;
   }
 
-  // First pass: discover all members (snapshot only — do NOT mutate global yet)
-  var snapshot = members.slice();
-  if (formatHasMembers && parsed.members && Array.isArray(parsed.members)) {
-    for (var mi = 0; mi < parsed.members.length; mi++) {
-      if (!snapshot.includes(parsed.members[mi])) snapshot.push(parsed.members[mi]);
+  // Single-trip export: { tripName, members, expenses }
+  if (parsed.members || parsed.expenses) {
+    syncToActive();
+    var name = parsed.tripName || 'Imported Trip';
+    if (!parsed.expenses) parsed.expenses = [];
+    if (!parsed.members || !Array.isArray(parsed.members)) parsed.members = [];
+
+    // Discover members from expenses too
+    var snapMembers = parsed.members.slice();
+    for (var ed = 0; ed < parsed.expenses.length; ed++) {
+      var ex = parsed.expenses[ed];
+      if (!ex.description) ex.description = 'Expense ' + (ed + 1);
+      if (!ex.split) ex.split = 'equal';
+      if (!ex.shares) ex.shares = {};
+      if (ex.paidBy && !snapMembers.includes(ex.paidBy)) snapMembers.push(ex.paidBy);
+      var smk = Object.keys(ex.shares);
+      for (var ms = 0; ms < smk.length; ms++) { if (!snapMembers.includes(smk[ms])) snapMembers.push(smk[ms]); }
     }
+
+    var resolvedExpenses = [];
+    for (var kj = 0; kj < parsed.expenses.length; kj++) {
+      var src = parsed.expenses[kj];
+      resolvedExpenses.push(buildExpense(src.description, src.amount, src.paidBy, src.split, src.shares, snapMembers));
+    }
+
+    trips.push({ id: Date.now() + '', name: name, members: snapMembers, expenses: resolvedExpenses });
+    activeTripIdx = trips.length - 1;
+    syncFromActive();
+    saveToStorage();
+    renderAll();
+    showToast('Imported: ' + name);
+    document.getElementById('jsonPaste').value = '';
+    document.getElementById('fileInput').value = '';
+    return;
   }
+
+  // Single expense or array → merge into current trip
+  ensureTrip();
+  var data;
+  if (Array.isArray(parsed)) { data = parsed; }
+  else if (typeof parsed === 'object' && parsed !== null) { data = [parsed]; }
+  else { errEl.textContent = 'Expected JSON object, array, or export format.'; return; }
+
+  var snapshot = members.slice();
   for (var d = 0; d < data.length; d++) {
     var e = data[d];
     if (!e.description) e.description = 'Expense ' + (d + 1);
@@ -545,46 +656,32 @@ function importJSON() {
     if (!e.shares) e.shares = {};
     if (e.paidBy && !snapshot.includes(e.paidBy)) snapshot.push(e.paidBy);
     var mk = Object.keys(e.shares);
-    for (var ms = 0; ms < mk.length; ms++) {
-      if (!snapshot.includes(mk[ms])) snapshot.push(mk[ms]);
-    }
+    for (var ms2 = 0; ms2 < mk.length; ms2++) { if (!snapshot.includes(mk[ms2])) snapshot.push(mk[ms2]); }
   }
 
-  // Second pass: validate raw data against the union member set,
-  // but using raw shares (percentages stay as percentages)
   for (var i = 0; i < data.length; i++) {
     var entry = data[i];
     if (!entry.paidBy) { errEl.textContent = 'Import #' + (i + 1) + ': missing "paidBy".'; return; }
-    if (!entry.amount || entry.amount <= 0) {
-      errEl.textContent = 'Import #' + (i + 1) + ': invalid amount.';
-      return;
-    }
-    // Validate using snapshot members and RAW shares (percent not converted yet)
+    if (!entry.amount || entry.amount <= 0) { errEl.textContent = 'Import #' + (i + 1) + ': invalid amount.'; return; }
     var err = validateExpense(entry.description, entry.amount, entry.paidBy, entry.split, entry.shares, snapshot);
     if (err) { errEl.textContent = 'Import #' + (i + 1) + ': ' + err; return; }
   }
 
-  // Third pass: build resolved expenses
-  var newExpenses = [];
-  for (var j = 0; j < data.length; j++) {
-    var src = data[j];
-    var exp = buildExpense(src.description, src.amount, src.paidBy, src.split, src.shares, snapshot);
-    newExpenses.push(exp);
-  }
-
-  // Commit
   members = snapshot;
-  for (var k = 0; k < newExpenses.length; k++) { expenses.push(newExpenses[k]); }
+  for (var j = 0; j < data.length; j++) {
+    expenses.push(buildExpense(data[j].description, data[j].amount, data[j].paidBy, data[j].split, data[j].shares, snapshot));
+  }
 
   document.getElementById('jsonPaste').value = '';
   document.getElementById('fileInput').value = '';
   saveToStorage();
   renderAll();
-  showToast('Imported ' + newExpenses.length + ' expense' + (newExpenses.length > 1 ? 's' : ''));
+  showToast('Imported ' + data.length + ' expense' + (data.length > 1 ? 's' : ''));
 }
 
 // ── render ─────────────────────────────────────────
 function renderAll() {
+  renderTripBar();
   renderMembers();
   renderExpenseForm();
   renderExpenseList();
@@ -594,6 +691,21 @@ function renderAll() {
 
 function escAttr(s) { return s.replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/'/g,'&#39;').replace(/</g,'&lt;'); }
 function escHtml(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+function renderTripBar() {
+  var sel = document.getElementById('tripSelect');
+  var countEl = document.getElementById('tripCount');
+  countEl.textContent = trips.length + ' trip' + (trips.length !== 1 ? 's' : '');
+  if (!trips.length) {
+    sel.innerHTML = '<option value="">— No trips —</option>';
+    return;
+  }
+  var h = '';
+  for (var i = 0; i < trips.length; i++) {
+    h += '<option value="' + i + '"' + (i === activeTripIdx ? ' selected' : '') + '>' + escHtml(trips[i].name) + ' (' + trips[i].members.length + ' members, ' + trips[i].expenses.length + ' exp)</option>';
+  }
+  sel.innerHTML = h;
+}
 
 function renderMembers() {
   var el = document.getElementById('memberList');
@@ -608,7 +720,6 @@ function renderMembers() {
   el.innerHTML = h;
 }
 
-// Bridge function so onclick doesn't need ' in the attribute
 function __rm(name) { removeMember(name); }
 
 function renderExpenseForm() {
@@ -641,20 +752,15 @@ function renderExpenseList() {
       var m = shareKeys[j];
       if (e.shares[m] > EPSILON) parts.push(escHtml(m) + ': ₹' + e.shares[m].toFixed(2));
     }
-    var shareStr = parts.join(', ');
     h += '<div class="split-row" style="justify-content:space-between">'
       + '<div><strong>' + escHtml(e.description) + '</strong> — ₹' + e.amount.toFixed(2) + ' paid by <em>' + escHtml(e.paidBy) + '</em>'
-      + '<br><small style="color:var(--muted)">' + escHtml(e.split) + ' → ' + shareStr + '</small></div>'
+      + '<br><small style="color:var(--muted)">' + escHtml(e.split) + ' → ' + parts.join(', ') + '</small></div>'
       + '<button class="btn btn-danger btn-sm" onclick="removeExpense(' + i + ')">✕</button></div>';
   }
   el.innerHTML = h;
 }
 
-function removeExpense(i) {
-  expenses.splice(i, 1);
-  saveToStorage();
-  renderAll();
-}
+function removeExpense(i) { expenses.splice(i, 1); saveToStorage(); renderAll(); }
 
 function renderBalances() {
   var bal = computeBalances();
@@ -665,8 +771,7 @@ function renderBalances() {
   }
   var h = '';
   for (var i = 0; i < members.length; i++) {
-    var m = members[i];
-    var b = bal[m] || 0;
+    var m = members[i], b = bal[m] || 0;
     var cls = b > EPSILON ? 'pos' : (b < -EPSILON ? 'neg' : '');
     var text;
     if (b > EPSILON) text = 'gets back ₹' + b.toFixed(2);
@@ -708,10 +813,11 @@ function switchTab(tab, btn) {
 }
 
 // ── init ───────────────────────────────────────────
-if (loadFromStorage()) {
-  // data restored from localStorage
-} else {
-  // first run — no saved data
+if (!loadFromStorage()) {
+  // first run — auto-create a default trip
+  trips.push({ id: Date.now() + '', name: 'Default Trip', members: [], expenses: [] });
+  activeTripIdx = 0;
+  syncFromActive();
 }
 renderAll();
 </script>

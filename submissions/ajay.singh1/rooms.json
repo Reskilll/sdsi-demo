@@ -1,0 +1,7 @@
+[
+  { "name": "Alpha",   "capacity": 4 },
+  { "name": "Beta",    "capacity": 6 },
+  { "name": "Gamma",   "capacity": 8 },
+  { "name": "Delta",   "capacity": 12 },
+  { "name": "Epsilon", "capacity": 20 }
+]

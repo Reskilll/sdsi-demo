@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Splitwise-Lite — Home{% endblock %}
+{% block content %}
+<div class="hero">
+  <h1>&#x20B9; Splitwise-Lite</h1>
+  <p class="subtitle">Team Outing Expense Settler</p>
+  <p>Splits expenses three ways (Equal, Exact, Percentage), computes net balances, and minimizes settlement transactions.</p>
+</div>
+
+<div class="card">
+  <h2>Create a New Group</h2>
+  <form method="POST" action="/" class="form-inline">
+    <label>
+      <span>Group Name</span>
+      <input type="text" name="name" placeholder="e.g. Team Outing 2026" value="My Group" required maxlength="200">
+    </label>
+    <button type="submit" class="btn btn-primary">Create Group</button>
+  </form>
+</div>
+
+<div class="card" style="margin-top: 2rem;">
+  <h2>About</h2>
+  <ul>
+    <li><strong>Three split types:</strong> Equal, Exact, Percentage</li>
+    <li><strong>Net balances:</strong> per-member paid / owed / net</li>
+    <li><strong>Debt simplification:</strong> minimum transactions via greedy max-heap</li>
+    <li><strong>Batch upload:</strong> drop a <code>.json</code> file with pre-existing expenses</li>
+    <li><strong>Soft-delete:</strong> deactivate members without losing history</li>
+  </ul>
+</div>
+{% endblock %}

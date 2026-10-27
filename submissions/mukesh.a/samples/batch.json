@@ -1,0 +1,54 @@
+{
+  "groups": [
+    {
+      "name": "Office Lunch",
+      "members": ["Alice", "Bob", "Charlie", "Diana"],
+      "expenses": [
+        {
+          "title": "Pizza Delivery",
+          "total_amount": 3200,
+          "paid_by": "Alice",
+          "split_type": "equal",
+          "members": ["Alice", "Bob", "Charlie", "Diana"]
+        },
+        {
+          "title": "Drinks",
+          "total_amount": 1200,
+          "paid_by": "Bob",
+          "split_type": "exact",
+          "shares": { "Alice": 400, "Bob": 400, "Charlie": 400 },
+          "members": ["Alice", "Bob", "Charlie"]
+        },
+        {
+          "title": "Dessert",
+          "total_amount": 800,
+          "paid_by": "Diana",
+          "split_type": "percentage",
+          "shares": { "Alice": 25, "Bob": 25, "Charlie": 25, "Diana": 25 },
+          "members": ["Alice", "Bob", "Charlie", "Diana"]
+        }
+      ]
+    },
+    {
+      "name": "Road Trip",
+      "members": ["Xavier", "Yara", "Zack"],
+      "expenses": [
+        {
+          "title": "Fuel",
+          "total_amount": 4500,
+          "paid_by": "Xavier",
+          "split_type": "equal",
+          "members": ["Xavier", "Yara", "Zack"]
+        },
+        {
+          "title": "Toll",
+          "total_amount": 600,
+          "paid_by": "Yara",
+          "split_type": "exact",
+          "shares": { "Xavier": 200, "Yara": 200, "Zack": 200 },
+          "members": ["Xavier", "Yara", "Zack"]
+        }
+      ]
+    }
+  ]
+}

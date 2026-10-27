@@ -1,0 +1,16 @@
+{
+  "tickets": [
+    { "id": "BAD-01", "priority": "P9", "assignee_group": "Network", "created_at": "2026-10-05T10:00:00+05:30" },
+    { "id": "BAD-02", "priority": "P1", "assignee_group": "Network", "created_at": "not-a-date" },
+    { "id": "BAD-03", "priority": "P1", "assignee_group": "Network", "created_at": "2026-10-05T10:00:00+05:30",
+      "status_history": [ { "status": "RESOLVED", "at": "2026-10-04T10:00:00+05:30" } ] },
+    { "id": "BAD-04", "priority": "P1", "assignee_group": "Network", "created_at": "2026-10-05T10:00:00+05:30",
+      "status_history": [ { "status": "WAITING_FOR_GODOT", "at": "2026-10-05T11:00:00+05:30" } ] },
+    { "priority": "P1", "assignee_group": "Network", "created_at": "2026-10-05T10:00:00+05:30" },
+    { "id": "BAD-06", "priority": "P1", "assignee_group": "Network", "created_at": "2099-01-01T10:00:00+05:30" },
+    { "id": "OK-07", "priority": "P2", "assignee_group": "=HYPERLINK(\"http://evil\")", "created_at": "2026-10-05T10:00:00+05:30" },
+    { "id": "OK-07", "priority": "P2", "assignee_group": "Network", "created_at": "2026-10-05T10:00:00+05:30" },
+    "not-an-object"
+  ]
+}
+

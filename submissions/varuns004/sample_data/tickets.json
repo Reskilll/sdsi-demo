@@ -1,0 +1,98 @@
+{
+  "tickets": [
+    {
+      "id": "INC-1001", "priority": "P1", "assignee_group": "Network",
+      "created_at": "2026-10-05T10:00:00+05:30",
+      "status_history": [
+        { "status": "IN_PROGRESS", "at": "2026-10-05T10:15:00+05:30" },
+        { "status": "RESOLVED", "at": "2026-10-05T13:00:00+05:30" }
+      ]
+    },
+    {
+      "id": "INC-1002", "priority": "P1", "assignee_group": "Network",
+      "created_at": "2026-10-05T16:00:00+05:30",
+      "status_history": [
+        { "status": "RESOLVED", "at": "2026-10-06T12:00:00+05:30" }
+      ]
+    },
+    {
+      "id": "INC-1003", "priority": "P2", "assignee_group": "Desktop",
+      "created_at": "2026-10-09T10:00:00+05:30",
+      "status_history": [
+        { "status": "ON_HOLD", "at": "2026-10-09T12:00:00+05:30" },
+        { "status": "IN_PROGRESS", "at": "2026-10-12T14:00:00+05:30" },
+        { "status": "RESOLVED", "at": "2026-10-13T15:00:00+05:30" }
+      ]
+    },
+    {
+      "id": "INC-1004", "priority": "P3", "assignee_group": "Desktop",
+      "created_at": "2026-10-01T17:00:00+05:30",
+      "status_history": [
+        { "status": "RESOLVED", "at": "2026-10-06T11:00:00+05:30" }
+      ]
+    },
+    {
+      "id": "INC-1005", "priority": "P4", "assignee_group": "Applications",
+      "created_at": "2026-10-10T11:00:00+05:30",
+      "status_history": []
+    },
+    {
+      "id": "INC-1006", "priority": "P2", "assignee_group": "Applications",
+      "created_at": "2026-10-16T04:30:00Z",
+      "status_history": [
+        { "status": "ON_HOLD", "at": "2026-10-16T06:30:00Z" }
+      ]
+    },
+    {
+      "id": "INC-1007", "priority": "P1", "assignee_group": "Database",
+      "created_at": "2026-10-15T11:00:00+05:30",
+      "status_history": [
+        { "status": "RESOLVED", "at": "2026-10-15T12:00:00+05:30" },
+        { "status": "REOPENED", "at": "2026-10-15T15:00:00+05:30" },
+        { "status": "RESOLVED", "at": "2026-10-15T17:00:00+05:30" }
+      ]
+    },
+    {
+      "id": "INC-1008", "priority": "P3", "assignee_group": "Database",
+      "created_at": "2026-10-14T12:00:00+05:30",
+      "status_history": [
+        { "status": "IN_PROGRESS", "at": "2026-10-14T12:30:00+05:30" }
+      ]
+    },
+    {
+      "id": "INC-1009", "priority": "P4", "assignee_group": "Network",
+      "created_at": "2026-10-07T09:00:00+05:30",
+      "status_history": [
+        { "status": "ON_HOLD", "at": "2026-10-07T11:00:00+05:30" },
+        { "status": "IN_PROGRESS", "at": "2026-10-13T09:00:00+05:30" },
+        { "status": "ON_HOLD", "at": "2026-10-13T10:00:00+05:30" },
+        { "status": "IN_PROGRESS", "at": "2026-10-14T09:00:00+05:30" },
+        { "status": "CLOSED", "at": "2026-10-15T18:00:00+05:30" }
+      ]
+    },
+    {
+      "id": "INC-1010", "priority": "P2",
+      "created_at": "2026-10-16T08:00:00+05:30",
+      "status_history": [
+        { "status": "IN_PROGRESS", "at": "2026-10-16T09:30:00+05:30" }
+      ]
+    },
+    {
+      "id": "INC-1011", "priority": "P1", "assignee_group": "Desktop",
+      "created_at": "2026-10-12T18:30:00+05:30",
+      "status_history": [
+        { "status": "RESOLVED", "at": "2026-10-13T12:30:00+05:30" }
+      ]
+    },
+    {
+      "id": "INC-1012", "priority": "p2", "assignee_group": "Applications",
+      "created_at": "2026-10-14T15:00:00+05:30",
+      "status_history": [
+        { "status": "RESOLVED", "at": "2026-10-15T10:00:00+05:30" },
+        { "status": "ON_HOLD", "at": "2026-10-14T16:00:00+05:30" },
+        { "status": "IN_PROGRESS", "at": "2026-10-15T09:00:00+05:30" }
+      ]
+    }
+  ]
+}
+

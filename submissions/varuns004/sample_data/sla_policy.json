@@ -1,0 +1,11 @@
+{
+  "timezone": "+05:30",
+  "business_hours": { "start": "09:00", "end": "18:00" },
+  "working_days": ["MON", "TUE", "WED", "THU", "FRI"],
+  "targets_hours": { "P1": 4, "P2": 8, "P3": 24, "P4": 72 },
+  "running_statuses": ["NEW", "OPEN", "ASSIGNED", "IN_PROGRESS", "REOPENED"],
+  "paused_statuses": ["ON_HOLD"],
+  "stopped_statuses": ["RESOLVED", "CLOSED"],
+  "at_risk_ratio": 0.8
+}
+

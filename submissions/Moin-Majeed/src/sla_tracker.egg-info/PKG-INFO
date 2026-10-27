@@ -1,0 +1,164 @@
+Metadata-Version: 2.4
+Name: sla-tracker
+Version: 1.0.0
+Summary: IT Service-Desk SLA Tracker — compute SLA breaches for support tickets with business-hours awareness.
+License: MIT
+Requires-Python: >=3.10
+Description-Content-Type: text/markdown
+Requires-Dist: click>=8.1
+Requires-Dist: tzdata>=2024.1
+Provides-Extra: dev
+Requires-Dist: pytest>=7; extra == "dev"
+Requires-Dist: pytest-cov>=4; extra == "dev"
+Requires-Dist: mypy>=1; extra == "dev"
+Requires-Dist: ruff>=0.4; extra == "dev"
+
+# IT Service-Desk SLA Tracker
+
+Compute SLA breaches for support tickets with business-hours awareness.
+
+## Features
+
+- **Business-hours clock** — counts minutes Mon–Fri, 09:00–18:00 (configurable).
+- **Holiday exclusion** — full calendar days marked as non-working.
+- **ON_HOLD pause** — SLA clock stops while a ticket is on hold; resumes when it leaves that status.
+- **Per-ticket report** — elapsed business minutes, due-by wall-clock time, breach yes/no, breach minutes.
+- **Aggregate summary** — breach percentages by priority and by assignee group.
+- **JSON output** — machine-readable output via `--json` flag.
+
+## Quickstart
+
+```bash
+# Install
+cd sla-tracker
+pip install .
+
+# Per-ticket SLA report
+sla-tracker compute
+
+# Summary
+sla-tracker summary
+
+# JSON output
+sla-tracker compute --json > report.json
+```
+
+### Custom data paths
+
+```bash
+sla-tracker compute \
+  --tickets data/tickets.json \
+  --policy data/sla_policy.json \
+  --holidays data/holidays.json \
+  --tz UTC
+```
+
+## Input formats
+
+### tickets.json
+
+Array of ticket objects:
+
+```json
+{
+  "ticket_id": "TKT-001",
+  "priority": 1,
+  "assignee": "alice",
+  "assignee_group": "Network",
+  "created_at": "2026-10-26T09:00:00Z",
+  "status_history": [
+    { "status": "OPEN", "at": "2026-10-26T09:00:00Z" },
+    { "status": "IN_PROGRESS", "at": "2026-10-26T09:30:00Z" },
+    { "status": "ON_HOLD", "at": "2026-10-26T11:00:00Z" },
+    { "status": "IN_PROGRESS", "at": "2026-10-26T14:00:00Z" },
+    { "status": "RESOLVED", "at": "2026-10-26T16:30:00Z" }
+  ]
+}
+```
+
+| Field            | Required? | Notes                                                 |
+|------------------|-----------|-------------------------------------------------------|
+| `ticket_id`      | Yes       | Non-empty string.                                     |
+| `priority`       | Yes       | 1–4 (maps to P1–P4).                                  |
+| `assignee`       | No        | Defaults to `"unassigned"`.                           |
+| `assignee_group` | No        | Defaults to `"unknown"`.                              |
+| `created_at`     | Yes       | ISO‑8601 UTC (`Z` suffix or `+00:00`). Naive treated as UTC. |
+| `status_history` | No        | List of `{ status, at }` objects. Sorted automatically. |
+
+Status values: `OPEN`, `IN_PROGRESS`, `PENDING`, `ON_HOLD`, `RESOLVED`, `CLOSED`.
+
+### sla_policy.json
+
+```json
+{
+  "P1": 240,
+  "P2": 480,
+  "P3": 1440,
+  "P4": 4320
+}
+```
+
+Values are **business minutes** per priority. All four priorities must be present, with positive integer values.
+
+### holidays.json
+
+```json
+["2026-01-01", "2026-12-25"]
+```
+
+ISO‑8601 date strings (`YYYY-MM-DD`). Duplicates are silently deduplicated.
+
+## Testing
+
+```bash
+pip install -e ".[dev]"
+pytest
+pytest --cov=sla_tracker --cov-report=term-missing
+```
+
+## Project structure
+
+```
+sla-tracker/
+├── src/sla_tracker/
+│   ├── __init__.py            # Package marker + version
+│   ├── models.py              # Domain models (Ticket, Priority, StatusEntry, …)
+│   ├── business_calendar.py   # Business-hours clock with holiday exclusion
+│   ├── validators.py          # Input validation for all JSON files
+│   ├── sla_calculator.py      # Core SLA computation engine
+│   ├── reporter.py            # Per-ticket & aggregate report formatting
+│   └── cli.py                 # Click-based CLI (compute, summary)
+├── data/
+│   ├── tickets.json           # Sample ticket data
+│   ├── sla_policy.json        # SLA targets
+│   └── holidays.json          # Holiday calendar
+├── tests/
+│   ├── test_business_calendar.py
+│   ├── test_sla_calculator.py
+│   ├── test_validators.py
+│   └── test_integration.py
+├── PROMPTS.md                 # AI collaboration record
+├── README.md                  # This file
+└── pyproject.toml
+```
+
+## Edge cases handled
+
+| Scenario                              | Behaviour                                                   |
+|---------------------------------------|-------------------------------------------------------------|
+| Ticket created before business hours  | Clock starts at 09:00 same day (or next business day).      |
+| Ticket created after business hours   | Clock starts at 09:00 next business day.                    |
+| Ticket created on weekend/holiday     | Clock starts at 09:00 next business day.                    |
+| ON_HOLD at end of timeline            | Clock stops at ON_HOLD entry; never resumes.                |
+| Multiple ON_HOLD segments             | Each pause-resume pair handled independently.               |
+| Status history out of order           | Automatically sorted chronologically.                       |
+| Overlapping status timestamps         | Only positive-duration intervals counted.                   |
+| Naive datetimes                       | Treated as UTC.                                             |
+| Duplicate holidays                    | Deduplicated.                                               |
+| Empty ticket list                     | Summary shows 0 totals, no crash.                           |
+| Missing optional fields               | Sensible defaults (`unassigned`, `unknown`).                |
+| DST transitions                       | Handled by IANA timezone (pytz/zoneinfo).                   |
+
+## License
+
+MIT

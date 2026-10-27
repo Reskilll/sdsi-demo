@@ -1,0 +1,2 @@
+[console_scripts]
+sla-tracker = sla_tracker.cli:main

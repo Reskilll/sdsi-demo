@@ -1,0 +1,50 @@
+{
+  "members": [
+    { "id": "alice", "name": "Alice" },
+    { "id": "bob", "name": "Bob" },
+    { "id": "charlie", "name": "Charlie" },
+    { "id": "diana", "name": "Diana" }
+  ],
+  "expenses": [
+    {
+      "description": "Dinner at Taj",
+      "total": 4000,
+      "paidBy": "alice",
+      "split": {
+        "type": "equal",
+        "shareHolderIds": ["alice", "bob", "charlie", "diana"]
+      },
+      "date": "2026-10-25"
+    },
+    {
+      "description": "Taxi fare",
+      "total": 600,
+      "paidBy": "bob",
+      "split": {
+        "type": "exact",
+        "shares": { "alice": 200, "bob": 100, "charlie": 300 }
+      },
+      "date": "2026-10-25"
+    },
+    {
+      "description": "Concert tickets",
+      "total": 3000,
+      "paidBy": "charlie",
+      "split": {
+        "type": "percentage",
+        "shares": { "alice": 40, "bob": 30, "charlie": 30 }
+      },
+      "date": "2026-10-25"
+    },
+    {
+      "description": "Snacks",
+      "total": 500,
+      "paidBy": "diana",
+      "split": {
+        "type": "equal",
+        "shareHolderIds": ["alice", "bob", "charlie", "diana"]
+      },
+      "date": "2026-10-25"
+    }
+  ]
+}

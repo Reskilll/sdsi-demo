@@ -25,6 +25,10 @@ code, or network operations.
 - **Failure propagation (M5)** — given a failed job id, reports every transitive
   downstream dependent that must be skipped.
 - **CLI** — human-readable text output by default, and machine-readable JSON.
+- **SPA test harness** — a self-contained web frontend served by `server.py`
+  that submits JSON and visualises the results (KPI stat tiles, stage-duration
+  bars, critical-path annotations, per-job table with dark mode).
+- **HTTP API** — `POST /api/schedule` accepts JSON and returns the full analysis.
 - **Installable console script** — `pip install -e .` exposes the `jobsched`
   command.
 
@@ -81,6 +85,45 @@ py -3 main.py --input sample.json
 
 Diagnostics are written to **stderr**; `--format json` keeps stdout as valid
 JSON with no logging noise mixed in.
+
+## Web test harness (SPA)
+
+A single-page application for interactively testing the scheduler. It uses only
+the Python standard library on the backend and vanilla JavaScript on the
+frontend — no build step, no third-party dependencies.
+
+### Start the server
+
+```bash
+python server.py
+# Windows:  py -3 server.py
+```
+
+Then open **http://localhost:8380** in a browser.
+
+### What the SPA does
+
+- Edit the JSON job description (pre-loaded with `sample.json`).
+- Override the worker count and simulate a failed job from the UI.
+- See a KPI row (total completion time, critical-path duration, worker count,
+  stage count, skipped-jobs count when a failure is simulated).
+- See the topological order, horizontal stage-duration bars (with per-stage
+  hover tooltips), critical-path "why" annotations, and a per-job timings
+  table with critical-path rows highlighted.
+- Toggle light/dark mode (follows OS preference, overridable and persisted).
+
+### HTTP API
+
+`POST /api/schedule` with a JSON body identical to the CLI input schema. It
+returns all computed analyses, or `{"errors": [...]}` with HTTP `422` for
+invalid input. Optional top-level keys `_workers` (integer) and `_failed_job`
+(string) mirror the CLI's `--workers` and `--failed-job` flags.
+
+```bash
+curl -X POST http://localhost:8380/api/schedule \
+  -H "Content-Type: application/json" \
+  --data @sample.json
+```
 
 ## Input JSON schema
 
@@ -197,6 +240,8 @@ overhead (a min-heap keyed by id).
 ```
 umeshjhaAI/
 ├── main.py                 # CLI entry point
+├── server.py               # HTTP server + /api/schedule (standard library)
+├── static/index.html       # SPA test harness frontend (vanilla JS)
 ├── sample.json             # example input
 ├── pyproject.toml          # packaging + `jobsched` console script
 ├── scheduler/
@@ -204,10 +249,13 @@ umeshjhaAI/
 │   ├── errors.py           # error types
 │   ├── model.py            # Job / Stage / Schedule dataclasses
 │   ├── validation.py       # parsing + M1 validation
-│   ├── graph.py            # adjacency + M2 topological sort
-│   ├── engine.py           # M3 stages, M4 critical path, M5 failure
+│   ├── graph.py            # Graph value object + algorithms (M2–M5)
+│   ├── engine.py           # façade over Graph + critical-path explanations
 │   └── cli.py              # argparse CLI + text/JSON formatting
-└── tests/                  # unittest suite (incl. property-based tests)
+├── tests/                  # unittest suite (incl. property-based tests)
+├── AGENTS.md               # agent-oriented architecture guide
+├── PROMPTS.md              # AI-assisted development record
+└── .gitignore
 ```
 
 ## Known limitations and scheduling assumptions

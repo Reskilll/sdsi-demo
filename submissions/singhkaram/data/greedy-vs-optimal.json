@@ -1,0 +1,20 @@
+{
+  "group": "Greedy vs optimal demo",
+  "members": ["Asha", "Bhavesh", "Chirag", "Divya", "Esha"],
+  "expenses": [
+    {
+      "description": "Concert tickets",
+      "paidBy": "Asha",
+      "amount": 10000,
+      "split": "exact",
+      "shares": { "Divya": 6000, "Esha": 4000 }
+    },
+    {
+      "description": "Train tickets",
+      "paidBy": "Bhavesh",
+      "amount": 9000,
+      "split": "exact",
+      "shares": { "Chirag": 9000 }
+    }
+  ]
+}

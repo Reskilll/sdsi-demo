@@ -1,0 +1,45 @@
+{
+  "group": "Goa Team Outing",
+  "members": ["Asha", "Bhavesh", "Chirag", "Divya", "Esha"],
+  "expenses": [
+    {
+      "id": "e1",
+      "description": "Villa (2 nights)",
+      "paidBy": "Asha",
+      "amount": 15000,
+      "split": "equal"
+    },
+    {
+      "id": "e2",
+      "description": "Seafood dinner",
+      "paidBy": "Bhavesh",
+      "amount": 4250.50,
+      "split": "equal",
+      "participants": ["Asha", "Bhavesh", "Chirag", "Divya"]
+    },
+    {
+      "id": "e3",
+      "description": "Airport cabs",
+      "paidBy": "Chirag",
+      "amount": 2400,
+      "split": "exact",
+      "shares": { "Asha": 400, "Bhavesh": 400, "Chirag": 800, "Esha": 800 }
+    },
+    {
+      "id": "e4",
+      "description": "Scuba diving",
+      "paidBy": "Divya",
+      "amount": 10000,
+      "split": "percentage",
+      "shares": { "Asha": 30, "Divya": 30, "Esha": 40 }
+    },
+    {
+      "id": "e5",
+      "description": "Snacks & water",
+      "paidBy": "Esha",
+      "amount": 100,
+      "split": "equal",
+      "participants": ["Asha", "Bhavesh", "Chirag"]
+    }
+  ]
+}

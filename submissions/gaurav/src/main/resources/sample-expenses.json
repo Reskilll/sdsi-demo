@@ -1,0 +1,32 @@
+{
+  "expenses": [
+    {
+      "payer": "Alice",
+      "amount": 300,
+      "splitType": "EQUAL",
+      "members": ["Alice", "Bob", "Charlie"]
+    },
+    {
+      "payer": "Bob",
+      "amount": 200,
+      "splitType": "PERCENTAGE",
+      "members": ["Alice", "Bob", "Charlie"],
+      "shares": {
+        "Alice": 40,
+        "Bob": 20,
+        "Charlie": 40
+      }
+    },
+    {
+      "payer": "Charlie",
+      "amount": 500,
+      "splitType": "EXACT",
+      "members": ["Alice", "Bob", "Charlie"],
+      "shares": {
+        "Alice": 150,
+        "Bob": 200,
+        "Charlie": 150
+      }
+    }
+  ]
+}

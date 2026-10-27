@@ -1,0 +1,50 @@
+{
+  "group": "Goa Trip 2026",
+  "members": ["Anil", "Priya", "Raj", "Simran", "Vikram"],
+  "expenses": [
+    {
+      "description": "Flight tickets (bulk booking)",
+      "total": 45000,
+      "paid_by": "Anil",
+      "split_type": "equal",
+      "members": ["Anil", "Priya", "Raj", "Simran", "Vikram"]
+    },
+    {
+      "description": "Airbnb villa — 3 nights",
+      "total": 24000,
+      "paid_by": "Priya",
+      "split_type": "equal",
+      "members": ["Anil", "Priya", "Raj", "Simran", "Vikram"]
+    },
+    {
+      "description": "Dinner at Fishka (exact shares)",
+      "total": 6500,
+      "paid_by": "Raj",
+      "split_type": "exact",
+      "members": ["Anil", "Priya", "Raj", "Simran"],
+      "amounts": [1800, 1200, 2000, 1500]
+    },
+    {
+      "description": "Scooter rentals (unequal usage)",
+      "total": 5000,
+      "paid_by": "Vikram",
+      "split_type": "percentage",
+      "members": ["Anil", "Priya", "Raj", "Simran", "Vikram"],
+      "amounts": [10, 10, 30, 30, 20]
+    },
+    {
+      "description": "Groceries & snacks",
+      "total": 3200,
+      "paid_by": "Simran",
+      "split_type": "equal",
+      "members": ["Anil", "Priya", "Raj", "Simran", "Vikram"]
+    },
+    {
+      "description": "Sunset cruise (only 3 went)",
+      "total": 9000,
+      "paid_by": "Anil",
+      "split_type": "equal",
+      "members": ["Anil", "Priya", "Vikram"]
+    }
+  ]
+}

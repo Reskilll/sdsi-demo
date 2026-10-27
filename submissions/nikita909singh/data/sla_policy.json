@@ -1,0 +1,15 @@
+{
+  "timezone": "Asia/Kolkata",
+  "businessHours": {
+    "days": ["MON", "TUE", "WED", "THU", "FRI"],
+    "start": "09:00",
+    "end": "18:00"
+  },
+  "targetsHours": { "P1": 4, "P2": 8, "P3": 24, "P4": 72 },
+  "statuses": {
+    "running": ["NEW", "OPEN", "ASSIGNED", "IN_PROGRESS", "REOPENED"],
+    "paused": ["ON_HOLD"],
+    "stopped": ["RESOLVED", "CLOSED"]
+  },
+  "atRiskFraction": 0.25
+}

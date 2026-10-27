@@ -1,0 +1,76 @@
+{
+  "tickets": [
+    {
+      "id": "T-1001", "title": "Core switch down", "priority": "P1", "assigneeGroup": "Network",
+      "createdAt": "2026-10-05T10:00:00+05:30",
+      "statusHistory": [
+        { "status": "IN_PROGRESS", "at": "2026-10-05T10:30:00+05:30" },
+        { "status": "RESOLVED", "at": "2026-10-05T13:00:00+05:30" }
+      ]
+    },
+    {
+      "id": "T-1002", "title": "VPN outage before long weekend", "priority": "P1", "assigneeGroup": "Network",
+      "createdAt": "2026-10-01T16:00:00+05:30",
+      "statusHistory": [
+        { "status": "IN_PROGRESS", "at": "2026-10-01T16:20:00+05:30" },
+        { "status": "RESOLVED", "at": "2026-10-05T12:00:00+05:30" }
+      ]
+    },
+    {
+      "id": "T-1003", "title": "Laptop replacement, waiting for user", "priority": "P2", "assigneeGroup": "Service Desk",
+      "createdAt": "2026-10-06T17:00:00+05:30",
+      "statusHistory": [
+        { "status": "ON_HOLD", "at": "2026-10-07T10:00:00+05:30" },
+        { "status": "IN_PROGRESS", "at": "2026-10-08T15:00:00+05:30" },
+        { "status": "RESOLVED", "at": "2026-10-08T17:00:00+05:30" }
+      ]
+    },
+    {
+      "id": "T-1004", "title": "Payroll report failing", "priority": "P3", "assigneeGroup": "Applications",
+      "createdAt": "2026-10-09T14:00:00+05:30",
+      "statusHistory": [
+        { "status": "IN_PROGRESS", "at": "2026-10-12T09:15:00+05:30" }
+      ]
+    },
+    {
+      "id": "T-1005", "title": "Licence renewal, waiting on vendor", "priority": "P4", "assigneeGroup": "Applications",
+      "createdAt": "2026-10-12T09:00:00+05:30",
+      "statusHistory": [
+        { "status": "ON_HOLD", "at": "2026-10-13T12:00:00+05:30" }
+      ]
+    },
+    {
+      "id": "T-1006", "title": "Shared mailbox access", "priority": "P2", "assigneeGroup": "Service Desk",
+      "createdAt": "2026-10-16T11:00:00+05:30",
+      "statusHistory": []
+    },
+    {
+      "id": "T-1007", "title": "Wi-Fi slow on floor 3", "priority": "P3", "assigneeGroup": "Network",
+      "createdAt": "2026-10-14T10:00:00+05:30",
+      "statusHistory": [
+        { "status": "RESOLVED", "at": "2026-10-15T16:00:00+05:30" },
+        { "status": "CLOSED", "at": "2026-10-16T10:00:00+05:30" }
+      ]
+    },
+    {
+      "id": "T-1008", "title": "Website down (raised on Saturday)", "priority": "P1", "assigneeGroup": "Service Desk",
+      "createdAt": "2026-10-10T11:00:00+05:30",
+      "statusHistory": [
+        { "status": "IN_PROGRESS", "at": "2026-10-12T09:30:00+05:30" },
+        { "status": "RESOLVED", "at": "2026-10-12T12:30:00+05:30" }
+      ]
+    },
+    {
+      "id": "T-1009", "title": "Printer queue stuck (reopened)", "priority": "P2", "assigneeGroup": "Network",
+      "createdAt": "2026-10-15T17:30:00+05:30",
+      "statusHistory": [
+        { "status": "RESOLVED", "at": "2026-10-16T10:00:00+05:30" },
+        { "status": "REOPENED", "at": "2026-10-16T14:00:00+05:30" }
+      ]
+    },
+    {
+      "id": "T-1010", "title": "New joiner account (no group yet)", "priority": "P4",
+      "createdAt": "2026-10-16T08:00:00+05:30"
+    }
+  ]
+}

@@ -15,6 +15,57 @@ submissions/ritvik.m/
 
 ---
 
+## Run it
+
+Prerequisites: **JDK 21+**, **Maven 3.9+**, **Node 20+**. No Docker and no external
+database are needed.
+
+Run the backend in one terminal:
+
+```bash
+cd submissions/ritvik.m/backend
+mvn spring-boot:run
+```
+
+Wait for `Started BookingApplication` and check <http://localhost:8080/actuator/health>.
+
+Run the frontend in a second terminal:
+
+```bash
+cd submissions/ritvik.m/frontend
+npm install
+npm run dev
+```
+
+Open **<http://localhost:5173>** and sign in with **`admin` / `admin123`**.
+
+The Vite dev server proxies `/api` to `http://localhost:8080`, so both processes must be
+running. The backend creates its H2 database in `backend/data/` on first start and seeds
+the six demo rooms automatically.
+
+### Single-jar option (no Node at runtime)
+
+Building with the `frontend` profile compiles the SPA and copies it into the Spring Boot
+static resources, so one process serves both the UI and the API:
+
+```bash
+cd submissions/ritvik.m/backend
+mvn -Pfrontend package
+java -jar target/room-booking-1.0.0.jar
+```
+
+Open <http://localhost:8080> (same credentials).
+
+### Troubleshooting
+
+- **Port 5173 already in use:** stop the other process, or run `npm run dev -- --port 5175`
+  and open the port Vite prints. Always use the exact URL from the Vite banner.
+- **`/api` calls fail in the browser:** confirm the backend is on port 8080; the proxy
+  target is set in `frontend/vite.config.ts`.
+- **Reset the demo data:** stop the backend and delete `backend/data/`.
+- **Change credentials:** set `APP_ADMIN_USERNAME` / `APP_ADMIN_PASSWORD` before starting
+  the backend.
+
 ## Quick start
 
 Prerequisites: **JDK 21+**, **Maven 3.9+**, **Node 20+** (built and tested with JDK 25,

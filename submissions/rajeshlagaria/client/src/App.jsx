@@ -5,6 +5,18 @@ import ExpenseFormPage from './pages/ExpenseFormPage';
 import BatchUploadPage from './pages/BatchUploadPage';
 import SettlementsPage from './pages/SettlementsPage';
 
+function NotFound() {
+  return (
+    <div className="text-center py-20">
+      <h1 className="text-4xl font-bold text-gray-300 mb-4">404</h1>
+      <p className="text-gray-500 mb-4">Page not found</p>
+      <Link to="/" className="text-indigo-600 hover:underline text-sm">
+        &larr; Back to Groups
+      </Link>
+    </div>
+  );
+}
+
 const navLinks = [
   { to: '/', label: 'Groups' },
 ];
@@ -49,6 +61,7 @@ export default function App() {
           <Route path="/groups/:groupId/expenses/new" element={<ExpenseFormPage />} />
           <Route path="/groups/:groupId/expenses/batch" element={<BatchUploadPage />} />
           <Route path="/groups/:groupId/settlements" element={<SettlementsPage />} />
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </main>
     </div>

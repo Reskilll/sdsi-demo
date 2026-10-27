@@ -8,7 +8,13 @@ const EPSILON = 0.01;
  * Validate that percentages sum to 100 (within epsilon for floating point).
  */
 function validatePercentages(shares) {
-  const total = shares.reduce((sum, s) => sum + (s.percentage || 0), 0);
+  for (const s of shares) {
+    const pct = s.percentage;
+    if (pct === undefined || pct === null || isNaN(pct) || pct < 0 || pct > 100) {
+      return false;
+    }
+  }
+  const total = shares.reduce((sum, s) => sum + parseFloat(s.percentage), 0);
   return Math.abs(total - 100) <= EPSILON;
 }
 
@@ -16,6 +22,12 @@ function validatePercentages(shares) {
  * Validate that exact amounts sum to the total expense amount.
  */
 function validateExactAmounts(shares, totalAmount) {
+  for (const s of shares) {
+    const amt = parseFloat(s.amount || 0);
+    if (amt < 0) {
+      return false; // negative shares are invalid
+    }
+  }
   const sum = shares.reduce((acc, s) => acc + parseFloat(s.amount || 0), 0);
   return Math.abs(sum - parseFloat(totalAmount)) <= EPSILON;
 }

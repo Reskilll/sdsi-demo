@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { api } from '../services/api';
 
@@ -7,6 +7,21 @@ const SPLIT_TYPES = [
   { value: 'EXACT', label: 'Exact Amounts' },
   { value: 'PERCENTAGE', label: 'Percentage' },
 ];
+
+function SumBadge({ label, sum, target, precision }) {
+  if (target === undefined || target === null || target === 0) return null;
+  const match = Math.abs(sum - target) < precision;
+  return (
+    <span
+      className={`text-xs ml-2 px-2 py-0.5 rounded-full font-medium ${
+        match ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
+      }`}
+    >
+      {label}: {sum.toFixed(2)}
+      {!match && ` (need ${target.toFixed(2)})`}
+    </span>
+  );
+}
 
 export default function ExpenseFormPage() {
   const { groupId } = useParams();
@@ -21,6 +36,16 @@ export default function ExpenseFormPage() {
   const [payerId, setPayerId] = useState('');
   const [splitType, setSplitType] = useState('EQUAL');
   const [shares, setShares] = useState([]);
+
+  const exactSum = useMemo(() => {
+    if (splitType !== 'EXACT') return null;
+    return shares.reduce((acc, s) => acc + (parseFloat(s.amount) || 0), 0);
+  }, [shares, splitType]);
+
+  const pctSum = useMemo(() => {
+    if (splitType !== 'PERCENTAGE') return null;
+    return shares.reduce((acc, s) => acc + (parseFloat(s.percentage) || 0), 0);
+  }, [shares, splitType]);
 
   useEffect(() => {
     api.listMembers(groupId).then(setMembers).catch(() => {});
@@ -70,10 +95,25 @@ export default function ExpenseFormPage() {
     e.preventDefault();
     setError('');
 
+    // Client-side pre-checks
+    if (!payerId) {
+      setError('Please select who paid.');
+      return;
+    }
+    if (!amount || parseFloat(amount) <= 0) {
+      setError('Amount must be a positive number.');
+      return;
+    }
+
     // Build payload
     let payloadShares;
     if (splitType === 'EQUAL') {
-      payloadShares = shares.filter((s) => s.included).map((s) => ({ memberId: s.memberId }));
+      const included = shares.filter((s) => s.included);
+      if (included.length === 0) {
+        setError('Select at least one member to split with.');
+        return;
+      }
+      payloadShares = included.map((s) => ({ memberId: s.memberId }));
     } else if (splitType === 'EXACT') {
       payloadShares = shares.map((s) => ({
         memberId: s.memberId,
@@ -202,6 +242,18 @@ export default function ExpenseFormPage() {
         <div className="mb-6">
           <label className="block text-sm font-medium text-gray-700 mb-2">
             Split Details
+            <SumBadge
+              label="Sum"
+              sum={exactSum}
+              target={parseFloat(amount) || 0}
+              precision={0.01}
+            />
+            <SumBadge
+              label="Total"
+              sum={pctSum}
+              target={100}
+              precision={0.01}
+            />
           </label>
           <div className="space-y-2">
             {shares.map((share, i) => {

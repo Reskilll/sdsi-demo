@@ -12,10 +12,13 @@ function errorHandler(err, _req, res, _next) {
     });
   }
 
-  // PostgreSQL foreign key violation
+  // PostgreSQL foreign key violation (insert with bad ref, or delete of referenced row)
   if (err.code === '23503') {
+    const isDelete = err.message && err.message.includes('delete');
     return res.status(400).json({
-      error: 'Referenced record does not exist',
+      error: isDelete
+        ? 'Cannot delete: this record is still referenced by existing expenses or shares. Remove those first.'
+        : 'Referenced record does not exist',
       detail: err.detail,
     });
   }

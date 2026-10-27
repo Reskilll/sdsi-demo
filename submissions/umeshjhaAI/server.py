@@ -5,7 +5,7 @@ endpoint that runs the full scheduler pipeline against a submitted JSON payload.
 
 Usage::
 
-    python server.py
+    python server.py [port]
 
 Then open http://localhost:8380 in a browser.
 """
@@ -173,4 +173,5 @@ def main(port: int = 8380) -> None:
 
 
 if __name__ == "__main__":
-    main()
+    port = int(sys.argv[1]) if len(sys.argv) > 1 else 8380
+    main(port)

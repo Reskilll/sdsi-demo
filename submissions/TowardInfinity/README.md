@@ -1,56 +1,102 @@
-# [PS# TBD] — Md Mobshshir Nayeem (TowardInfinity)
+# PS4: Inventory Reservation System (Flash Sale) — Md Mobshshir Nayeem (TowardInfinity)
 
-> **Status: template — fill in tomorrow once the problem statement is assigned.**
-> Everything in [brackets] gets replaced. Do not submit with placeholders.
-
-## What this is
-
-[One paragraph: what the agent/program does, tied to the assigned PS's exact wording.]
+Prevents overselling during a flash sale: stock is loaded from `inventory.json`,
+users hold reservations with a TTL (default 120 s), confirm permanently deducts,
+cancel/expiry releases, per-SKU per-user purchase limits are enforced cumulatively,
+and per-SKU available/reserved/sold counts are reported.
 
 ## Run it
 
-Requires: [language + version]. No external network, API keys, or database at runtime.
+Requires: Go 1.25+ (dev only — the program itself is stdlib-only, no network,
+no database, no API keys at runtime).
 
 ```bash
 cd submissions/TowardInfinity
-[ONE COMMAND THAT RUNS IT]
-[ONE COMMAND THAT RUNS THE TESTS]
+go run ./cmd/inventory-cli -f data/demo-commands.txt
+go test -race ./internal/...
 ```
 
-Sample output:
+The first command drives the engine with a scripted flash-sale demo (reserve →
+confirm, reserve → cancel, TTL expiry, limit rejection, oversell rejection) and
+prints one JSON response per command. The second runs the test suite with the
+race detector enabled.
 
-```
-[Paste real output]
-```
+A REST API for live demos is also built in: `go run ./cmd/inventory-cli -serve`
+(listens on `127.0.0.1:8080`; `POST /reserve`, `POST /confirm?id=`, `POST /cancel?id=`,
+`GET /report`).
 
 ## Input format
 
 ```jsonc
-[The exact input file schema the PS names, with field comments]
+{
+  "products": [
+    {
+      "sku": "PHONE-128-BLK",   // required, unique, non-empty
+      "name": "Smartphone 128GB Black",
+      "stock": 50,              // >= 0
+      "userLimit": 2,           // per-user purchase limit per SKU, >= 1
+      "pricePaise": 2999900     // exact integer minor units, >= 0 (no floats)
+    }
+  ]
+}
 ```
 
-## How each requirement is met
+Commands (newline-delimited JSON on stdin, or via `-f`):
 
-| Req | Where | How |
-|---|---|---|
-| M1 [title] | `[file]` | [one line] |
-| M2 [title] | `[file]` | [one line] |
-| M3 [title] | `[file]` | [one line] |
-| M4 [title] | `[file]` | [one line] |
-| M5 [title] | `[file]` | [one line] |
-| Edge cases | `tests/` | [list which] |
-| Stretch (if any) | `[file]` | [one line] |
-
-## Design notes
-
-- [Key decision #1 and why — e.g. arithmetic model, data structures]
-- [Key decision #2 — engine/CLI separation, failure handling]
-- [Known gaps — be honest; the rubric rewards it]
-
-## Layout
-
+```jsonc
+{"op":"reserve","user":"u1","sku":"PHONE-128-BLK","qty":1}  // hold stock for TTL
+{"op":"confirm","id":"r1"}   // permanently deduct; idempotent
+{"op":"cancel","id":"r1"}    // release the hold; idempotent
+{"op":"get","id":"r1"}       // inspect one reservation
+{"op":"report"}              // available/reserved/sold per SKU
 ```
-src/    [engine modules]
-test/   [test files]
-data/   [sample inputs from the PS]
-```
+
+## Design choices
+
+- **Engine/interface split.** All logic lives in `internal/engine`; the CLI is a
+  thin adapter that parses commands and maps errors to messages. The engine is
+  UI-agnostic and could be driven by any interface.
+- **One mutex, serialized transitions.** Every state change (reserve, confirm,
+  cancel, sweep) happens under a single engine mutex, so the nastiest edge cases
+  — TTL expiry racing a confirm, concurrent reserves overselling — are
+  impossible by construction rather than negotiated at runtime. `go test -race`
+  proves no data races. A per-SKU lock stripe would buy more throughput at the
+  cost of cross-SKU invariants; with the flash-sale hot-row being one SKU, the
+  global lock is the honest, provably-correct choice (see Known gaps).
+- **Injectable clock.** TTL tests advance a fake clock instead of sleeping, so
+  the suite is fast and deterministic; boundary (exactly-at-expiry = expired) is
+  covered.
+- **Cumulative limits.** A user's limit counts active holds + confirmed sales
+  across separate reservations; cancel/expiry frees quota.
+- **Single source of truth for available.** `available = stock − sold − active
+  reserved`, recomputed under the lock, so reporting can never double-count
+  reserved-then-expired stock.
+
+## Assumptions
+
+- Single process, in-memory state; persistence is out of scope for the PS.
+- TTL is a fixed 120 s default (engine accepts any duration; the CLI hard-codes 120 s).
+- Reservation IDs are engine-generated (`r1`, `r2`, …) and returned to callers.
+- Exactly-at-expiry counts as expired (documented boundary).
+- Prices are stored as integer paise to avoid float money math.
+
+## Known gaps
+
+- The global mutex serializes all SKUs; under extreme multi-SKU load a striped
+  lock would scale further. Correctness is unaffected.
+- No persistence: a restart loses in-flight reservations (acceptable for the PS;
+  a write-ahead log would be the first addition).
+- The REST layer is a demo convenience, not hardened for the open internet
+  (no auth, no rate limiting) — script mode is the tested interface.
+
+## Testing
+
+Table-driven tests cover every must-have and the listed edge cases: invalid
+inventory files, unknown SKU, reserve more than available, zero stock, invalid
+qty/user/sku, confirm inside TTL, confirm exactly at expiry, expiry release,
+cancel idempotency, cumulative limits (across reservations, counting sold,
+freeing after cancel, per-user/per-SKU independence), expired-stock reporting,
+and three concurrency tests (50-goroutine oversell hammer, confirm/cancel race,
+mixed traffic) that assert the `stock = available + reserved + sold` invariant.
+Run with `-race` to enable the race detector (requires a C toolchain; plain
+`go test ./internal/...` also passes).

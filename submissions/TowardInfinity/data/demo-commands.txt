@@ -1,0 +1,14 @@
+# Flash-sale demo script for inventory-cli (one JSON command per line; # = comment)
+{"op":"report"}
+{"op":"reserve","user":"u1","sku":"PHONE-128-BLK","qty":1}
+{"op":"reserve","user":"u1","sku":"PHONE-128-BLK","qty":1}
+{"op":"reserve","user":"u1","sku":"PHONE-128-BLK","qty":1}
+{"op":"confirm","id":"r1"}
+{"op":"cancel","id":"r2"}
+{"op":"reserve","user":"u2","sku":"POWERBANK-20K","qty":1}
+{"op":"reserve","user":"u2","sku":"POWERBANK-20K","qty":1}
+{"op":"reserve","user":"u3","sku":"WATCH-ACTIVE","qty":1}
+{"op":"reserve","user":"u4","sku":"EARBUDS-PRO","qty":500}
+{"op":"reserve","user":"u5","sku":"UNKNOWN-SKU","qty":1}
+{"op":"confirm","id":"does-not-exist"}
+{"op":"report"}

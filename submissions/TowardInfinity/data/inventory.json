@@ -1,0 +1,32 @@
+{
+  "products": [
+    {
+      "sku": "PHONE-128-BLK",
+      "name": "Smartphone 128GB Black",
+      "stock": 50,
+      "userLimit": 2,
+      "pricePaise": 2999900
+    },
+    {
+      "sku": "EARBUDS-PRO",
+      "name": "Wireless Earbuds Pro",
+      "stock": 200,
+      "userLimit": 3,
+      "pricePaise": 499900
+    },
+    {
+      "sku": "POWERBANK-20K",
+      "name": "Power Bank 20000mAh",
+      "stock": 10,
+      "userLimit": 1,
+      "pricePaise": 149900
+    },
+    {
+      "sku": "WATCH-ACTIVE",
+      "name": "Smartwatch Active",
+      "stock": 0,
+      "userLimit": 1,
+      "pricePaise": 899900
+    }
+  ]
+}

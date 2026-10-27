@@ -70,7 +70,7 @@ def business_minutes_in_interval(
             effective_end = min(end, day_end)
             if effective_start < effective_end:
                 total += (effective_end - effective_start).total_seconds() / 60.0
-            cur = day_end
+            cur = datetime.combine(cur.date() + timedelta(days=1), time(0, 0))
         else:
             # Jump to start of next day
             cur = datetime.combine(cur.date() + timedelta(days=1), time(0, 0))
@@ -108,6 +108,7 @@ def add_business_minutes(
 def build_active_intervals(
     status_history: list[dict[str, str]],
     resolution_dt: datetime | None,
+    now: datetime | None = None,
 ) -> list[tuple[datetime, datetime]]:
     """Walk the status history and return a list of (start, end) intervals
     during which the SLA clock was running (i.e. all statuses except ON_HOLD).
@@ -142,7 +143,7 @@ def build_active_intervals(
 
     # Still active (ticket not resolved yet) → extend to resolution_dt or now
     if active_start is not None:
-        end = resolution_dt if resolution_dt is not None else datetime.now()
+        end = resolution_dt if resolution_dt is not None else (now if now is not None else datetime.now())
         intervals.append((active_start, end))
 
     return intervals
@@ -171,7 +172,7 @@ def compute_ticket(
 
     # Build active (non-ON_HOLD) intervals
     active_intervals = build_active_intervals(
-        ticket["status_history"], resolution_dt
+        ticket["status_history"], resolution_dt, now
     )
 
     # Sum business minutes across all active intervals

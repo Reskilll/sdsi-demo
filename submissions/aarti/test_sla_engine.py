@@ -199,7 +199,7 @@ def test_add_business_minutes_across_weekend():
         HOLIDAYS,
     )
     assert result.date() == date(2026, 10, 26)  # Monday
-    assert result.hour == 11  # 09:00 + 2h
+    assert result.hour == 10  # Friday 1h (17→18) + Monday 1h (09→10) = 120 min total
 
 def test_add_business_minutes_skips_holiday():
     """Adding minutes that span a holiday skips it."""

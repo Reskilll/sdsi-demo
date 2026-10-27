@@ -1,0 +1,13 @@
+{
+  "_note": "Sample market research for the demo. These points are made up to show how the Market Researcher works; they are not real news about the company. Replace them with a real brief (or a web-search step) before using this with a client.",
+  "company": "Nike India",
+  "domains": ["nike.in", "nike.com"],
+  "sources": ["Business news", "Analyst notes", "Market reports"],
+  "items": [
+    { "kind": "news", "title": "Online sales are falling", "headline": "Online sales dropped for the second quarter in a row.", "tone": "bad", "angle": "Faster pages and a smoother checkout to win back conversions" },
+    { "kind": "news", "title": "Lost the No. 2 spot to a local rival", "headline": "A local sportswear retailer has moved ahead in online footwear sales.", "tone": "bad", "angle": "A mobile-first redesign that beats the rival on experience" },
+    { "kind": "trend", "title": "Weak sales in South India", "headline": "Sales in the southern region lag behind the rest of the country.", "tone": "warn", "angle": "Regional languages and local landing pages" },
+    { "kind": "trend", "title": "Shoppers moved to mobile", "headline": "Most visits now come from phones, often on slower networks.", "tone": "warn", "angle": "Mobile speed and tap-target fixes" }
+  ],
+  "summary": "Nike is losing online share in India to a local rival, and the South is its weakest region. Lead the pitch with conversion (speed, mobile and checkout), then regional languages."
+}

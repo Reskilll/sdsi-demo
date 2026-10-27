@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nitro</title>
+<link rel="stylesheet" href="/web/style.css">
+<link rel="stylesheet" href="/web/home.css">
+</head>
+<body class="home">
+<div class="h-page">
+  <section class="h-left">
+    <div class="h-bar"><a href="/workspace.html">Workspace</a><a href="/presentation.html" target="_blank" rel="noopener">Presentation</a><a href="/marketplace.html">Agent marketplace</a><button id="themeBtn" type="button">🌙 Dark</button></div>
+    <div class="h-hero"><div class="h-brand">Nitro</div><div class="h-herotxt"><p class="h-tag">We have great developers and no clients.</p>
+      <p class="h-desc">Paste a company's website. A team of 12 AI agents researches the company, audits the site, reads its technology, redesigns the homepage, matches our available people and writes the pitch, in minutes.</p></div></div>
+    <div class="h-stats">
+      <div class="h-stat"><div class="h-n" id="nDone">0</div><div><div class="h-l">Companies processed</div><div class="h-s" id="sDone"></div></div></div>
+      <div class="h-stat"><div class="h-n" id="nDecks">0</div><div><div class="h-l">Decks prepared</div><div class="h-s">ready for review</div></div></div>
+      <div class="h-stat"><div class="h-n"><span id="nAgents">0</span><small> / 13</small></div><div><div class="h-l">Agents running</div><div class="h-minibots" id="minibots"></div></div></div>
+      <div class="h-stat"><div class="h-n" id="nQueue">0</div><div><div class="h-l">In the pipeline now</div><div class="h-s">being worked on</div></div></div>
+    </div>
+    <div class="h-head"><h2>Agents at work</h2><span>Entries with Review and Replay are real reports. The rest is simulated demo activity, including the government tenders (<i class="h-govk" aria-hidden="true"></i>) the Tender Scout triages.</span></div>
+    <div class="h-list" id="pipe"></div>
+  </section>
+  <aside class="h-right">
+    <div class="h-enter">
+      <h2>Or enter a URL <span>to analyse</span></h2>
+      <p>Paste any public website. The agents start straight away and you can watch them work.</p>
+      <form class="h-url" id="goForm"><div class="h-field"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3.2 3 14.8 0 18M12 3c-3 3.2-3 14.8 0 18"/></svg>
+        <input id="url" type="text" autocomplete="off" spellcheck="false" placeholder="www.company.com" aria-label="Website to analyse"></div><button class="h-go" type="submit">Analyse →</button></form>
+      <div class="h-or">or replay</div>
+      <div class="h-replay" id="replayRow"></div>
+    </div>
+  </aside>
+</div>
+<script src="/web/panels.js"></script>
+<script src="/web/sprites.js"></script>
+<script src="/web/pipeline.js"></script>
+<script>
+initTheme();
+const AGENTS = ['lead', 'research', 'tenders', 'audit', 'tech', 'speed', 'mobile', 'a11y', 'ux', 'geo', 'redesign', 'bench', 'deck'];
+const WORKING = PIPE_WORKING;
+let personas = {}, items = [], nextCompany = 0, nextTender = 0, arrivals = 0, order = '';
+const NAMES = { tenders: 'Tender Scout', research: 'Market Researcher' }; // the Tender Scout runs only on this screen, so the server has no persona for it
+const nameOf = (id) => personas[id]?.name ?? NAMES[id] ?? id;
+const els = new Map();
+const now = () => Date.now();
+const dateLabel = (ms) => { const d = new Date(ms), t = new Date(), y = new Date(t.getTime() - 864e5), hm = d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  return d.toDateString() === t.toDateString() ? `Today, ${hm}` : d.toDateString() === y.toDateString() ? `Yesterday, ${hm}` : d.toLocaleDateString([], { day: 'numeric', month: 'short', year: 'numeric' }) + ', ' + hm; };
+const stagesOf = (it) => pipeStagesFor(it);
+const stageOf = (it) => (it.real ? stagesOf(it).length : pipeStageIndex((now() - it.startedAt) / 1000, stagesOf(it)));
+const finished = (it) => stageOf(it) >= stagesOf(it).length;
+const GOV = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 9.5L12 4l9 5.5"/><path d="M4.5 9.5h15"/><path d="M6.5 11v6.5M10 11v6.5M14 11v6.5M17.5 11v6.5"/><path d="M3.5 20h17"/></svg>';
+const CHECK = '<svg viewBox="0 0 24 24" fill="none" stroke="var(--good)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
+
+// Every third arrival is a government tender picked up by the Tender Scout from a tender portal or RSS feed.
+function addCompany(startedAt) {
+  const tender = ++arrivals % 3 === 0, c = tender ? PIPE_TENDERS[nextTender++ % PIPE_TENDERS.length] : PIPE_COMPANIES[nextCompany++ % PIPE_COMPANIES.length];
+  items = items.filter((x) => x.name !== c.name); items.push({ id: 's' + arrivals + '-' + c.domain, ...c, startedAt });
+}
+
+async function boot() {
+  const [cfg, runs] = await Promise.all([fetch('/api/config').then((r) => r.json()).catch(() => ({ personas: {} })), fetch('/api/runs').then((r) => r.json()).catch(() => [])]);
+  personas = cfg.personas || {};
+  // Real reports: the newest saved run for each website.
+  const seen = new Set(); const real = runs.filter((r) => r.hasTrace && r.url).sort((a, b) => b.startedAt - a.startedAt).filter((r) => !seen.has(r.url) && seen.add(r.url));
+  items = real.map((r) => ({ id: 'r' + r.id, name: pipeBrand(r.title, r.url), domain: new URL(r.url).hostname.replace(/^www\./, ''), sector: 'Real report', startedAt: r.startedAt, real: { id: r.id, score: r.overall, seconds: r.seconds } }));
+  // Seeded history: 14 finished, 4 mid-way and 3 waiting, the same every visit.
+  const rnd = pipeRandom(7), t = now();
+  for (let i = 0; i < 14; i++) addCompany(t - (1 + Math.floor(rnd() * 6)) * 864e5 - Math.floor(rnd() * 20) * 36e5);
+  [4, 10, 17, 24].forEach((el) => addCompany(t - el * 1000));
+  [2, 4, 6].forEach((w) => addCompany(t + w * 1000));
+  const rr = $('#replayRow');
+  real.slice(0, 4).forEach((r) => { const a = document.createElement('a'); a.className = 'h-rrow'; a.href = `/workspace.html?mode=replay&run=${encodeURIComponent(r.id)}&autostart=1`; a.innerHTML = `<span>${esc(pipeBrand(r.title, r.url))}<small>${new Date(r.startedAt).toLocaleDateString([], { day: 'numeric', month: 'short' })}</small></span><b>${r.overall ?? ''}</b>`; rr.appendChild(a); });
+  const all = runs.filter((r) => r.hasTrace);
+  if (all.length > 4) { const sel = document.createElement('select'); sel.setAttribute('aria-label', 'All saved reports'); sel.innerHTML = '<option value="">All saved reports…</option>' + all.map((r) => `<option value="${esc(r.id)}">${esc(pipeBrand(r.title, r.url))} · ${r.overall ?? ''} · ${new Date(r.startedAt).toLocaleDateString([], { day: 'numeric', month: 'short' })}</option>`).join(''); sel.onchange = () => { if (sel.value) location.href = `/workspace.html?mode=replay&run=${encodeURIComponent(sel.value)}&autostart=1`; }; rr.appendChild(sel); }
+  $('#minibots').innerHTML = AGENTS.map((id) => `<canvas class="bot" data-id="${id}" data-s="1" data-pose="type"></canvas>`).join('');
+  render(); setInterval(render, 1000);
+  setInterval(() => { if (items.filter((x) => !x.real && !finished(x)).length < 7) addCompany(now()); }, 9000); // a new website arrives every few seconds
+}
+
+function cardHtml(it) { return `<div class="h-av"></div><div><h3></h3><div class="h-meta"></div></div><div class="h-st"><div class="h-lbl"><span></span></div><div class="h-pct"></div></div><div class="h-act"></div>`; }
+
+function render() {
+  const t = now(), running = new Set(), doing = {}; let done = 0, busy = 0, real = 0;
+  for (const it of items) {
+    const stages = stagesOf(it), si = stageOf(it), fin = si >= stages.length, skip = fin && it.tender && !it.tender.fit;
+    if (fin) { done++; if (it.real) real++; } else { busy++; const stage = stages[si]; (WORKING[stage.key] || []).forEach((a) => { running.add(a); doing[a] ??= `${stage.label} · ${it.name}`; }); if (stage.key !== 'queued') { running.add('lead'); doing.lead ??= `Coordinating ${it.name}`; } }
+    let el = els.get(it.id);
+    if (!el) { el = document.createElement('div'); el.className = 'h-card' + (it.real ? ' real' : '') + (it.tender ? ' gov' : ''); el.innerHTML = cardHtml(it); els.set(it.id, el); el.querySelector('h3').textContent = it.tender ? `${it.name}: ${it.tender.title}` : it.name; }
+    const stage = stages[Math.min(si, stages.length - 1)], elapsed = (t - it.startedAt) / 1000;
+    el.querySelector('.h-meta').textContent = `${it.real ? it.domain : it.tender ? `Govt tender · ${it.tender.source}` : it.domain + ' · ' + it.sector} · ${dateLabel(it.startedAt)}`;
+    // A tender shows a government icon while the Tender Scout triages it, and keeps a small one after that.
+    const triage = !fin && stage.key === 'tender', av = el.querySelector('.h-av'), key = (fin ? (skip ? 'skip' : 'done') : stage.agent) + (it.tender ? 'g' : '');
+    if (av.dataset.k !== key) {
+      av.dataset.k = key; av.className = 'h-av' + (triage ? ' gov' : fin && !skip ? ' ok' : skip ? ' no' : '');
+      av.innerHTML = (triage ? GOV : fin ? (skip ? '<b>–</b>' : CHECK) : `<canvas class="bot" data-id="${stage.agent}" data-s="2" data-pose="${stage.key === 'queued' ? 'idle' : 'type'}"></canvas>`) + (it.tender && !triage ? `<i class="h-govb" title="Government tender">${GOV}</i>` : '');
+    }
+    const lbl = el.querySelector('.h-lbl span'), pct = el.querySelector('.h-pct');
+    lbl.textContent = fin ? (it.real ? 'Report and deck ready' : skip ? `Tender Scout: not relevant (${it.tender.why.toLowerCase()})` : it.tender ? `Relevant tender (${it.tender.why.toLowerCase()}): deck ready` : 'Deck ready')
+      : stage.key === 'queued' ? 'Waiting for an agent' : `${nameOf(stage.agent)}: ${stage.label.toLowerCase()}`;
+    pct.textContent = fin ? '' : Math.round(pipeProgress(elapsed, stages) * 100) + '%'; // a number that keeps changing while the agents work
+    const pr = el.querySelector('.h-act'), sig = fin ? 'f' + (it.real ? 'r' : skip ? 'x' : 's') : triage ? 't' : 'p';
+    if (pr.dataset.k !== sig) {
+      pr.dataset.k = sig;
+      pr.innerHTML = it.real
+        ? `<div class="h-score">${it.real.score ?? ''}<small>site score</small></div><span class="h-badge real">Real report</span><a class="h-btn" href="/review.html?run=${encodeURIComponent(it.real.id)}" target="nitro-review">Review</a><a class="h-btn pri" href="/workspace.html?mode=replay&run=${encodeURIComponent(it.real.id)}&autostart=1">Replay</a>`
+        : skip ? '<span class="h-badge skip">Not relevant</span>' : fin ? '<span class="h-badge done">Deck ready</span>' : triage ? '<span class="h-badge gov">Triaging</span>' : '<span class="h-badge run">Running</span>';
+    }
+  }
+  const sorted = [...items].sort((a, b) => { const fa = finished(a), fb = finished(b); return fa === fb ? b.startedAt - a.startedAt : fa ? 1 : -1; });
+  const ord = sorted.map((x) => x.id).join('|');
+  if (ord !== order) { order = ord; const box = $('#pipe'); sorted.forEach((it, i) => { const el = els.get(it.id); if (box.children[i] !== el) box.insertBefore(el, box.children[i] ?? null); }); }
+  $('#nDone').textContent = done + busy; $('#sDone').textContent = `${real} full report${real === 1 ? '' : 's'} to review`;
+  $('#nDecks').textContent = done; $('#nAgents').textContent = [...running].filter((a) => AGENTS.includes(a)).length; $('#nQueue').textContent = busy;
+  document.querySelectorAll('#minibots canvas').forEach((c) => c.classList.toggle('on', running.has(c.dataset.id)));
+  // The agent marketplace (same browser) shows which agents are busy and on what, from this dashboard.
+  try { localStorage.setItem('nitro-activity', JSON.stringify({ at: t, doing })); } catch {}
+}
+
+// Pixel robots (the same sprites as the workspace)
+function drawBots() { const t = performance.now(); for (const c of document.querySelectorAll('canvas.bot')) { const s = +c.dataset.s || 3; if (c.width !== BOT_W) { c.width = BOT_W; c.height = BOT_H; c.style.width = BOT_W * s + 'px'; c.style.height = BOT_H * s + 'px'; c.style.imageRendering = 'pixelated'; } const g = c.getContext('2d'); g.clearRect(0, 0, BOT_W, BOT_H); g.drawImage(botFrame(c.dataset.id, c.dataset.pose || 'idle', Math.floor(t / 230) % 2, false), 0, 0); } }
+setInterval(drawBots, 130);
+
+$('#goForm').onsubmit = (e) => { e.preventDefault(); const v = $('#url').value.trim(); if (!v) { $('#url').focus(); return; } location.href = `/workspace.html?mode=live&autostart=1&url=${encodeURIComponent(v)}`; };
+boot();
+</script>
+</body>
+</html>

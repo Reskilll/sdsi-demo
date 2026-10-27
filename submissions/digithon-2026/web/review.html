@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nitro review</title>
+<link rel="stylesheet" href="/web/style.css">
+<style>.runpick{flex:1;min-width:240px;max-width:620px;font-weight:600}.revhead{flex-wrap:wrap}</style>
+</head>
+<body class="rv">
+<header class="revhead"><div class="logo">Nitro <span>Review</span></div>
+  <select id="runPick" class="runpick" aria-label="Switch report"></select>
+  <b id="rtitle"></b><span class="pill" id="rmeta"></span>
+  <div class="knox" style="margin-left:auto"><span class="kprog" id="kprog"></span><button class="go" id="knoxBtn" type="button" disabled title="Approve every screen first">Submit Knox Approval</button></div>
+  <button class="pill" id="themeBtn" type="button" style="cursor:pointer">🌙 Dark</button></header>
+<div class="revmain"><div class="escl" id="escl" hidden></div><section class="card">
+  <div class="tabs" id="tabs"></div>
+  <div class="rvbar" id="rvbar" aria-live="polite"></div>
+  <div class="pane on" data-p="research"></div><div class="pane" data-p="audit"></div><div class="pane" data-p="stack"></div><div class="pane" data-p="prototype"></div><div class="pane" data-p="team"></div><div class="pane" data-p="estimate"></div><div class="pane" data-p="deck"></div><div class="pane" data-p="roi"></div>
+</section></div>
+<div id="lb"><img alt="Screenshot, enlarged"></div>
+<script src="/web/assets/tech/icons.js"></script>
+<script src="/web/panels.js"></script>
+<script>
+initTheme(); initLightbox(); initTabs();
+document.addEventListener('click', (e) => { if (e.target.dataset.zoom) { $('#lb img').src = e.target.dataset.zoom; $('#lb').classList.add('on'); } });
+
+/** Loads one saved run's report into the tabs. The tab you are looking at stays selected, so you can compare reports. */
+async function loadRun(id) {
+  $('#rtitle').textContent = 'Loading…';
+  const res = await fetch(`/api/runs/${encodeURIComponent(id)}/trace`);
+  if (!res.ok) { $('#rtitle').textContent = 'No saved trace for this run.'; return; }
+  const events = await res.json();
+  panels = {};
+  for (const e of events) if (e.panel) panels[e.panel.name] = e.panel.data;
+  // What the agents handed to a person, with their reasons (runs from before escalations existed have none).
+  const asks = events.filter((e) => e.to === 'human');
+  $('#escl').hidden = !asks.length;
+  $('#escl').innerHTML = asks.length ? `<b>🙋 The agents need your judgement on ${asks.length} point${asks.length > 1 ? 's' : ''}</b><ul>${asks.map((e) => `<li>${esc(e.friendly.replace(/^Needs a human:\s*/, ''))} <small>${esc(e.detail?.summary ?? '')}</small></li>`).join('')}</ul>` : '';
+  if (panels.team) panels.estimate = panels.team; // the Estimate tab is drawn from the team match's numbers
+  const a = panels.audit;
+  $('#rtitle').textContent = a ? `${a.overall}/100 (${a.grade})` : '';
+  $('#rmeta').textContent = `Run ${id}`; document.title = a ? `Review: ${a.title}` : 'Nitro review';
+  document.querySelectorAll('#tabs button').forEach((b) => b.classList.remove('has'));
+  for (const [name] of TABS) {
+    if (name === 'roi') continue;
+    if (panels[name]) { renderPanel(name); document.querySelector(`#tabs [data-t="${name}"]`)?.classList.add('has'); }
+    else $(`.pane[data-p="${name}"]`).innerHTML = '<div class="empty">This run has no data for this section.</div>';
+  }
+  renderRoi();
+  loadReview(id);
+  drawUpload(id);
+}
+
+// ── Your own deck: upload it on the Deck screen and see how it covers the analysis we already have. ──
+function drawUpload(id) {
+  const pane = $('.pane[data-p="deck"]'); pane.querySelector('.upl')?.remove();
+  pane.insertAdjacentHTML('beforeend', `<div class="upl"><div class="uplh"><div><h3>Have your own deck?</h3><p>Upload it to check it against the analysis we already ran: which findings, technologies, research signals and team details it covers, and what to add. Your file stays with this run.</p></div>
+    <label class="rvbtn ok uplbtn">Upload a deck (.pptx)<input type="file" id="uplFile" accept=".pptx,application/vnd.openxmlformats-officedocument.presentationml.presentation" hidden></label></div>
+    <div class="uplres" id="uplRes"></div></div>`);
+  $('#uplFile').onchange = (e) => { const f = e.target.files[0]; if (f) uploadDeck(id, f); };
+  fetch(`/api/runs/${encodeURIComponent(id)}/deck`).then((r) => (r.ok ? r.json() : null)).then((d) => { if (d) showDeckCheck(d); }).catch(() => {});
+}
+async function uploadDeck(id, f) {
+  const box = $('#uplRes'); box.innerHTML = `<div class="muted">Reading ${esc(f.name)}…</div>`;
+  const r = await fetch(`/api/runs/${encodeURIComponent(id)}/deck`, { method: 'POST', headers: { 'x-file-name': f.name }, body: f }).catch(() => null);
+  const d = await r?.json().catch(() => null);
+  if (!r?.ok) { box.innerHTML = `<div class="uplerr">${esc(d?.error ?? 'The upload failed.')}</div>`; return; }
+  showDeckCheck(d);
+}
+function showDeckCheck(d) {
+  const miss = d.checks.filter((c) => !c.found), groups = [...new Set(d.checks.map((c) => c.area))];
+  $('#uplRes').innerHTML = `<div class="uplsum"><b>${d.covered} of ${d.total}</b> points from our analysis are in <i>${esc(d.file)}</i> (${d.slides} slides)</div>
+    ${groups.map((g) => `<div class="uplg"><div class="hlabel">${esc(g)}</div>${d.checks.filter((c) => c.area === g).map((c) => `<div class="uplc ${c.found ? 'ok' : 'no'}"><span>${c.found ? '✓' : '✕'}</span><div><b>${esc(c.item)}</b>${c.found ? `<small>Slide${c.slides.length > 1 ? 's' : ''} ${c.slides.slice(0, 6).join(', ')}</small>` : `<small>Suggested: ${esc(c.add)}</small>`}</div></div>`).join('')}</div>`).join('')}
+    ${miss.length ? `<div class="upladd"><div class="hlabel">To add to your deck</div><ol>${miss.map((c) => `<li>${esc(c.add)}</li>`).join('')}</ol></div>` : '<div class="upladd ok">Your deck covers everything in our analysis.</div>'}`;
+}
+
+// ── Human review. Each screen with data is approved or sent back with a note; when every one is approved, the whole
+// review can be submitted for Knox approval. Kept in this browser per run (a demo of the workflow; nothing is sent). ──
+let review = { runId: null, screens: {}, submittedAt: null };
+const curTab = () => document.querySelector('#tabs button.on')?.dataset.t ?? TABS[0][0];
+const needed = () => TABS.map(([k]) => k).filter((k) => k === 'roi' || panels[k]);
+const tabName = (k) => TABS.find(([t]) => t === k)?.[1] ?? k;
+function saveReview() { try { localStorage.setItem('nitro-review-' + review.runId, JSON.stringify(review)); } catch {} }
+function loadReview(id) {
+  review = { runId: id, screens: {}, submittedAt: null };
+  try { const s = JSON.parse(localStorage.getItem('nitro-review-' + id) || 'null'); if (s?.screens) review = { ...review, ...s, runId: id }; } catch {}
+  if (!panels[curTab()] && curTab() !== 'roi') showTab(needed()[0] ?? 'audit');
+  drawReview();
+}
+function drawReview() {
+  const k = curTab(), st = review.screens[k] ?? {}, has = needed().includes(k), locked = !!review.submittedAt, bar = $('#rvbar');
+  if (!has) bar.innerHTML = '<span class="rvst">Nothing to review</span><span class="rvnote">This run has no data for this screen, so it is not part of the approval.</span>';
+  else if (st.editing) bar.innerHTML = `<form class="rvform" id="rvform"><textarea id="rvtext" placeholder="What should change on the ${esc(tabName(k))} screen?" aria-label="Requested changes">${esc(st.note ?? '')}</textarea><div class="rvbtns"><button type="button" class="rvbtn" data-act="cancel">Cancel</button><button type="submit" class="rvbtn chg">Send request</button></div></form>`;
+  else bar.innerHTML = `<span class="rvst ${st.status === 'approved' ? 'ap' : st.status === 'changes' ? 'rq' : ''}">${st.status === 'approved' ? '✓ Approved' : st.status === 'changes' ? 'Changes requested' : 'Waiting for review'}</span>
+    <span class="rvnote">${st.status === 'changes' ? esc(st.note) : st.status === 'approved' ? `${esc(tabName(k))} approved${st.at ? ' · ' + new Date(st.at).toLocaleString([], { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : ''}.` : `Check the ${esc(tabName(k).toLowerCase())} screen, then approve it or ask for changes.`}</span>
+    <div class="rvbtns"><button type="button" class="rvbtn chg" data-act="changes" ${locked ? 'disabled' : ''}>Request changes</button>${st.status === 'approved' ? `<button type="button" class="rvbtn" data-act="undo" ${locked ? 'disabled' : ''}>Undo approval</button>` : `<button type="button" class="rvbtn ok" data-act="approve" ${locked ? 'disabled' : ''}>Approve screen</button>`}</div>`;
+  document.querySelectorAll('#tabs button').forEach((b) => { const s = review.screens[b.dataset.t]?.status; b.classList.toggle('ap', s === 'approved'); b.classList.toggle('rq', s === 'changes'); });
+  const list = needed(), ok = list.filter((t) => review.screens[t]?.status === 'approved').length, all = ok === list.length && list.length > 0, btn = $('#knoxBtn');
+  $('#kprog').textContent = review.submittedAt ? '' : `${ok} of ${list.length} screens approved`;
+  btn.disabled = !all || locked; btn.classList.toggle('done', locked);
+  btn.textContent = locked ? `✓ Sent for Knox approval · ${new Date(review.submittedAt).toLocaleString([], { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}` : 'Submit Knox Approval';
+  btn.title = locked ? 'Submitted for further review in Knox' : all ? 'Send this review for further approval in Knox' : 'Approve every screen first';
+  $('#rvtext')?.focus();
+}
+function setScreen(k, s) { review.screens[k] = s; saveReview(); drawReview(); }
+$('#tabs').addEventListener('click', (e) => { if (e.target.dataset.t) drawReview(); });
+$('#rvbar').addEventListener('click', (e) => {
+  const act = e.target.dataset.act, k = curTab(), st = review.screens[k] ?? {};
+  if (act === 'approve') setScreen(k, { status: 'approved', at: Date.now() });
+  if (act === 'undo') setScreen(k, {});
+  if (act === 'changes') setScreen(k, { ...st, editing: true });
+  if (act === 'cancel') { const { editing, ...rest } = st; setScreen(k, rest); }
+});
+$('#rvbar').addEventListener('submit', (e) => {
+  e.preventDefault(); const note = $('#rvtext').value.trim(); if (!note) { $('#rvtext').focus(); return; }
+  setScreen(curTab(), { status: 'changes', note, at: Date.now() });
+});
+$('#knoxBtn').onclick = () => {
+  const list = needed(); if (!list.every((t) => review.screens[t]?.status === 'approved') || review.submittedAt) return;
+  review.submittedAt = Date.now(); saveReview(); drawReview();
+};
+
+async function boot() {
+  const wanted = new URLSearchParams(location.search).get('run');
+  const rows = (await fetch('/api/runs').then((r) => r.json()).catch(() => [])).filter((r) => r.hasTrace);
+  const pick = $('#runPick');
+  pick.innerHTML = rows.map((r) => {
+    const when = r.startedAt ? new Date(r.startedAt).toLocaleString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '';
+    return `<option value="${esc(r.id)}">${esc(`${r.title || r.url || r.id} · ${r.overall != null ? 'score ' + r.overall + ' · ' : ''}${when}`)}</option>`;
+  }).join('');
+  const start = wanted && rows.some((r) => r.id === wanted) ? wanted : (wanted || rows[0]?.id);
+  if (start && !rows.some((r) => r.id === start)) pick.insertAdjacentHTML('afterbegin', `<option value="${esc(start)}">Run ${esc(start)}</option>`);
+  if (start) pick.value = start;
+  pick.onchange = () => { history.replaceState(null, '', `?run=${encodeURIComponent(pick.value)}`); loadRun(pick.value); };
+  if (start) loadRun(start); else $('#rtitle').textContent = 'No saved runs yet.';
+}
+boot();
+</script>
+</body>
+</html>

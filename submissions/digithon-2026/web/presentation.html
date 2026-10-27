@@ -1,0 +1,1367 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nitro: Digithon 2026</title>
+<meta name="description" content="Nitro is an AI pre-sales platform. Paste a prospect's website URL and a team of AI agents audits it (performance, mobile, accessibility, UX, AI search, tech stack from front end to back end to DevOps), redesigns the homepage in HTML, matches our available experts, and writes a personalised pitch deck and proposal in minutes. A human reviews everything before it is sent.">
+<meta name="keywords" content="pre-sales automation, AI agents, agentic AI, multi-agent system, talent utilisation, unallocated capacity cost, available talent, personalised proposals, website audit, web performance, Core Web Vitals, Lighthouse, accessibility, WCAG, axe-core, UX review, LLM scores, LLM as judge, AI search, GEO, tech stack detection, frontend, backend, DevOps, cloud, CDN, Playwright, automated tests, agent-driven user journeys, locale testing, localisation, HTML improvements, redesign, RAG chat, retrieval-augmented generation, agent marketplace, 24x7 background agents, CTO outreach, live meetings, human in the loop, employee engagement, ROI, Claude">
+<style>
+:root{--bg:#f4f6fb;--panel:#fff;--panel2:#f1f3f9;--line:#dfe3ee;--fg:#1a2033;--muted:#667089;--acc:#4f6bff;--acc2:#7c4dff;--good:#0f9d6b;--warn:#b7791f;--bad:#d64545;--inset:#e6e9f3;--hl:#eef2ff;--okbg:#dff5ea;--warnbg:#fdf0d5;--badbg:#fde4e4;--glow:#e8edff}
+html[data-theme=dark]{--bg:#0b1020;--panel:#121a30;--panel2:#18223d;--line:#26325a;--fg:#e8ecf8;--muted:#93a0c4;--acc:#6d8cff;--acc2:#8b5cf6;--good:#34d399;--warn:#fbbf24;--bad:#f87171;--inset:#0e1530;--hl:#16214a;--okbg:#0f3b2d;--warnbg:#43340c;--badbg:#4a1b1b;--glow:#1b2650}
+*{box-sizing:border-box}html{font-size:clamp(13px,1.28vw,24px)}
+html,body{height:100%;margin:0;overflow:hidden}
+body{background:radial-gradient(1200px 700px at 15% -10%,var(--glow),transparent 60%),var(--bg);color:var(--fg);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,sans-serif;line-height:1.45}
+canvas.bot{image-rendering:pixelated;display:block}
+.grad{background:linear-gradient(90deg,var(--acc),var(--acc2));-webkit-background-clip:text;background-clip:text;color:transparent}
+/* slides */
+.slide{position:absolute;inset:0;padding:5vh 6vw 8vh;display:flex;flex-direction:column;justify-content:center;opacity:0;visibility:hidden;will-change:transform,opacity}
+.slide.active{opacity:1;visibility:visible}
+.slide.dark{--bg:#070b18;--panel:#101831;--fg:#f1f4ff;--muted:#9aa7cf;--line:#26325a;background:radial-gradient(900px 600px at 50% 40%,#17214a,#070b18);color:var(--fg)}
+.kicker{font-size:.8rem;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:var(--acc)}
+h1{font-size:4.6rem;line-height:1.02;margin:.2em 0;letter-spacing:-.03em}
+h2{font-size:2.5rem;line-height:1.1;margin:.15em 0 .35em;letter-spacing:-.02em}
+p.lead{font-size:1.25rem;color:var(--muted);max-width:42em;margin:.4em 0}
+.row{display:flex;gap:2rem;align-items:center}.col{flex:1;min-width:0}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:1.1rem 1.3rem}
+.tiles{display:flex;gap:1.1rem;flex-wrap:wrap}.tile{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:1.2rem 1.5rem;min-width:11rem}
+.tile b{display:block;font-size:3.1rem;line-height:1;font-variant-numeric:tabular-nums;letter-spacing:-.02em}.tile>span{color:var(--muted);font-size:.95rem}
+.bad{color:var(--bad)}.good{color:var(--good)}.warn{color:var(--warn)}.muted{color:var(--muted)}.note{font-size:.8rem;color:var(--muted)}
+.chip{display:inline-block;padding:.28rem .8rem;border-radius:999px;border:1.5px solid var(--line);background:var(--panel);font-size:.9rem;margin:0 .4rem .5rem 0;font-weight:600}
+.chip.strong{border-color:var(--good)}.chip.partial{border-color:var(--warn)}.chip.gap{border-color:var(--bad)}.chip.likely{border-style:dashed}
+.grade{display:inline-grid;place-items:center;width:2rem;height:2rem;border-radius:.6rem;font-weight:800}.gA,.gB{background:var(--okbg);color:var(--good)}.gC{background:var(--warnbg);color:var(--warn)}.gD,.gF{background:var(--badbg);color:var(--bad)}
+/* entrance animations: they restart every time a slide becomes active */
+.slide .rise,.slide .pop,.slide .fade,.slide .slide-l{opacity:0}
+.slide.active .rise{animation:rise .75s cubic-bezier(.2,.8,.2,1) both;animation-delay:var(--d,0s)}
+.slide.active .pop{animation:pop .6s cubic-bezier(.2,1.4,.4,1) both;animation-delay:var(--d,0s)}
+.slide.active .fade{animation:fade .9s ease both;animation-delay:var(--d,0s)}
+.slide.active .slide-l{animation:slidel .8s cubic-bezier(.2,.8,.2,1) both;animation-delay:var(--d,0s)}
+@keyframes rise{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:none}}
+@keyframes pop{from{opacity:0;transform:scale(.4)}to{opacity:1;transform:none}}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+@keyframes slidel{from{opacity:0;transform:translateX(-50px)}to{opacity:1;transform:none}}
+/* chrome */
+#bar{position:fixed;left:0;top:0;height:4px;background:linear-gradient(90deg,var(--acc),var(--acc2));transition:width .4s;z-index:20}
+#hud{position:fixed;left:0;right:0;bottom:0;display:flex;justify-content:space-between;align-items:center;padding:1.2vh 2vw;font-size:.8rem;color:var(--muted);z-index:20;pointer-events:none}
+#hud button{pointer-events:auto;background:var(--panel);border:1px solid var(--line);color:var(--fg);border-radius:999px;padding:.25rem .8rem;cursor:pointer;font:inherit}
+.nav{position:fixed;top:0;bottom:0;width:12vw;z-index:10;cursor:pointer}.nav.l{left:0}.nav.r{right:0}
+
+/* more pain points + pain-to-answer (Nitro v0.3.1) */
+.pain{border-top:5px solid var(--bad);position:relative}.pain .x{position:absolute;right:1rem;top:.7rem;color:var(--bad);font-weight:900;font-size:1.7rem;opacity:0}
+.slide.active .pain .x{animation:pop .45s cubic-bezier(.2,1.6,.4,1) both;animation-delay:calc(var(--d) + 1s)}
+.pain h3{font-size:1.25rem}.pain p{font-size:1rem;padding-right:2.2rem}
+.lost{display:flex;gap:1.6rem;margin-top:1rem;align-items:flex-end}.lost div{position:relative}.lost i{position:absolute;right:-.5rem;top:-1.4rem;font-style:normal;font-weight:900;font-size:1.6rem;color:var(--bad);animation:zz 2.2s ease-in-out infinite;animation-delay:var(--z,0s);opacity:0}
+.mock{width:11rem;height:7rem;border-radius:12px;background:var(--panel);border:1px solid var(--line);padding:.7rem;box-shadow:0 10px 24px rgba(30,40,80,.1)}.mock b{display:block;font-size:.7rem;color:var(--muted);margin-bottom:.4rem}
+.mocks{display:flex;gap:1rem;margin-top:1rem}
+.matchgrid{display:grid;grid-template-columns:1fr 6rem 1fr;gap:1rem;align-items:center;margin-top:.8rem}.matchgrid h4{margin:0 0 .5rem;color:var(--muted);font-size:.85rem;letter-spacing:.1em;text-transform:uppercase}
+.qmark{font-size:3.4rem;font-weight:900;color:var(--bad);text-align:center;animation:wob 1.6s ease-in-out infinite}@keyframes wob{50%{transform:rotate(12deg) scale(1.15)}}
+.chip.need{border-color:var(--bad);color:var(--bad)}
+.ans{display:grid;grid-template-columns:1fr 1.6fr 7rem;gap:.6rem 1.2rem;align-items:center}.ans .h{font-size:.75rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:800}
+.ans .p{font-weight:700}.ans .a{color:var(--muted);font-size:.95rem}
+.stt{display:inline-block;text-align:center;border-radius:999px;padding:.2rem .8rem;font-weight:800;font-size:.8rem}.stt.done{background:var(--okbg);color:var(--good)}.stt.part{background:var(--warnbg);color:var(--warn)}.stt.next{background:var(--badbg);color:var(--bad)}
+/* S1 title */
+.march{position:absolute;left:0;right:0;bottom:6vh;height:6rem;overflow:hidden;pointer-events:none}
+.march canvas{position:absolute;bottom:0;left:-8rem;animation:march 11s linear infinite;animation-delay:var(--d)}
+@keyframes march{to{transform:translateX(calc(100vw + 10rem))}}
+.typed{display:inline-block;white-space:nowrap;border-right:3px solid var(--acc);min-height:1.2em;vertical-align:bottom;animation:caret .7s step-end infinite}
+@keyframes type{from{width:0}to{width:100%}}@keyframes caret{50%{border-color:transparent}}
+/* S2 unallocated talent */
+.sleepers{display:grid;grid-template-columns:repeat(6,1fr);gap:.8rem 1rem;justify-items:center}
+.sleeper{position:relative;text-align:center}.sleeper i{position:absolute;right:-.6rem;top:-.8rem;font-style:normal;font-weight:800;color:var(--acc);font-size:1rem;animation:zz 2.4s ease-in-out infinite;animation-delay:var(--z,0s);opacity:0}
+@keyframes zz{0%{opacity:0;transform:translate(0,6px) scale(.7)}30%{opacity:1}100%{opacity:0;transform:translate(10px,-22px) scale(1.2)}}
+.burn{height:.9rem;border-radius:999px;background:var(--inset);overflow:hidden;margin:.7rem 0}.burn i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--warn),var(--bad))}
+.slide.active .burn i{animation:burn 5.5s ease-out .5s both}@keyframes burn{to{width:100%}}
+/* S3 proposals */
+.cal{display:flex;gap:.6rem;margin:1rem 0}.cal div{width:4.2rem;height:5rem;border-radius:12px;background:var(--panel);border:1px solid var(--line);display:grid;place-items:center;font-weight:800;text-align:center;transform-origin:top;font-size:.95rem}
+.cal small{display:block;font-size:.6rem;color:var(--muted);letter-spacing:.1em}
+.slide.active .cal div{animation:flip .6s ease both;animation-delay:calc(.4s + var(--i)*.55s)}@keyframes flip{from{transform:rotateX(90deg);opacity:0}to{transform:none;opacity:1}}
+.skel{display:grid;gap:.5rem}.skel i{display:block;height:.7rem;border-radius:6px;background:linear-gradient(90deg,var(--inset) 25%,var(--panel2) 50%,var(--inset) 75%);background-size:200% 100%;animation:shim 1.6s linear infinite}
+@keyframes shim{to{background-position:-200% 0}}
+/* S4 email */
+.mail{background:var(--panel);border:1px solid var(--line);border-radius:16px;overflow:hidden;box-shadow:0 20px 50px rgba(30,40,80,.12);position:relative}
+.mail .hd{padding:.6rem 1rem;background:var(--panel2);font-size:.8rem;color:var(--muted);border-bottom:1px solid var(--line)}
+.mail .bd{padding:1.1rem 1.3rem;font-family:Georgia,serif;font-size:1.05rem;min-height:12rem}.mail .bd p{margin:.5rem 0;overflow:hidden;white-space:nowrap;width:0}
+.slide.active .mail .bd p{animation:type .55s steps(40) both;animation-delay:calc(.3s + var(--i)*.55s)}
+.stamp{position:absolute;right:1.2rem;bottom:1rem;border:4px solid var(--bad);color:var(--bad);font-weight:900;font-size:2rem;padding:.1rem .8rem;border-radius:10px;opacity:0;transform:rotate(-12deg) scale(2)}
+.slide.active .stamp{animation:stamp .4s cubic-bezier(.2,1.6,.4,1) 2.6s both}@keyframes stamp{to{opacity:.9;transform:rotate(-12deg) scale(1)}}
+.ghost{font-size:1.6rem;color:var(--muted);opacity:0}.slide.active .ghost{animation:fade .8s ease 3s both}
+/* S5 turn */
+.turn .line{position:absolute;top:36%;left:6vw;right:6vw;text-align:center;font-size:3rem;font-weight:800;letter-spacing:-.02em;opacity:0;transform:translateY(20px);transition:all .8s ease}.turn .line.on{opacity:1;transform:none}.turn .line.off{opacity:0;transform:translateY(-20px)}
+.count{position:absolute;inset:0;display:grid;place-items:center;font-size:16rem;font-weight:900;opacity:0}.count.tick{animation:tick .9s ease both}@keyframes tick{0%{opacity:0;transform:scale(2)}30%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(.7)}}
+#flash{position:fixed;inset:0;background:#fff;opacity:0;pointer-events:none;z-index:30}#flash.go{animation:flash 1.1s ease-out}@keyframes flash{0%{opacity:1}100%{opacity:0}}
+.ring{position:fixed;left:50%;top:50%;width:10px;height:10px;margin:-5px;border-radius:50%;border:4px solid var(--acc);opacity:0;pointer-events:none;z-index:25}.ring.go{animation:ring 1.4s cubic-bezier(.1,.7,.2,1) both;animation-delay:var(--d,0s)}@keyframes ring{0%{opacity:.9;transform:scale(1)}100%{opacity:0;transform:scale(260)}}
+body.shake{animation:shake .6s}@keyframes shake{20%{transform:translate(-8px,5px)}40%{transform:translate(7px,-6px)}60%{transform:translate(-5px,4px)}80%{transform:translate(4px,-3px)}}
+/* S6 bang */
+.urlbar{display:flex;align-items:center;gap:.8rem;background:var(--panel);border:2px solid var(--acc);border-radius:999px;padding:.9rem 1.6rem;font-size:1.7rem;font-weight:600;max-width:33rem;box-shadow:0 14px 40px rgba(79,107,255,.25)}
+.urlbar .go{margin-left:auto;background:linear-gradient(90deg,var(--acc),var(--acc2));color:#fff;border-radius:999px;padding:.25rem 1.1rem;font-size:1.1rem}
+.burst{position:relative;height:13rem;margin-top:1rem}.burst canvas{position:absolute;left:50%;top:50%;transition:transform 1s cubic-bezier(.2,1.3,.3,1),opacity .6s}
+/* S7 team */
+.agents{display:grid;grid-template-columns:repeat(4,1fr);gap:.9rem}.agent{display:flex;gap:.9rem;align-items:center;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:.7rem .9rem;transition:transform .2s,border-color .2s}.agent:hover{transform:translateY(-4px);border-color:var(--acc)}
+.agent b{display:block}.agent span{font-size:.8rem;color:var(--muted);line-height:1.25;display:block}
+.howlist{list-style:none;padding:0;margin:1.6rem 0 0;display:flex;flex-direction:column;gap:.75rem;font-size:1.3rem}.howlist li::before{content:"✓";color:var(--good);font-weight:900;margin-right:.7rem}
+.vol{display:grid;grid-template-columns:1.25fr 1fr;gap:1.6rem;margin-top:1.1rem;align-items:center}
+.vchart{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:1.1rem 1.3rem}
+.vt{font-size:.85rem;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin-bottom:.7rem}
+.vrow{display:grid;grid-template-columns:9.5rem 1fr;gap:.2rem .8rem;align-items:center;margin:.55rem 0}.vrow span{font-weight:700}.vrow b{grid-column:2;font-size:1.05rem}
+.vb{display:block;height:2.3rem;border-radius:10px;width:0;transition:width 1.6s cubic-bezier(.2,1,.3,1) .5s}.vb.few{background:var(--bad)}.vb.many{background:linear-gradient(90deg,var(--good),#34d399)}
+.slide.active .vb.few{width:3%}.slide.active .vb.many{width:100%}
+.vrow b.bad{color:var(--bad)}.vrow b.good{color:var(--good)}.vnote{color:var(--muted);font-size:.95rem;margin-top:.6rem}
+.vcalc{display:flex;flex-direction:column;gap:.8rem}
+.eq{display:flex;align-items:center;gap:.5rem;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:.7rem .9rem}
+.eq div{text-align:center;flex:1}.eq div b{display:block;font-size:1.6rem;font-weight:900;letter-spacing:-.02em}.eq div span{font-size:.78rem;color:var(--muted)}
+.eq em{font-style:normal;font-size:1.4rem;color:var(--muted);font-weight:700}.eq .hi b{color:var(--acc)}.vsrc{font-size:.8rem;color:var(--muted)}
+.fun{display:grid;grid-template-columns:1fr 1fr 1fr;gap:2.4rem;align-items:center;margin-top:1.3rem}
+.fun div{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:.8rem 1rem;display:grid;grid-template-columns:auto 1fr;column-gap:.7rem;opacity:0;transform:translateY(18px);transition:opacity .5s,transform .5s cubic-bezier(.2,1,.3,1)}
+.fun div.on{opacity:1;transform:none}.fun div:last-child{border:2px solid var(--acc)}
+.fun em{font-style:normal;font-size:1.9rem;grid-row:span 2;align-self:center}.fun b{font-size:1.15rem}.fun span{color:var(--muted);font-size:.88rem}
+.fun div{position:relative}.fun div+div::before{content:"";position:absolute;left:-2rem;top:50%;width:1.5rem;height:2px;background:var(--acc)}.fun div+div::after{content:"";position:absolute;left:-.65rem;top:calc(50% - 5px);border:6px solid transparent;border-left:8px solid var(--acc)}
+.dp{display:grid;grid-template-columns:auto auto 1.15fr auto 1fr;gap:.9rem;align-items:center;margin-top:1.2rem}
+.dpin{display:flex;flex-direction:column;align-items:center;text-align:center;background:var(--panel);border:2px solid var(--acc);border-radius:20px;padding:1.1rem 1.2rem}.dpin em{font-style:normal;font-size:3rem}.dpin b{font-size:1.3rem}.dpin span{color:var(--muted);font-size:.85rem}
+.dpar{width:2.2rem;height:3px;background:var(--acc);position:relative}.dpar::after{content:"";position:absolute;right:-3px;top:-5px;border:6px solid transparent;border-left:9px solid var(--acc)}
+.dpar.ar2{opacity:0;transition:opacity .5s}.dpar.ar2:has(+ .dpout.on){opacity:1}
+.dph{font-size:.8rem;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin-bottom:.6rem}
+.dpk{display:grid;grid-template-columns:repeat(3,1fr);gap:.45rem}.dpk span{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:.4rem .55rem;font-size:.88rem;font-weight:600;white-space:nowrap}
+.dpn{margin-top:.7rem;font-size:.9rem;color:var(--muted)}.dpn b{color:var(--fg)}
+.dpout{opacity:0;transform:translateX(30px);transition:opacity .6s,transform .7s cubic-bezier(.2,1,.3,1)}.dpout.on{opacity:1;transform:none}
+.dpb{display:flex;flex-direction:column;gap:.45rem}.dpb span{font-size:1.25rem;font-weight:800;letter-spacing:-.01em;background:linear-gradient(90deg,var(--hl),transparent);border-left:4px solid var(--acc);border-radius:8px;padding:.35rem .7rem;opacity:0;transform:translateX(20px)}
+.dpout.on .dpb span{animation:dpin .5s cubic-bezier(.2,1,.3,1) both}.dpout.on .dpb span:nth-child(2){animation-delay:.12s}.dpout.on .dpb span:nth-child(3){animation-delay:.24s}.dpout.on .dpb span:nth-child(4){animation-delay:.36s}.dpout.on .dpb span:nth-child(5){animation-delay:.48s}.dpout.on .dpb span:nth-child(6){animation-delay:.6s}.dpout.on .dpb span:nth-child(7){animation-delay:.72s}.dpout.on .dpb span:nth-child(8){animation-delay:.84s}
+@keyframes dpin{to{opacity:1;transform:none}}
+.ts{display:grid;grid-template-columns:11rem 15rem 1fr 13rem;gap:1.2rem;align-items:center;margin-top:1.4rem;position:relative}
+.tsrc{display:flex;flex-direction:column;gap:.5rem}.tsrc span{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:.45rem .6rem;font-weight:700;font-size:.92rem}.tsh,.tbh span{font-size:.8rem;color:var(--muted)}
+.tsh{font-weight:800;text-transform:uppercase;letter-spacing:.1em}
+.tcard{background:var(--panel);border:2px solid #f0a46c;border-radius:16px;padding:.9rem 1rem;box-shadow:0 0 22px rgba(234,120,40,.25);display:flex;flex-direction:column;gap:.3rem;opacity:0;transform:translateX(-60px)}
+.tcard.in{animation:tcin .6s cubic-bezier(.2,1,.3,1) both}.tcard small{font-size:.75rem;color:#c2410c;font-weight:800}.tcard b{font-size:1.1rem;line-height:1.25}.tcard span{color:var(--muted);font-size:.85rem}
+@keyframes tcin{to{opacity:1;transform:none}}
+.tbrain{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:1rem 1.1rem}
+.tbh{display:flex;gap:.8rem;align-items:center;margin-bottom:.6rem}.tbh b{display:block;font-size:1.15rem}.tbh span{font-size:.95rem;font-style:italic}
+.tsteps{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:.4rem;counter-reset:st}
+.tsteps li{display:grid;grid-template-columns:1.6rem 10rem 1fr;align-items:center;gap:.5rem;padding:.45rem .6rem;border-radius:10px;background:var(--panel2);opacity:.45;transition:opacity .3s,background .3s}
+.tsteps li::before{counter-increment:st;content:counter(st);width:1.5rem;height:1.5rem;border-radius:50%;display:grid;place-items:center;background:var(--line);font-size:.8rem;font-weight:800}
+.tsteps li em{font-style:normal;font-weight:700}.tsteps li i{font-style:normal;font-size:.92rem;color:var(--txt2,#44506b)}
+.tsteps li.run{opacity:1;background:var(--hl)}.tsteps li.run::before{background:var(--acc);color:#fff;animation:tspin 1s linear infinite}
+.tsteps li.ok{opacity:1}.tsteps li.ok::before{content:"✓";background:var(--good);color:#fff}.tsteps li.no{opacity:1}.tsteps li.no::before{content:"✕";background:var(--bad);color:#fff}
+@keyframes tspin{50%{transform:scale(.8)}}
+.tverdict{border-radius:18px;padding:1rem 1.1rem;display:flex;flex-direction:column;gap:.35rem;opacity:0;transform:scale(.85);border:2px solid var(--line);background:var(--panel)}
+.tverdict.on{animation:pop .5s cubic-bezier(.2,1.5,.4,1) both}.tverdict b{font-size:1.5rem}.tverdict span{font-size:.95rem}.tverdict small{color:var(--muted);font-size:.85rem}
+.tverdict.fit{border-color:var(--good);box-shadow:0 0 24px rgba(15,157,107,.25)}.tverdict.fit b{color:var(--good)}.tverdict.skip b{color:var(--muted)}
+.dflow{display:flex;align-items:center;gap:.6rem;margin-top:.8rem}.dflow .src{font-size:2rem}.dflow .ar{flex:none;width:2rem;height:2px;background:var(--acc)}
+.dflow .dst{display:flex;flex-direction:column;gap:.3rem}.dflow .dst span{background:var(--panel2);border-radius:8px;padding:.25rem .6rem;font-size:.85rem;font-weight:700;border-left:3px solid var(--warn)}
+.starts{display:grid;grid-template-columns:1fr 1fr;gap:.5rem;margin-top:.7rem}.starts div{background:var(--panel2);border-radius:10px;padding:.5rem .7rem;border-left:3px solid var(--acc)}.starts b{display:block;font-size:.95rem}.starts span{font-size:.8rem;color:var(--muted)}
+.starts div.inno{grid-column:1/-1;border-left-color:var(--good);background:var(--okbg)}
+.team1{margin:.8rem 0 0;display:flex;flex-direction:column;gap:.45rem;font-size:1.15rem}.team1>div:first-child b{font-size:1.25rem}.team1>div:first-child span{color:var(--muted);margin-left:.6rem}
+.team1 .mates{display:flex;flex-wrap:wrap;gap:.4rem}.team1 .mates span{background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:.2rem .8rem;font-weight:600;font-size:1rem}
+.team1 .mentor{color:var(--muted);font-size:1rem}.team1 .mentor b{color:var(--fg)}
+.agent.new{border-color:var(--acc);box-shadow:0 0 0 2px color-mix(in srgb,var(--acc) 25%,transparent)}
+.na{display:grid;grid-template-columns:1fr 1fr;gap:1.2rem;margin-top:1rem}.na .card{display:flex;flex-direction:column;gap:.8rem}
+.nah{display:flex;gap:1rem;align-items:center}.nah b{display:block;font-size:1.3rem}.nah span{color:var(--muted);font-size:.95rem}.nah .gov{font-size:3rem;line-height:1}
+.nasig{display:flex;flex-direction:column;gap:.45rem}.nasig span{border-left:4px solid var(--warn);background:var(--panel2);border-radius:8px;padding:.45rem .7rem;font-weight:600}.nasig span.bad{border-left-color:var(--bad)}
+.natr{display:flex;flex-direction:column;gap:.45rem}.natr div{display:flex;justify-content:space-between;gap:1rem;background:var(--panel2);border-radius:8px;padding:.5rem .8rem;border-left:4px solid var(--good)}.natr div.no{border-left-color:var(--dotoff, #c3c9db);opacity:.75}.natr b{font-size:.95rem}.natr span{font-size:.85rem;color:var(--muted);white-space:nowrap}
+.naw{margin:0;font-size:1.02rem}.na small{color:var(--muted)}
+.agent.sum{background:linear-gradient(135deg,var(--acc),var(--acc2));color:#fff;border:0;justify-content:center;text-align:center;font-size:1.05rem;font-weight:700}
+/* S8 flow */
+.flow{display:flex;align-items:stretch;gap:0;margin-top:1.4rem}.step{flex:1;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:.9rem .8rem;text-align:center;min-width:0}
+.step h4{margin:.4rem 0 .2rem;font-size:1rem}.step p{margin:0;font-size:.8rem;color:var(--muted)}.step .bots{display:flex;gap:.2rem;justify-content:center;flex-wrap:wrap;min-height:2.6rem;align-items:flex-end}
+.arrow{width:2.2rem;align-self:center;height:3px;background:repeating-linear-gradient(90deg,var(--acc) 0 8px,transparent 8px 14px);background-size:28px 3px;animation:dash .8s linear infinite;flex:none;position:relative}
+.arrow::after{content:"";position:absolute;right:-2px;top:-5px;border-left:9px solid var(--acc);border-top:6.5px solid transparent;border-bottom:6.5px solid transparent}
+@keyframes dash{to{background-position:28px 0}}
+.human{font-size:2.2rem}
+/* S9 audit */
+.ringwrap{position:relative;width:15rem;height:15rem;flex:none}.ringwrap svg{width:100%;height:100%;transform:rotate(-90deg)}.ringwrap .num{position:absolute;inset:0;display:grid;place-items:center;text-align:center;font-size:4.2rem;font-weight:900;line-height:1}
+.ringwrap .num small{display:block;font-size:1rem;color:var(--muted);font-weight:600}
+.slide.active .ringfill{animation:ringfill 1.8s cubic-bezier(.2,.8,.2,1) .4s both}@keyframes ringfill{from{stroke-dashoffset:var(--c)}to{stroke-dashoffset:var(--o)}}
+.bars{display:grid;gap:.75rem;flex:1}.brow{display:grid;grid-template-columns:8.5rem 1fr 2.6rem 2.2rem;gap:.8rem;align-items:center}.brow .bar{height:.8rem;border-radius:999px;background:var(--inset);overflow:hidden}.brow .bar i{display:block;height:100%;width:0;border-radius:999px}
+.slide.active .brow .bar i{animation:grow 1.3s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(.5s + var(--i)*.2s)}@keyframes grow{to{width:var(--w)}}
+/* S10 stack */
+.chipcloud .chip{opacity:0}.slide.active .chipcloud .chip{animation:pop .5s cubic-bezier(.2,1.4,.4,1) both;animation-delay:calc(1s + var(--i)*.22s)}
+.alert{border-left:6px solid var(--bad);background:var(--badbg)}
+/* S11 design */
+.cmp{position:relative;border-radius:16px;overflow:hidden;border:1px solid var(--line);aspect-ratio:16/9.3;background:#000;box-shadow:0 24px 60px rgba(30,40,80,.2);user-select:none;max-height:60vh}
+.cmp img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}.cmp .top{clip-path:inset(0 50% 0 0)}
+.cmp .hd{position:absolute;top:0;bottom:0;left:50%;width:3px;background:#fff;box-shadow:0 0 12px #000}.cmp .hd::after{content:"↔";position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:#fff;color:#111;width:2.4rem;height:2.4rem;border-radius:50%;display:grid;place-items:center;font-weight:800}
+.cmp input{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:ew-resize;margin:0}.cmp .lbl{position:absolute;top:.7rem;padding:.2rem .8rem;border-radius:999px;background:rgba(0,0,0,.65);color:#fff;font-size:.8rem;font-weight:800}
+/* S12 match */
+.team{display:grid;grid-template-columns:1fr 1fr;gap:.7rem}.dev{display:flex;gap:.8rem;align-items:center;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:.6rem .8rem}.dev b{display:block;font-size:.95rem}.dev span{font-size:.78rem;color:var(--muted)}.dev em{margin-left:auto;font-style:normal;font-weight:800;color:var(--acc)}
+/* S13 deck */
+.deckfan{position:relative;height:21rem}.sl{position:absolute;left:50%;top:50%;width:17rem;height:11rem;border-radius:12px;background:var(--panel);border:1px solid var(--line);box-shadow:0 18px 40px rgba(30,40,80,.18);padding:1rem;font-weight:800;font-size:1.05rem;transform:translate(-50%,-50%);transition:transform 1s cubic-bezier(.2,1.1,.3,1)}
+.sl small{display:block;color:var(--muted);font-weight:600;font-size:.7rem;margin-top:.4rem}.sl::before{content:"";position:absolute;left:0;top:0;bottom:0;width:.5rem;border-radius:12px 0 0 12px;background:var(--acc)}
+/* S14 office */
+.officeBox{position:relative;width:100%;aspect-ratio:320/216;border-radius:16px;overflow:hidden;border:1px solid var(--line);box-shadow:0 24px 60px rgba(30,40,80,.18)}.officeBox canvas{width:100%;height:100%;display:block;image-rendering:pixelated}
+.plates{position:absolute;inset:0;pointer-events:none}.plate{position:absolute;transform:translateX(-50%);padding:0 .55em;border-radius:999px;background:#fff;border:1px solid var(--line);color:var(--muted);white-space:nowrap;font-weight:600;line-height:1.5}.plate.on{background:var(--acc);border-color:var(--acc);color:#fff}
+.officesign{position:absolute;left:50%;top:3.2%;transform:translateX(-50%);color:#fff7e6;font-weight:800;letter-spacing:.08em;text-transform:uppercase;text-shadow:0 1px 0 #6b4424;white-space:nowrap}
+/* S15/16 grids */
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem}.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem}
+.card h3{margin:.1rem 0 .5rem;font-size:1.1rem}.card p{margin:0;color:var(--muted);font-size:.92rem}
+.stat6{display:grid;grid-template-columns:repeat(6,1fr);gap:.8rem;margin-top:1.1rem}.stat6 div{text-align:center;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:.8rem .3rem}.stat6 b{display:block;font-size:2.1rem;font-variant-numeric:tabular-nums}.stat6 span{font-size:.75rem;color:var(--muted)}
+/* S17 roi */
+.cmpbars{display:grid;gap:1rem}.cb{display:grid;grid-template-columns:13rem 1fr 9rem;gap:1rem;align-items:center}.cb .bar{height:2rem;border-radius:10px;background:var(--inset);overflow:hidden}.cb .bar i{display:block;height:100%;width:0;border-radius:10px}
+.slide.active .cb .bar i{animation:grow 1.6s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(.6s + var(--i)*.4s)}
+/* S18 roadmap */
+.road{display:grid;grid-template-columns:repeat(3,1fr);gap:1.1rem;position:relative}.road .card{border-top:5px solid var(--acc)}.road .card.now{border-top-color:var(--good)}.road .card.later{border-top-color:var(--muted)}
+.road li{margin:.3rem 0;font-size:.95rem}.road ul{padding-left:1.1rem;margin:.4rem 0 0}
+.btn{display:inline-block;background:linear-gradient(90deg,var(--acc),var(--acc2));color:#fff;text-decoration:none;font-weight:800;border-radius:999px;padding:.8rem 1.8rem;font-size:1.2rem;margin-top:1rem}
+/* added slides */
+.tag{display:inline-block;font-size:.62rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;padding:.12rem .55rem;border-radius:999px;margin-left:.4rem;vertical-align:middle}
+.tag.now{background:var(--okbg);color:var(--good)}.tag.beta{background:var(--warnbg);color:var(--warn)}.tag.next{background:var(--panel2);color:var(--muted);border:1px solid var(--line)}
+.card .ic{font-size:1.6rem;line-height:1;display:block;margin-bottom:.35rem}
+.pts{list-style:none;padding:0;margin:.4rem 0 0;display:grid;gap:.45rem}.pts li{position:relative;padding-left:1.5rem;font-size:1.02rem}.pts li::before{content:"✓";position:absolute;left:0;color:var(--good);font-weight:900}
+.pts.x li::before{content:"✕";color:var(--bad)}.pts.sm li{font-size:.9rem}
+.bottom{margin-top:1.1rem;padding:.8rem 1.2rem;border-radius:14px;font-weight:700;font-size:1.1rem}
+.lgrid{border-collapse:separate;border-spacing:.35rem;font-size:.85rem}.lgrid th{color:var(--muted);font-weight:700;text-align:left;padding:0 .3rem}.lgrid td{text-align:center;padding:.3rem .55rem;border-radius:8px;font-weight:800;font-variant-numeric:tabular-nums}
+.slide .lgrid td{opacity:0}.slide.active .lgrid td{animation:pop .45s cubic-bezier(.2,1.4,.4,1) both;animation-delay:calc(1.2s + var(--i)*.06s)}
+.lgrid .hi{background:var(--okbg);color:var(--good)}.lgrid .mid{background:var(--warnbg);color:var(--warn)}.lgrid .lo{background:var(--badbg);color:var(--bad)}
+.tl{display:grid;grid-template-columns:repeat(5,1fr);gap:.8rem;margin-top:1rem;position:relative}.tl::before{content:"";position:absolute;left:2%;right:2%;top:1.05rem;height:3px;background:linear-gradient(90deg,var(--acc),var(--acc2));border-radius:3px}
+.tl div{position:relative;padding-top:2.6rem}.tl b.t{position:absolute;top:0;left:0;background:var(--panel);border:2px solid var(--acc);border-radius:999px;padding:.15rem .7rem;font-size:.85rem;font-variant-numeric:tabular-nums}
+.tl h4{margin:0 0 .2rem;font-size:1rem}.tl p{margin:0;font-size:.85rem;color:var(--muted)}
+.vs{display:grid;grid-template-columns:1fr auto 1fr;gap:1.2rem;align-items:stretch}.vs .plus{align-self:center;font-size:3rem;font-weight:900;color:var(--acc)}
+.mkmini{display:grid;grid-template-columns:repeat(6,1fr);gap:.55rem}.mkmini div{display:flex;gap:.45rem;align-items:center;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:.4rem .55rem;font-size:.75rem;font-weight:700;line-height:1.15;min-width:0}
+.mkmini div span{font-size:1.15rem}.mkmini div.live{border-color:var(--good)}.mkmini div.beta{border-color:var(--warn)}.mkmini div.planned{border-style:dashed}
+.clock{width:9rem;height:9rem;border-radius:50%;border:6px solid var(--acc);position:relative;flex:none;background:var(--panel)}.clock i{position:absolute;left:50%;bottom:50%;width:4px;margin-left:-2px;border-radius:4px;background:var(--fg);transform-origin:50% 100%}
+.clock i.h{height:28%;animation:spin 12s linear infinite}.clock i.m{height:40%;background:var(--acc2);animation:spin 1.5s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}
+.recap{display:grid;grid-template-columns:9rem 1fr;gap:.45rem 1.2rem;font-size:1rem}.recap b{color:var(--acc)}
+
+/* ── main track (v0.5): bang pain, funnel, finds, mapping, report, cost, impact ── */
+.boom{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-top:.8rem;perspective:1100px}
+.boom div{position:relative;background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:1.1rem 1.3rem;min-height:7rem;box-shadow:0 14px 34px rgba(30,40,80,.08);opacity:0;transform:rotateX(-88deg);transform-origin:50% 0;transition:transform .7s cubic-bezier(.2,1.25,.3,1),opacity .35s ease}
+.boom div.on{opacity:1;transform:none}
+.boom small{display:block;font-weight:800;color:var(--acc);font-size:.8rem;letter-spacing:.12em}
+.boom b{display:block;font-size:1.65rem;line-height:1.1;letter-spacing:-.02em;margin-top:.2rem}.boom span{display:block;color:var(--muted);font-size:.95rem;margin-top:.35rem}
+.verdict{margin-top:1.3rem;text-align:center;font-size:1.7rem;font-weight:700;color:var(--fg);opacity:0;transform:translateY(12px);transition:opacity .6s ease,transform .6s ease}
+.verdict.on{opacity:1;transform:none}
+.why{display:grid;grid-template-columns:repeat(3,1fr);gap:1.4rem;margin-top:1.6rem}
+.why div{border-top:4px solid var(--acc);padding-top:1rem;opacity:0;transform:translateY(24px);transition:opacity .6s ease,transform .6s cubic-bezier(.2,1,.3,1)}
+.why div.on{opacity:1;transform:none}
+.why b{display:block;font-size:2.2rem;letter-spacing:-.02em;line-height:1.1}.why span{display:block;color:var(--muted);font-size:1.15rem;margin-top:.5rem}
+@keyframes pulse{50%{transform:scale(1.04);text-shadow:0 0 22px rgba(214,69,69,.35)}}
+.funnel{display:grid;gap:.55rem;flex:1}.funnel div{margin:0 auto;height:3.1rem;border-radius:12px;display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff;width:0;opacity:0}
+.slide.active .funnel div{animation:fun .9s cubic-bezier(.2,.8,.2,1) both;animation-delay:var(--d)}@keyframes fun{from{width:0;opacity:0}to{width:var(--w);opacity:1}}
+.finds{display:grid;grid-template-columns:repeat(4,1fr);gap:.8rem;margin-top:1rem}
+.finds div{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:.75rem .9rem}.finds b{display:block;font-size:1rem}.finds span{font-size:.8rem;color:var(--muted)}.finds em{font-style:normal;font-size:1.4rem;float:left;margin-right:.6rem}
+.flow.mini{margin-top:.6rem}.flow.mini .step{padding:.55rem .5rem}.flow.mini .step h4{font-size:.9rem}.flow.mini .step p{font-size:.72rem}.flow.mini .bots{min-height:1.9rem}
+.mapgrid{display:grid;grid-template-columns:1fr 2.2rem 1.2fr 2.2rem 1fr;gap:.5rem;align-items:stretch;margin-top:.8rem}
+.mapgrid .colh{font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:800;margin-bottom:.4rem}
+.mapgrid .cell{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:.45rem .7rem;margin-bottom:.45rem;font-weight:700;font-size:.92rem;display:flex;justify-content:space-between;gap:.5rem}
+.mapgrid .cell small{font-weight:600;color:var(--muted)}.mapgrid .go{align-self:center;height:3px;background:repeating-linear-gradient(90deg,var(--acc) 0 8px,transparent 8px 14px);background-size:28px 3px;animation:dash .8s linear infinite}
+.cell.strong{border-color:var(--good)}.cell.partial{border-color:var(--warn)}.cell.gap{border-color:var(--bad)}
+.pms{border:2px dashed var(--acc);background:var(--hl)}
+.report{display:grid;grid-template-columns:1.1fr 1fr 1fr;gap:1rem;margin-top:.6rem}
+.report .card{padding:.9rem 1rem}.report h3{font-size:.95rem;margin:0 0 .5rem;color:var(--muted);text-transform:uppercase;letter-spacing:.1em}
+.thumbs{display:grid;grid-template-columns:1fr 1fr;gap:.5rem}.thumbs img{width:100%;border-radius:8px;border:1px solid var(--line);aspect-ratio:16/10;object-fit:cover}
+.est{display:grid;gap:.45rem}.est div{display:flex;justify-content:space-between;border-bottom:1px dashed var(--line);padding-bottom:.35rem;font-size:.92rem}.est b{color:var(--acc)}
+.cost{display:grid;grid-template-columns:1fr 1fr;gap:1.2rem;margin-top:.6rem}
+.cost .card h3{display:flex;align-items:center;gap:.5rem}.price{font-size:2.6rem;font-weight:900;letter-spacing:-.02em}
+.impact{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-top:.8rem}.impact .card{text-align:left}.impact .card .ic{font-size:2rem}
+.demo{display:inline-flex;align-items:center;gap:.8rem;margin-top:1.4rem;background:linear-gradient(90deg,var(--acc),var(--acc2));color:#fff;font-weight:900;font-size:1.5rem;border-radius:999px;padding:.9rem 2rem;text-decoration:none;box-shadow:0 18px 40px rgba(79,107,255,.35)}
+.slide.active .demo{animation:pop .6s cubic-bezier(.2,1.6,.4,1) both,pulse 1.8s ease-in-out infinite;animation-delay:var(--d),calc(var(--d) + .6s)}
+.divider h1{font-size:3.6rem}
+#count small{font-weight:800;color:var(--acc);margin-right:.4rem}
+/* pitch mini slides */
+#fan .sl{width:12rem;height:13rem;padding:0;overflow:hidden;font-weight:600;font-size:.85rem}#fan .sl::before{display:none}
+.slh{background:linear-gradient(90deg,var(--acc),var(--acc2));color:#fff;padding:.55rem .7rem;font-weight:800;font-size:.85rem;line-height:1.2;min-height:3.1rem;display:flex;gap:.5rem;align-items:flex-start}
+.slh span{background:rgba(255,255,255,.25);border-radius:6px;padding:0 .35rem;font-size:.75rem}
+.slb{padding:.7rem}.mring{text-align:center;margin-top:.6rem}.mring b{display:block;font-size:3.4rem;line-height:1;color:var(--bad)}.mring span{font-size:.75rem;color:var(--muted)}
+.mbar{display:grid;grid-template-columns:4.2rem 1fr 1.6rem;gap:.4rem;align-items:center;margin:.55rem 0;font-size:.75rem}.mbar i{display:block;height:.55rem;border-radius:999px;background:var(--bad);width:var(--w)}.mbar b{text-align:right}
+.mthumbs{display:grid;grid-template-columns:1fr 1fr;gap:.35rem}.mthumbs img{width:100%;aspect-ratio:4/5;object-fit:cover;border-radius:6px;border:1px solid var(--line)}
+.mnote{font-size:.75rem;color:var(--muted);margin-top:.45rem;text-align:center}.mnote b{color:var(--good);font-size:1rem}
+.mbots{display:flex;justify-content:center;gap:.3rem;margin-top:.7rem}
+.mlines div{display:flex;justify-content:space-between;border-bottom:1px dashed var(--line);padding:.4rem 0;font-size:.8rem}.mlines b{color:var(--acc)}
+.rk{position:fixed;top:0;bottom:0;width:0;z-index:15;pointer-events:none}
+.rk .edge{position:absolute;top:0;bottom:0;left:-2px;width:4px;background:linear-gradient(#ffb347,#ff5e62,var(--acc2));box-shadow:0 0 30px 10px rgba(255,120,60,.45)}
+.rk .trail{position:absolute;top:calc(50% - 1.1rem);right:0;width:46vw;height:2.2rem;border-radius:999px;background:linear-gradient(to left,rgba(255,200,90,.95),rgba(255,94,98,.7) 25%,rgba(124,77,255,.35) 60%,transparent);filter:blur(5px)}
+.rk b{position:absolute;top:calc(50% - 3.2rem);left:-2.4rem;font-size:5.5rem;line-height:1;transform:rotate(45deg);filter:drop-shadow(0 0 18px rgba(255,140,60,.8))}
+.rk.back .trail{right:auto;left:0;background:linear-gradient(to right,rgba(255,200,90,.95),rgba(255,94,98,.7) 25%,rgba(124,77,255,.35) 60%,transparent)}.rk.back b{transform:rotate(-135deg)}
+.swiper{position:fixed;top:0;bottom:0;width:0;z-index:15;pointer-events:none}
+.swiper canvas{position:absolute;bottom:22vh;left:0;transform-origin:center;margin-left:-4.5rem}
+.swiper i{position:absolute;top:0;bottom:0;left:-2px;width:4px;background:linear-gradient(var(--acc),var(--acc2));box-shadow:0 0 24px 6px rgba(109,140,255,.45)}
+/* slide tray: pull up to jump to any slide */
+#tray{position:fixed;left:0;right:0;bottom:0;z-index:40;background:var(--panel);border-top:1px solid var(--line);box-shadow:0 -18px 50px rgba(20,30,70,.18);transform:translateY(100%);transition:transform .35s cubic-bezier(.2,.8,.2,1);max-height:46vh;display:flex;flex-direction:column}
+#tray.open{transform:none}
+#tray .th{display:flex;justify-content:space-between;align-items:center;padding:.6rem 1.2rem;font-size:.8rem;color:var(--muted);font-weight:700}
+#tray .tg{overflow:auto;padding:0 1.2rem 1rem}#tray h5{margin:.6rem 0 .4rem;font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+#tray .row2{display:grid;grid-template-columns:repeat(auto-fill,minmax(11rem,1fr));gap:.5rem}
+#tray button.t{all:unset;cursor:pointer;background:var(--panel2);border:1.5px solid var(--line);border-radius:10px;padding:.45rem .6rem;font-size:.75rem;line-height:1.25;min-height:3.2rem;transition:border-color .15s,transform .15s}
+#tray button.t:hover{border-color:var(--acc);transform:translateY(-2px)}#tray button.t.cur{border-color:var(--acc);background:var(--hl)}
+#tray button.t small{display:block;color:var(--acc);font-weight:800;font-size:.65rem;letter-spacing:.08em;text-transform:uppercase}
+#trayBtn{pointer-events:auto;margin-right:.5rem}
+/* unread transition: the email lands in a client's inbox, on top of other unread vendor proposals */
+.binstage{position:fixed;inset:0;z-index:25;pointer-events:none;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.inbox{width:34rem;background:var(--panel);border:1px solid var(--line);border-radius:18px;box-shadow:0 30px 70px rgba(20,30,70,.18);overflow:hidden;transform:translateY(40vh);opacity:0;transition:transform .55s cubic-bezier(.2,1,.3,1),opacity .4s ease}
+.binstage.in .inbox{transform:none;opacity:1}.binstage.out .inbox{transform:translateY(-12vh) scale(.96);opacity:0;transition:transform .4s ease-in,opacity .35s ease-in}
+.ibh{display:flex;justify-content:space-between;align-items:center;padding:.8rem 1.1rem;border-bottom:1px solid var(--line);background:var(--panel2)}
+.ibh b{font-size:1.05rem}.ibb{font-size:.85rem;color:var(--muted);font-weight:700}.ibb i{font-style:normal;display:inline-block;min-width:1.6rem;text-align:center;margin-left:.35rem;padding:.05rem .45rem;border-radius:999px;background:var(--acc);color:#fff;transition:transform .25s ease}.ibb i.bump{transform:scale(1.35)}
+.ibl .ir{display:flex;align-items:center;gap:.8rem;padding:0 1.1rem;height:3.1rem;border-bottom:1px solid var(--line);font-size:.92rem;overflow:hidden}
+.ir::before{content:"";width:.55rem;height:.55rem;border-radius:50%;background:var(--acc);flex:none}
+.ir b{flex:1;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ir span{color:var(--muted);font-size:.8rem;flex:none}
+.ir.new{height:0;opacity:0;transition:height .35s ease,opacity .3s ease;background:var(--hl)}.ir.new.on{height:3.1rem;opacity:1}
+.bincap{margin-top:1.4rem;font-size:1.45rem;font-weight:700;color:var(--muted);opacity:0;transition:opacity .4s ease}.binstage.cap .bincap{opacity:1}.binstage.out .bincap{opacity:0;transition:opacity .25s}
+.flyer{position:fixed;z-index:30;margin:0;pointer-events:none;transform-origin:0 0}
+/* conversion: the buyer's journey, and where we show up */
+.journey{display:grid;grid-template-columns:repeat(5,1fr);gap:.6rem;margin-top:1.2rem;position:relative}
+.journey::before{content:"";position:absolute;left:4%;right:4%;top:1.25rem;height:3px;background:var(--line)}
+.js{position:relative;text-align:center}.js b{position:relative;display:inline-grid;place-items:center;width:2.5rem;height:2.5rem;border-radius:50%;background:var(--panel);border:2px solid var(--line);font-weight:800;color:var(--muted)}
+.js span{display:block;margin-top:.45rem;font-weight:700;font-size:1rem}
+.js.early b{border-color:var(--acc);color:var(--acc);background:var(--hl)}
+.js.us b{border-color:var(--warn);color:#fff;background:var(--warn)}
+.js em{display:inline-block;margin-top:.4rem;font-style:normal;font-size:.8rem;font-weight:800;color:var(--warn);border:1.5px solid var(--warn);border-radius:999px;padding:.1rem .6rem;opacity:0}
+.slide.active .js em{animation:pop .5s cubic-bezier(.2,1.6,.4,1) 1.3s both}
+.shaped{width:58%;margin:.5rem 0 0 1%;text-align:center;font-size:.8rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--acc);border-top:2px solid var(--acc);padding-top:.3rem}
+#target .why{margin-top:1.3rem}#target .why b{font-size:1.7rem}#target .why span{font-size:1.05rem}
+/* email slide: on click the content pans away and the inbox comes in */
+.inboxstage{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none}
+.inboxstage .inbox{transform:translateY(45vh);opacity:0;transition:transform 1s cubic-bezier(.2,1,.3,1),opacity .6s ease}
+.inboxstage.on .inbox{transform:none;opacity:1}
+.inboxstage .bincap{margin-top:1.4rem;font-size:1.45rem;font-weight:700;color:var(--muted);opacity:0;transition:opacity .6s ease}.inboxstage.cap .bincap{opacity:1}
+#s4 > .kicker,#s4 > h2,#s4 > .row{transition:translate 1s cubic-bezier(.65,0,.35,1),filter .8s ease}
+#s4.panned > .kicker,#s4.panned > h2,#s4.panned > .row{translate:-110% 0;filter:opacity(0)}
+/* demos: label inside the long bar */
+.cmpbars.dbars .bar{height:2.4rem}.cmpbars.dbars .bar i{display:flex;align-items:center;padding-left:1rem;color:#fff;font-weight:700;font-size:.95rem;white-space:nowrap;overflow:hidden}
+/* what it identifies: list on the left, visual on the right */
+.fx{display:grid;grid-template-columns:19rem 1fr;gap:1.4rem;margin-top:.6rem;align-items:start}
+.fl{display:grid;gap:.4rem}
+.fr{display:flex;gap:.7rem;align-items:center;background:var(--panel);border:1.5px solid var(--line);border-radius:12px;padding:.42rem .75rem;transition:transform .3s ease,border-color .3s ease,background .3s ease,box-shadow .3s ease;opacity:.65}
+.fr small{font-weight:800;color:var(--muted);font-size:.72rem;width:1.4rem}.fr b{display:block;font-size:.95rem}.fr span{display:block;font-size:.72rem;color:var(--muted)}
+.fr.on{opacity:1;border-color:var(--acc);background:var(--hl);transform:translateX(.6rem);box-shadow:0 10px 24px rgba(30,40,80,.1)}.fr.on small{color:var(--acc)}
+.fp{perspective:1400px;min-height:24rem}
+.fpi{background:var(--panel);border:1px solid var(--line);border-radius:18px;box-shadow:0 20px 50px rgba(30,40,80,.1);padding:1.3rem 1.5rem;min-height:24rem;transform-origin:50% 50%}
+.fpi h3{margin:0 0 .2rem;font-size:1.3rem}.fpi .sub{color:var(--muted);font-size:.9rem;margin-bottom:.8rem}
+.fgrid{display:grid;grid-template-columns:1fr 1fr;gap:.6rem}.fgrid div{background:var(--panel2);border-radius:10px;padding:.55rem .8rem}.fgrid b{display:block;font-size:1.6rem;font-variant-numeric:tabular-nums}.fgrid span{font-size:.75rem;color:var(--muted)}
+.frow{display:flex;gap:1.4rem;align-items:flex-start}
+.big{font-size:4.2rem;font-weight:900;line-height:1;letter-spacing:-.03em}.big small{font-size:1rem;color:var(--muted);font-weight:700;margin-left:.3rem}
+.flist{list-style:none;padding:0;margin:.6rem 0 0;display:grid;gap:.45rem}.flist li{display:flex;gap:.6rem;align-items:center;font-size:.95rem}
+.sev{font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;padding:.12rem .5rem;border-radius:999px;flex:none}.sev.c{background:var(--badbg);color:var(--bad)}.sev.m{background:var(--warnbg);color:var(--warn)}.sev.ok{background:var(--okbg);color:var(--good)}
+.phone{height:20rem;border-radius:18px;border:6px solid #1a2033;box-shadow:0 14px 30px rgba(30,40,80,.2)}.shot{width:100%;border-radius:10px;border:1px solid var(--line)}
+.rub{display:grid;grid-template-columns:8rem 1fr 2rem;gap:.4rem .6rem;align-items:center;font-size:.85rem;margin-top:.6rem}.rub i{display:block;height:.6rem;border-radius:999px;width:calc(var(--v) * 20%);background:var(--acc)}
+.tbar{display:grid;grid-template-columns:7rem 1fr 4.6rem;gap:.35rem .7rem;align-items:center;font-size:.85rem;margin-top:.8rem}.tbar i{display:block;height:.8rem;border-radius:999px;background:linear-gradient(90deg,var(--acc),var(--acc2));width:var(--w)}
+.sw{display:flex;gap:1rem;margin:.6rem 0 1rem}.sw div{width:6rem;height:6rem;border-radius:14px;border:1px solid var(--line);display:flex;align-items:flex-end;padding:.4rem;font-size:.75rem;font-weight:700}
+</style>
+</head>
+<body>
+<div id="bar"></div><div id="flash"></div>
+<div class="nav l" id="prev" title="Previous"></div><div class="nav r" id="next" title="Next"></div>
+
+<!-- 1 TITLE -->
+<section class="slide" id="s1" data-out="rocket">
+  <div class="kicker rise">Digithon 2026</div>
+  <h1 class="rise" style="--d:.15s;font-size:9.5rem;line-height:.95;margin:.05em 0 .1em"><span class="grad">Nitro</span></h1>
+  <p class="lead rise" style="--d:.3s"><span class="typed" data-type="Great developers, in front of every client."></span></p>
+  <p class="lead fade" style="--d:4s">Powering external business in a <span class="grad">supercharged</span> environment.</p>
+  <div class="team1 fade" style="--d:4.4s"><div><b>Manish Paul</b><span>Digital CRM</span></div><div class="mates"><span>Abhishek Kaushik</span><span>Rohan Kalra</span><span>Saurav Singh</span><span>Amrendra Kumar</span></div><div class="mentor">Mentor: <b>Mukul Jain</b></div></div>
+  <div class="march" id="march"></div>
+</section>
+
+<!-- M2 PAIN: keywords flip in on click -->
+<section class="slide" id="bang" data-out="up">
+  <div class="kicker">The problem</div>
+  <h2>Pre-sales today.</h2>
+  <div class="boom">
+    <div data-frag="1"><small>01</small><b>Slow to propose</b><span>Days of research before a single proposal goes out.</span></div>
+    <div data-frag="2"><small>02</small><b>Expensive to create</b><span>Senior architects spend days on each pitch.</span></div>
+    <div data-frag="3"><small>03</small><b>Generic content</b><span>The same slides for every client.</span></div>
+    <div data-frag="4"><small>04</small><b>Can't target customers</b><span>We don't know who to approach, or with what.</span></div>
+    <div data-frag="5"><small>05</small><b>Demos take too long</b><span>Built only when a deal is almost won.</span></div>
+    <div data-frag="6"><small>06</small><b>Talent waiting</b><span>Skilled developers sit between projects.</span></div>
+  </div>
+  <p class="verdict" data-frag="7">So conversion stays low.</p>
+</section>
+
+<!-- M3 WHY CONVERSION IS LOW: three points, on click -->
+<section class="slide" id="target" data-out="right">
+  <div class="kicker rise">Why conversion is low</div>
+  <h2 class="rise" style="--d:.1s">Don't wait for RFPs. Reach the CTO first, at scale.</h2>
+  <div class="vol">
+    <div class="vchart rise" style="--d:.3s">
+      <div class="vt">Personalised pitches we can prepare</div>
+      <div class="vrow"><span>Waiting for RFPs</span><i class="vb few"></i><b class="bad">a few a month</b></div>
+      <div class="vrow"><span>With Nitro</span><i class="vb many"></i><b class="good">hundreds a month</b></div>
+      <div class="vnote">An RFP arrives late: the shortlist is set and every vendor answers it.</div>
+    </div>
+    <div class="vcalc">
+      <div class="eq pop" style="--d:1.6s"><div><b>2.5 min</b><span>per analysis</span></div><em>×</em><div><b>3</b><span>in parallel</span></div><em>=</em><div class="hi"><b data-count="72">72</b><span>an hour</span></div></div>
+      <div class="eq pop" style="--d:2.1s"><div><b>$0.18</b><span>per analysis</span></div><em>×</em><div><b>100</b><span>prospects</span></div><em>=</em><div class="hi"><b>≈ $18</b><span>model cost</span></div></div>
+      <div class="vsrc fade" style="--d:2.5s">Measured on our saved runs: 103 to 150 s and $0.11 to $0.18 each.</div>
+    </div>
+  </div>
+  <div class="fun">
+    <div data-frag="1"><em>🌐</em><b>Analyse hundreds</b><span>Every target account, 24x7</span></div>
+    <div data-frag="2"><em>🎯</em><b>Pick the best fits</b><span>Clear problems + skills we have</span></div>
+    <div data-frag="3"><em>🤝</em><b>Talk to the CTO first</b><span>Already knowing their stack, news and gaps</span></div>
+  </div>
+</section>
+
+<section class="slide" id="s4" data-out="flip">
+  <div class="kicker rise">The problem</div>
+  <h2 class="rise" style="--d:.1s">The client never sees what we'd do for <span class="grad">them</span>.</h2>
+  <div class="row" style="margin-top:1rem;align-items:flex-start">
+    <div class="col rise" style="--d:.3s"><div class="mail"><div class="hd">To: cmo@prospect.com · Subject: Proposal for your esteemed consideration</div>
+      <div class="bd"><p style="--i:0">Dear Sir/Madam,</p><p style="--i:1">We are pleased to submit our proposal for your consideration.</p><p style="--i:2">We have 15+ years of experience and skilled professionals.</p><p style="--i:3">We look forward to a fruitful association. Regards.</p></div><div class="stamp">SENT</div></div></div>
+    <div class="col"><p class="lead rise" style="--d:.6s">Every proposal looks like every other proposal.</p><p class="lead rise" style="--d:.9s">Nothing in it shows we looked at <b>their</b> site.</p><p class="ghost">…</p><p class="ghost" style="font-size:1.1rem">(no reply)</p></div>
+  </div>
+  <div class="inboxstage" data-frag="1" data-hook="inbox"><div class="inbox"><div class="ibh"><b>Inbox · cmo@prospect.com</b><span class="ibb">Unread<i>5</i></span></div>
+    <div class="ibl"><div class="ir new"><b>Proposal for your esteemed consideration</b><span>Us</span></div><div class="ir"><b>Proposal for your consideration</b><span>Vendor A</span></div><div class="ir"><b>Introducing our capabilities</b><span>Vendor B</span></div><div class="ir"><b>Partnership opportunity</b><span>Vendor C</span></div><div class="ir"><b>Following up on our proposal</b><span>Vendor D</span></div><div class="ir"><b>Our services overview</b><span>Vendor E</span></div></div></div>
+    <div class="bincap">One more proposal that looks like all the others.</div></div>
+</section>
+
+<!-- 3c PAIN: DEMOS -->
+<section class="slide" id="s3c" data-out="up">
+  <div class="kicker rise">The problem</div>
+  <h2 class="rise" style="--d:.1s">Demos take days to build. Nitro builds one in minutes.</h2>
+  <h3 class="fade" style="--d:.5s;margin:1.2rem 0 .7rem;font-size:.95rem;color:var(--muted);letter-spacing:.12em;text-transform:uppercase">Time to build one personalised demo for a prospect</h3>
+  <div class="cmpbars dbars">
+    <div class="cb"><b>By hand</b><div class="bar"><i style="--i:0;--w:100%;background:linear-gradient(90deg,var(--warn),var(--bad))"><span>Days of developer time</span></i></div><b class="bad">Days</b></div>
+    <div class="cb"><b>With Nitro</b><div class="bar"><i style="--i:1;--w:3%;background:var(--good)"></i></div><b class="good">1.5–3 min</b></div>
+  </div>
+  <div class="grid3" style="grid-template-columns:1fr 1fr;margin-top:1.4rem">
+    <div class="card rise" style="--d:1.9s"><h3>Every prospect gets one</h3><p>Not only the deals that are almost won: a demo built on their own site, before the first meeting.</p></div>
+    <div class="card rise" style="--d:2.1s;border-color:var(--good)"><h3 class="good">Always available · 24x7</h3><p>Agents keep working in the background, so a demo is ready whenever sales needs one.</p></div>
+  </div>
+</section>
+
+<!-- 5 THE TURN -->
+<section class="slide dark turn" id="s5" data-out="fade">
+  <div class="line" id="t1" data-frag="1">What if the prospect could see<br><span class="grad">their own website, improved</span>…</div>
+  <div class="line" id="t2" data-frag="2" data-hook="turn2">…before they signed <u>anything</u>?</div>
+  <div class="count" id="cnt"></div><i data-frag="3" data-hook="bang" hidden></i>
+</section>
+
+<!-- 6 THE BANG -->
+<section class="slide" id="s6" data-out="up">
+  <div class="kicker rise">The solution</div>
+  <h2 class="rise" style="--d:.1s">Paste a URL. <span class="grad">That's it.</span></h2>
+  <div class="urlbar rise" style="--d:.3s"><span>🌐</span><span class="typed" data-type="www.allbirds.com" data-delay="900"></span><span class="go">Launch</span></div>
+  <p class="lead rise" style="--d:2.6s">…and a whole office of AI agents goes to work.</p>
+  <div class="burst" id="burst"></div>
+</section>
+
+<!-- 7 AGENTS -->
+<section class="slide" id="s7" data-out="right">
+  <div class="kicker rise">The team</div>
+  <h2 class="rise" style="--d:.1s">Meet the 13 agents.</h2>
+  <div class="agents" id="agents"></div>
+</section>
+
+<!-- M6 HOW IT WORKS + WHAT IT FINDS -->
+<section class="slide" id="how" data-out="up">
+  <div class="kicker rise">How it works</div>
+  <h2 class="rise" style="--d:.1s">One URL in. A personalised pitch out.</h2>
+  <div class="flow mini">
+    <div class="step rise" style="--d:.2s"><div class="bots"><span style="font-size:1.5rem">🌐</span><span style="font-size:1.5rem">🏛️</span></div><h4>URL or tender</h4><p>Site or govt tender</p></div><div class="arrow"></div>
+    <div class="step rise" style="--d:.4s"><div class="bots"><canvas class="bot" data-id="lead" data-s="2" data-pose="walk"></canvas></div><h4>Plan</h4><p>Coordinator agent</p></div><div class="arrow"></div>
+    <div class="step rise" style="--d:.5s"><div class="bots"><canvas class="bot" data-id="research" data-s="2" data-pose="type"></canvas></div><h4>Research</h4><p>Latest news on the company</p></div><div class="arrow"></div>
+    <div class="step rise" style="--d:.6s"><div class="bots"><canvas class="bot" data-id="audit" data-s="2" data-pose="type"></canvas><canvas class="bot" data-id="tech" data-s="2" data-pose="type"></canvas><canvas class="bot" data-id="speed" data-s="2" data-pose="type"></canvas><canvas class="bot" data-id="ux" data-s="2" data-pose="type"></canvas></div><h4>Audit</h4><p>7 checks in parallel</p></div><div class="arrow"></div>
+    <div class="step rise" style="--d:.8s"><div class="bots"><canvas class="bot" data-id="redesign" data-s="2" data-pose="type"></canvas><canvas class="bot" data-id="bench" data-s="2" data-pose="type"></canvas></div><h4>Build</h4><p>Redesign + team</p></div><div class="arrow"></div>
+    <div class="step rise" style="--d:1s"><div class="bots"><canvas class="bot" data-id="deck" data-s="2" data-pose="type"></canvas></div><h4>Write</h4><p>Deck + proposal</p></div><div class="arrow"></div>
+    <div class="step rise" style="--d:1.2s;border-color:var(--good)"><div class="bots"><span style="font-size:1.5rem">🧑‍💼</span></div><h4>Review</h4><p>Human approves</p></div>
+  </div>
+  <ul class="howlist">
+    <li class="rise" style="--d:1.4s">Tools measure: Lighthouse, axe-core, Playwright, Chrome DevTools Protocol</li>
+    <li class="rise" style="--d:1.6s">The model (Claude) researches, plans, judges design and clarity, and designs</li>
+    <li class="rise" style="--d:1.8s">Code guardrails keep the order, retries and step budget safe</li>
+    <li class="rise" style="--d:2s">A human reviews every screen and approves before anything is sent</li>
+  </ul>
+  <p class="note fade" style="--d:3s;margin-top:.8rem">A full run takes about 1.5 to 3 minutes. Every step streams live, and every run can be replayed.</p>
+</section>
+
+<!-- WHAT IT IDENTIFIES: a card list on the left, a real visual on the right; each click flips to the next -->
+<!-- NEW AGENTS: research first, tenders as a source of work -->
+<section class="slide" id="tenders" data-out="right">
+  <div class="kicker rise">Government tenders</div>
+  <h2 class="rise" style="--d:.1s">The Tender Scout finds the work. And decides if it fits.</h2>
+  <div class="ts">
+    <div class="tsrc rise" style="--d:.3s"><div class="tsh">Watching</div><span>🏛️ GeM portal</span><span>📡 CPPP RSS feed</span><span>🗺️ State tender feeds</span></div>
+    <div class="tcard" id="tcard"><small id="tsrcl"></small><b id="ttitle"></b><span id="tbuyer"></span></div>
+    <div class="tbrain"><div class="tbh"><canvas class="bot" data-id="tenders" data-s="4" data-pose="type"></canvas><div><b>Tender Scout</b><span id="tthink">Waiting for the next tender…</span></div></div>
+      <ol class="tsteps" id="tsteps"><li><em>Read the scope</em><i></i></li><li><em>Digital work?</em><i></i></li><li><em>Match our skills</em><i></i></li><li><em>Decide, with a reason</em><i></i></li></ol></div>
+    <div class="tverdict" id="tverdict"><b></b><span></span><small></small></div>
+  </div>
+  <p class="note fade" style="--d:1s">Simulated on the home dashboard today · also callable as the <code>tenders_triage</code> tool over MCP.</p>
+  <i data-frag="1" data-hook="tender" data-i="1" hidden></i><i data-frag="2" data-hook="tender" data-i="2" hidden></i>
+</section>
+
+<section class="slide" id="finds" data-out="right">
+  <div class="kicker rise">A sample of the checks · real Allbirds run</div>
+  <h2 class="rise" style="--d:.1s">Evidence from outside, before we ever meet.</h2>
+  <div class="fx">
+    <div class="fl" id="fl"></div>
+    <div class="fp"><div class="fpi" id="fp"></div></div>
+  </div>
+  <i data-frag="1" data-hook="finds" data-i="1" hidden></i><i data-frag="2" data-hook="finds" data-i="2" hidden></i><i data-frag="3" data-hook="finds" data-i="3" hidden></i><i data-frag="4" data-hook="finds" data-i="4" hidden></i>
+  <i data-frag="5" data-hook="finds" data-i="5" hidden></i><i data-frag="6" data-hook="finds" data-i="6" hidden></i><i data-frag="7" data-hook="finds" data-i="7" hidden></i>
+</section>
+
+<!-- THE WEBSITE IS THE WAY IN: from what the agents read outside to the backend conversation with the CTO -->
+<section class="slide" id="depth" data-out="right">
+  <div class="kicker rise">Beyond the website</div>
+  <h2 class="rise" style="--d:.1s">The website is the way in. The backend is the business.</h2>
+  <div class="dp">
+    <div class="dpin rise" style="--d:.3s"><em>🌐</em><b>Website</b><span>the entry point</span></div>
+    <div class="dpar rise" style="--d:.5s"></div>
+    <div class="dpmid"><div class="dph rise" style="--d:.5s">What the agents read from outside</div>
+      <div class="dpk">
+        <span class="pop" style="--d:.7s">⚙️ Server &amp; language</span><span class="pop" style="--d:.8s">🔌 APIs &amp; third parties</span><span class="pop" style="--d:.9s">☁️ CDN &amp; hosting</span>
+        <span class="pop" style="--d:1s">🛒 Commerce platform</span><span class="pop" style="--d:1.1s">🧱 CMS</span><span class="pop" style="--d:1.2s">💳 Payments</span>
+        <span class="pop" style="--d:1.3s">📈 Analytics &amp; tags</span><span class="pop" style="--d:1.4s">📟 Monitoring</span><span class="pop" style="--d:1.5s">🛡️ Security &amp; consent</span>
+        <span class="pop" style="--d:1.6s">⚡ Performance</span><span class="pop" style="--d:1.7s">♿ Accessibility</span><span class="pop" style="--d:1.8s">🔎 AI search</span>
+      </div>
+      <div class="dpn fade" style="--d:2s"><b>132</b> technologies · <b>17</b> categories · from traffic, headers and code</div>
+    </div>
+    <div class="dpar ar2"></div>
+    <div class="dpout" data-frag="1"><div class="dph">Where the CTO conversation goes</div>
+      <div class="dpb"><span>☁️ Cloud infrastructure</span><span>🔀 Data pipelines</span><span>🚚 Logistics systems</span><span>🔗 ERP &amp; CRM integration</span><span>🛠️ DevOps &amp; SRE</span><span>🤖 AI &amp; data platforms</span><span>🔐 Cybersecurity</span><span>🏗️ Modernisation</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- 10 STACK -->
+<section class="slide" id="s10" data-out="up">
+  <div class="kicker rise">Their technology · real Allbirds run</div>
+  <h2 class="rise" style="--d:.1s">We read their network traffic like a flight recorder.</h2>
+  <div class="tiles" style="margin:.6rem 0 1rem">
+    <div class="tile pop" style="--d:.3s"><b data-count="389">389</b><span>requests</span></div>
+    <div class="tile pop" style="--d:.45s"><b data-count="9">9</b><span>technologies</span></div>
+    <div class="tile pop" style="--d:.6s"><b data-count="5">5</b><span>tools get customer data</span></div>
+    <div class="tile pop" style="--d:.75s"><b data-count="25">25</b><span>domains</span></div>
+  </div>
+  <div class="chipcloud" id="chips"></div>
+  <div class="card rise" style="--d:3.4s;margin-top:.8rem;border-left:4px solid var(--acc)"><b>Every technology is a way into a conversation:</b> <span class="muted">logistics, data, finance and cloud, mapped to our people and our in-house innovations.</span></div>
+</section>
+
+<!-- 11 DESIGN -->
+<section class="slide" id="s11" data-out="right">
+  <div class="kicker rise">The redesign · real Allbirds run</div>
+  <h2 class="rise" style="--d:.1s">Their own site, improved, before they sign.</h2>
+  <div class="row" style="align-items:flex-start;gap:1.6rem">
+    <div class="col" style="flex:2"><div class="cmp rise" style="--d:.3s" id="cmp"><img src="/web/assets/allbirds-after.jpg" alt="After: redesigned homepage"><img class="top" id="cmpTop" src="/web/assets/allbirds-before.jpg" alt="Before: current homepage"><div class="hd" id="cmpHd"></div><span class="lbl" style="left:.7rem">BEFORE</span><span class="lbl" style="right:.7rem">AFTER</span><input type="range" min="0" max="100" value="50" id="cmpRange" aria-label="Before and after"></div></div>
+    <div class="col" style="flex:1">
+      <div class="tile pop" style="--d:.8s;margin-bottom:.8rem"><b class="good"><span data-count="70">70</span> → <span data-count="98">98</span></b><span>accessibility score</span></div>
+      <div class="tile pop" style="--d:1s;margin-bottom:.8rem"><b class="good"><span data-count="87">87</span> → <span data-count="100">100</span></b><span>mobile score</span></div>
+      <p class="note fade" style="--d:1.3s">Built from their real colours, fonts and content, re-checked by the same inspectors. Designed by the model in about 40 seconds. Drag the slider.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 12 MATCH -->
+<section class="slide" id="s12" data-out="up">
+  <div class="kicker rise">The people · sample roster</div>
+  <h2 class="rise" style="--d:.1s">Real developers who are free <span class="grad">now</span>.</h2>
+  <div class="row" style="gap:2.5rem;margin-top:.6rem;align-items:flex-start">
+    <div class="ringwrap rise" style="--d:.2s;width:12rem;height:12rem"><svg viewBox="0 0 120 120"><circle cx="60" cy="60" r="52" fill="none" stroke="var(--inset)" stroke-width="12"/><circle class="ringfill" cx="60" cy="60" r="52" fill="none" stroke="var(--good)" stroke-width="12" stroke-linecap="round" stroke-dasharray="326.7" style="--c:326.7;--o:39.2"/></svg><div class="num" style="font-size:3.4rem"><div><span data-count="88">88</span><small>org match</small></div></div></div>
+    <div class="col">
+      <div class="rise" style="--d:.5s"><span class="chip strong">Next.js / React</span><span class="chip strong">UX / UI design</span><span class="chip strong">QA automation</span><span class="chip strong">Web performance</span><span class="chip gap">Gap: Shopify / commerce</span></div>
+      <div class="team" id="team" style="margin-top:.6rem"></div>
+      <p class="note fade" style="--d:2.6s;margin-top:.6rem">Names, skills and match scores come from a sample roster. With real HR data the match also gives effort and price.</p>
+    </div>
+  </div>
+</section>
+
+<!-- M8 SKILLS -> PEOPLE -> PMS -->
+<section class="slide" id="mapping" data-out="right">
+  <div class="kicker rise">From their stack to our people · real Allbirds run</div>
+  <h2 class="rise" style="--d:.1s">Every technology becomes a skill, a person and a plan.</h2>
+  <div class="mapgrid">
+    <div><div class="colh fade" style="--d:.2s">Found on their site</div>
+      <div class="cell rise" style="--d:.3s">Vue.js <small>front end</small></div><div class="cell rise" style="--d:.45s">Shopify <small>commerce</small></div><div class="cell rise" style="--d:.6s">GA4 + Tag Manager <small>analytics</small></div><div class="cell rise" style="--d:.75s">Cloudflare + Azure <small>CDN, cloud</small></div></div>
+    <div class="go fade" style="--d:1s"></div>
+    <div><div class="colh fade" style="--d:1.1s">Skill we need · our coverage</div>
+      <div class="cell partial rise" style="--d:1.2s">Vue / Nuxt <small>partial</small></div><div class="cell gap rise" style="--d:1.35s">Shopify / commerce <small>gap</small></div><div class="cell strong rise" style="--d:1.5s">Web analytics <small>strong</small></div><div class="cell strong rise" style="--d:1.65s">DevOps / CDN / cloud <small>strong</small></div></div>
+    <div class="go fade" style="--d:1.9s"></div>
+    <div><div class="colh fade" style="--d:2s">Who is free · from PMS</div>
+      <div class="cell rise" style="--d:2.1s">Available experts <small>named</small></div><div class="cell rise" style="--d:2.25s">Start dates <small>from roster</small></div><div class="cell rise" style="--d:2.4s">Organisation match <small>score</small></div><div class="cell pms rise" style="--d:2.55s">Billing forecast <small>next</small></div></div>
+  </div>
+  <div class="card rise" style="--d:2.9s;margin-top:.6rem;display:flex;gap:1.2rem;align-items:center">
+    <span style="font-size:2rem">🔌</span>
+    <div><b>Integrating with our project management system (PMS)</b><br><span class="muted">Live availability, skills and rates in; billing visible in advance, upcoming projects and staffing plans out. Today the roster is sample data behind an adapter, ready for PMS.</span></div>
+  </div>
+</section>
+
+<!-- M9 THE REPORT -->
+<section class="slide" id="report" data-out="swipe">
+  <div class="kicker rise">What it generates</div>
+  <h2 class="rise" style="--d:.1s">A report and a pitch, ready for review.</h2>
+  <div class="report">
+    <div class="card rise" style="--d:.3s"><h3>📋 Audit</h3>
+      <div class="row" style="gap:1rem"><div class="ringwrap" style="width:6.5rem;height:6.5rem"><svg viewBox="0 0 120 120"><circle cx="60" cy="60" r="52" fill="none" stroke="var(--inset)" stroke-width="12"/><circle class="ringfill" cx="60" cy="60" r="52" fill="none" stroke="var(--bad)" stroke-width="12" stroke-linecap="round" stroke-dasharray="326.7" style="--c:326.7;--o:117.6"/></svg><div class="num" style="font-size:2rem"><div><span data-count="64">64</span><small style="font-size:.6rem">grade D</small></div></div></div>
+      <div style="font-size:.88rem" class="muted">Speed, mobile, accessibility, UX and AI search, each with evidence and ranked fixes.</div></div></div>
+    <div class="card rise" style="--d:.5s"><h3>🎨 Redesign</h3><div class="thumbs"><img src="/web/assets/allbirds-before.jpg" alt="Before"><img src="/web/assets/allbirds-after.jpg" alt="After"></div><div style="font-size:.85rem;margin-top:.4rem" class="muted">Accessibility 70 → 98 · Mobile 87 → 100</div></div>
+    <div class="card rise" id="est" style="--d:.7s"><h3>💰 Estimate</h3><div class="est"><div>Team <b>named experts</b></div><div>Effort <b>person-days</b></div><div>Hours <b>per skill</b></div><div>Timeline <b>weeks</b></div><div>Cost <b>price range</b></div></div><div style="font-size:.78rem;margin-top:.4rem" class="muted">Computed from the findings and the rate card.</div></div>
+  </div>
+  <div class="row" style="margin-top:1rem;gap:1rem">
+    <div class="card pop col" style="--d:1.1s"><b>📊 Pitch deck</b> <span class="muted">PowerPoint, personalised to their site</span></div>
+    <div class="card pop col" style="--d:1.3s"><b>📝 Proposal</b> <span class="muted">Written, with scope and team</span></div>
+    <div class="card pop col" style="--d:1.5s"><b>🧑‍💼 Human review</b> <span class="muted">Nothing is sent without approval</span></div>
+  </div>
+</section>
+
+<!-- M10 COST OF ONE ANALYSIS -->
+<section class="slide" id="cost" data-out="up">
+  <div class="kicker rise">What one analysis costs</div>
+  <h2 class="rise" style="--d:.1s">Only the AI model costs money. Everything else is free.</h2>
+  <div class="cost">
+    <div class="card rise" style="--d:.3s"><h3>💳 Paid: model tokens</h3>
+      <div class="price">$2 <span class="muted" style="font-size:1rem;font-weight:600">per 1M input tokens</span></div>
+      <div class="price">$10 <span class="muted" style="font-size:1rem;font-weight:600">per 1M output tokens</span></div>
+      <p class="muted" style="margin:.4rem 0 0">Claude Sonnet 5.5. The dashboard now shows the tokens and cost of every agent, and the total for each run.</p></div>
+    <div class="card rise" style="--d:.6s"><h3>🆓 Free: everything else</h3>
+      <ul class="pts sm"><li>Lighthouse, Playwright and axe-core are open source</li><li>Tech detection reads network traffic locally</li><li>Replay of any past run costs nothing</li><li>Offline mode runs with no model at all</li></ul></div>
+  </div>
+  <div class="tiles" style="margin-top:1.1rem">
+    <div class="tile pop" style="--d:1s"><b>1.5–3 min</b><span>per run in our tests</span></div>
+    <div class="tile pop" style="--d:1.2s"><b>4</b><span>agents call the model; 7 use only tools</span></div>
+    <div class="tile pop" style="--d:1.4s"><b class="good">$0</b><span>to replay a saved run</span></div>
+  </div>
+</section>
+
+<!-- 13 DECK -->
+<section class="slide" id="s13" data-out="flip">
+  <div class="kicker rise">The pitch</div>
+  <h2 class="rise" style="--d:.1s">A deck ready for their CMO.</h2>
+  <div class="deckfan" id="fan" style="height:23rem"></div>
+  <p class="lead fade" style="--d:1.6s;text-align:center;margin:0 auto">9 slides plus a written proposal. Every number is read from the audit, the redesign and the match. <b>Nothing is sent until a human approves.</b></p>
+</section>
+
+<!-- 19 CLOSE -->
+<section class="slide" id="s19" style="align-items:center;text-align:center">
+  <div class="kicker rise">Nitro</div>
+  <h1 class="rise" style="--d:.15s;font-size:3.6rem">Great developers,<br>in front of every client.</h1>
+  <h2 class="rise grad" style="--d:1.1s;font-size:2.6rem">Every prospect sees their better website<br>before they sign.</h2>
+  <a class="btn pop" style="--d:2s" href="/" target="_blank">Watch it work, live →</a>
+  <div class="march" id="march2"></div>
+</section>
+
+<!-- APPENDIX DIVIDER -->
+<section class="slide dark divider" id="appendix" style="align-items:center;text-align:center">
+  <div class="kicker rise">Appendix</div>
+  <h1 class="rise" style="--d:.15s">More detail</h1>
+  <p class="lead rise" style="--d:.4s;margin:0 auto">Every pain point, each step of the run, the agent marketplace, the technology, trust, the roadmap and the full write-up.</p>
+</section>
+
+<!-- M11 IMPACT -> DEMO -->
+<section class="slide" id="impact" data-out="fade" style="align-items:center;text-align:center">
+  <div class="kicker rise">What this leads to</div>
+  <h2 class="rise" style="--d:.1s">From a few generic pitches to a pipeline of personal ones.</h2>
+  <div class="impact" style="text-align:left">
+    <div class="card rise" style="--d:.3s"><span class="ic">📈</span><h3>Reach many more</h3><p>Analyse and contact many more prospects, each with proof about their own site.</p></div>
+    <div class="card rise" style="--d:.5s"><span class="ic">🎯</span><h3>Better conversion</h3><p>Personal findings, a redesign and a named team instead of a generic deck.</p></div>
+    <div class="card rise" style="--d:.7s"><span class="ic">🧑‍💻</span><h3>Talent at work</h3><p>Available experts review, fine-tune and get matched to new projects.</p></div>
+    <div class="card rise" style="--d:.9s"><span class="ic">🤖</span><h3>Agents that scale</h3><p>An agent marketplace and agents that can run 24x7 in the background.</p></div>
+  </div>
+  <a class="demo" style="--d:1.4s" href="/" target="_blank">▶ Live demo: one real run</a>
+</section>
+
+<!-- 2 PAIN: UNALLOCATED TALENT -->
+<section class="slide" id="s2">
+  <div class="kicker rise">The problem · 1 of 6</div>
+  <h2 class="rise" style="--d:.1s">Our best people are waiting for their next project.</h2>
+  <div class="row" style="margin-top:1rem">
+    <div class="col">
+      <p class="lead rise" style="--d:.3s">Skilled developers between projects wait for work. That time is a <b class="bad">real cost</b>, and clients never see what these people can do.</p>
+      <div class="burn rise" style="--d:.4s"><i></i></div>
+      <ul class="pts x">
+        <li class="rise" style="--d:.6s">Skilled people wait instead of building</li>
+        <li class="rise" style="--d:.8s">Nothing they do is visible to clients</li>
+        <li class="rise" style="--d:1s">Every week of waiting is cost we never recover</li>
+      </ul>
+    </div>
+    <div class="col"><div class="sleepers" id="sleepers"></div></div>
+  </div>
+</section>
+
+<!-- 3 PAIN: PROPOSALS -->
+<section class="slide" id="s3">
+  <div class="kicker rise">The problem · 2 of 6</div>
+  <h2 class="rise" style="--d:.1s">Proposals are slow, generic, and rarely convert.</h2>
+  <div class="cal"><div style="--i:0"><span>1<small>find a lead</small></span></div><div style="--i:1"><span>2<small>research</small></span></div><div style="--i:2"><span>3<small>draft</small></span></div><div style="--i:3"><span>4<small>review</small></span></div><div style="--i:4"><span>5<small>send</small></span></div></div>
+  <div class="tiles">
+    <div class="tile pop" style="--d:3.2s"><b>Days</b><span>of senior time per proposal</span></div>
+    <div class="tile pop" style="--d:3.5s"><b>Few</b><span>proposals actually sent</span></div>
+    <div class="tile pop" style="--d:3.8s"><b class="bad">Rare</b><span>conversions</span></div>
+  </div>
+</section>
+
+<!-- 4 PAIN: GENERIC -->
+
+<!-- 3b PAIN: OUTREACH -->
+<section class="slide" id="s3b">
+  <div class="kicker rise">The problem · 3 of 6</div>
+  <h2 class="rise" style="--d:.1s">Reaching out is slow, and nobody knows where to aim.</h2>
+  <div class="grid3" style="margin-top:.8rem">
+    <div class="card pain rise" style="--d:.3s"><div class="x">✕</div><h3>📇 No contacts</h3><p>Who is the CTO? Who owns the website budget? Finding the right person takes days of digging, and the list is never ready.</p></div>
+    <div class="card pain rise" style="--d:.6s"><div class="x">✕</div><h3>🧭 No direction</h3><p>Which companies? Which angle? Every seller invents their own approach, and there is no shared playbook for what to say.</p></div>
+    <div class="card pain rise" style="--d:.9s"><div class="x">✕</div><h3>🐌 Slow reach-out</h3><p>By the time the research, the deck and the first email are done, the moment has passed and the prospect has moved on.</p></div>
+  </div>
+  <div class="lost" id="lost"></div>
+</section>
+
+<!-- 3d PAIN: SKILLS NOT MATCHED -->
+<section class="slide" id="s3d">
+  <div class="kicker rise">The problem · 5 of 6</div>
+  <h2 class="rise" style="--d:.1s">We rarely match the skills we have to the work we chase.</h2>
+  <div class="matchgrid">
+    <div><h4 class="fade" style="--d:.2s">What the client needs</h4><div id="needs"></div></div>
+    <div class="qmark fade" style="--d:1.4s">?</div>
+    <div><h4 class="fade" style="--d:.2s">Who is available with those skills</h4><div id="avail"></div></div>
+  </div>
+  <div class="grid3" style="margin-top:1rem">
+    <div class="card pain rise" style="--d:1.2s"><div class="x">✕</div><p><b>No live view</b> of who is available, with which skills.</p></div>
+    <div class="card pain rise" style="--d:1.5s"><div class="x">✕</div><p><b>Deals are chased</b> without knowing whether we can staff them.</p></div>
+    <div class="card pain rise" style="--d:1.8s"><div class="x">✕</div><p><b>The right people wait</b> while the right deals go elsewhere.</p></div>
+  </div>
+</section>
+
+<!-- PAIN SUMMARY -->
+<section class="slide" id="pain">
+  <div class="kicker rise">The problem · in short</div>
+  <h2 class="rise" style="--d:.1s">Pre-sales today is slow, costly and not personal.</h2>
+  <div class="grid3">
+    <div class="card rise" style="--d:.25s"><span class="ic">🐢</span><h3>Slow reach</h3><p>Finding a lead, researching and writing takes days. We reach only a few CTOs a month.</p></div>
+    <div class="card rise" style="--d:.4s"><span class="ic">💸</span><h3>Expensive</h3><p>Senior architects spend days on each pitch. Most pitches lose, and that time is never recovered.</p></div>
+    <div class="card rise" style="--d:.55s"><span class="ic">🪑</span><h3>Talent not used well</h3><p>Skilled developers between projects wait for work instead of building proof for the next client. Unallocated time is pure cost.</p></div>
+    <div class="card rise" style="--d:.7s"><span class="ic">📄</span><h3>Not personalised</h3><p>The same slides go to every client. Nothing about their site, their stack or their customers.</p></div>
+    <div class="card rise" style="--d:.85s"><span class="ic">🔁</span><h3>Does not scale</h3><p>Manual research means very few proposals go out, however many leads we have.</p></div>
+    <div class="card rise" style="--d:1s"><span class="ic">🤝</span><h3>No proof in the room</h3><p>In a CTO meeting we talk about skills. We cannot show, right then, what we would fix on their site.</p></div>
+  </div>
+  <div class="bottom alert fade" style="--d:1.5s">Result: fewer meetings, lower win rates, and unallocated capacity that keeps costing money.</div>
+</section>
+
+<!-- 8 FLOW -->
+<section class="slide" id="s8">
+  <div class="kicker rise">How it works</div>
+  <h2 class="rise" style="--d:.1s">One URL in. A send-ready pitch out.</h2>
+  <div class="flow">
+    <div class="step rise" style="--d:.3s"><div class="bots"><span style="font-size:2rem">🌐</span></div><h4>1 · Paste URL</h4><p>Checked to be a public site</p></div><div class="arrow"></div>
+    <div class="step rise" style="--d:.8s"><div class="bots"><canvas class="bot" data-id="lead" data-s="3" data-pose="walk"></canvas></div><h4>2 · Plan</h4><p>Coordinator picks the next step</p></div><div class="arrow"></div>
+    <div class="step rise" style="--d:1.3s"><div class="bots"><canvas class="bot" data-id="audit" data-s="2" data-pose="type"></canvas><canvas class="bot" data-id="tech" data-s="2" data-pose="type"></canvas><canvas class="bot" data-id="speed" data-s="2" data-pose="type"></canvas><canvas class="bot" data-id="mobile" data-s="2" data-pose="type"></canvas><canvas class="bot" data-id="a11y" data-s="2" data-pose="type"></canvas><canvas class="bot" data-id="ux" data-s="2" data-pose="type"></canvas><canvas class="bot" data-id="geo" data-s="2" data-pose="type"></canvas></div><h4>3 · Audit</h4><p>Seven checks in parallel</p></div><div class="arrow"></div>
+    <div class="step rise" style="--d:1.8s"><div class="bots"><canvas class="bot" data-id="redesign" data-s="3" data-pose="type"></canvas><canvas class="bot" data-id="bench" data-s="3" data-pose="type"></canvas></div><h4>4 · Build</h4><p>Redesign + team match</p></div><div class="arrow"></div>
+    <div class="step rise" style="--d:2.3s"><div class="bots"><canvas class="bot" data-id="deck" data-s="3" data-pose="type"></canvas></div><h4>5 · Write</h4><p>Deck and proposal</p></div><div class="arrow"></div>
+    <div class="step rise" style="--d:2.8s;border-color:var(--good)"><div class="bots"><span class="human">🧑‍💼</span></div><h4>6 · You review</h4><p>Nothing is sent without a human</p></div>
+  </div>
+  <p class="lead fade" style="--d:3.4s;margin-top:1.4rem">A full run takes about 1.5 to 3 minutes. Every step streams live to the screen.</p>
+</section>
+
+<!-- 9 AUDIT -->
+<section class="slide" id="s9">
+  <div class="kicker rise">1 · The audit · real run on allbirds.com</div>
+  <h2 class="rise" style="--d:.1s">A report card, with evidence.</h2>
+  <div class="row" style="margin-top:.6rem;gap:3rem">
+    <div class="ringwrap rise" style="--d:.2s"><svg viewBox="0 0 120 120"><circle cx="60" cy="60" r="52" fill="none" stroke="var(--inset)" stroke-width="12"/><circle class="ringfill" cx="60" cy="60" r="52" fill="none" stroke="var(--bad)" stroke-width="12" stroke-linecap="round" stroke-dasharray="326.7" style="--c:326.7;--o:117.6"/></svg><div class="num"><div><span data-count="64">64</span><small>/ 100 · grade D</small></div></div></div>
+    <div class="bars" id="bars"></div>
+  </div>
+  <div style="margin-top:1.1rem" class="fade" ><span class="chip" style="--d:1s">Lighthouse (speed)</span><span class="chip">axe-core (accessibility)</span><span class="chip">Playwright (mobile)</span><span class="chip">Vision model (UX)</span><span class="chip">Every finding carries its evidence</span></div>
+</section>
+
+<!-- PAIN -> ANSWER -->
+<section class="slide" id="answers">
+  <div class="kicker rise">Pain → answer</div>
+  <h2 class="rise" style="--d:.1s">Every pain, answered. Honestly.</h2>
+  <div class="ans" id="ans"></div>
+  <p class="note fade" style="--d:3.4s;margin-top:.8rem">Contact finding and outreach drafts are not built yet; they are the next items on the roadmap.</p>
+</section>
+
+<!-- FULL STACK -->
+<section class="slide" id="fullstack">
+  <div class="kicker rise">Insights across the stack</div>
+  <h2 class="rise" style="--d:.1s">From web front end to back end to DevOps.</h2>
+  <div class="grid3">
+    <div class="card rise" style="--d:.25s"><span class="ic">🖥️</span><h3>Web front end <span class="tag now">today</span></h3><p>Frameworks (React, Next.js, Vue), layout, mobile, accessibility, UX and design, with HTML improvements.</p></div>
+    <div class="card rise" style="--d:.4s"><span class="ic">🗄️</span><h3>Back end <span class="tag now">today</span><span class="tag next">deeper next</span></h3><p>Server languages (Java, .NET, Python, PHP), CMS and commerce platforms. Next: API speed, errors and caching.</p></div>
+    <div class="card rise" style="--d:.55s"><span class="ic">☁️</span><h3>DevOps and cloud <span class="tag now">today</span></h3><p>CDN, hosting and cloud (Cloudflare, Azure, AWS), plus security and cache headers. Next: TLS, HTTP/3, compression.</p></div>
+    <div class="card rise" style="--d:.7s"><span class="ic">⚡</span><h3>Performance first <span class="tag now">today</span></h3><p>Lighthouse and Core Web Vitals (LCP, CLS, TBT), heavy scripts and third-party weight. Every number is measured.</p></div>
+    <div class="card rise" style="--d:.85s"><span class="ic">🧪</span><h3>Quality and testing <span class="tag next">next</span></h3><p>Automated tests, agent-driven user journeys and checks across locales and languages.</p></div>
+    <div class="card rise" style="--d:1s"><span class="ic">🤖</span><h3>AI readiness <span class="tag now">today</span></h3><p>Visibility in AI search, structured data and llms.txt. If needed, a simple RAG chat demo built from their pages.</p></div>
+  </div>
+  <p class="lead fade" style="--d:1.5s;margin-top:1rem">One URL gives a full-stack view, and every insight is mapped to <b>our available experts</b> who can deliver it.</p>
+</section>
+
+<!-- JOURNEYS -->
+<section class="slide" id="journeys">
+  <div class="kicker rise">Automated tests and agent-driven journeys</div>
+  <h2 class="rise" style="--d:.1s">Agents use the site like a real customer.</h2>
+  <div class="flow" style="margin-top:.4rem">
+    <div class="step rise" style="--d:.3s"><div class="bots"><span style="font-size:1.8rem">🏠</span></div><h4>Home</h4><p>Page loads</p></div><div class="arrow"></div>
+    <div class="step rise" style="--d:.5s"><div class="bots"><span style="font-size:1.8rem">🔍</span></div><h4>Search</h4><p>Finds a product</p></div><div class="arrow"></div>
+    <div class="step rise" style="--d:.7s"><div class="bots"><span style="font-size:1.8rem">👟</span></div><h4>Product</h4><p>Options work</p></div><div class="arrow"></div>
+    <div class="step rise" style="--d:.9s;border-color:var(--bad)"><div class="bots"><span style="font-size:1.8rem">🛒</span></div><h4 class="bad">Cart ✕</h4><p>Example: button hidden on phones</p></div><div class="arrow"></div>
+    <div class="step rise" style="--d:1.1s"><div class="bots"><span style="font-size:1.8rem">💳</span></div><h4>Checkout</h4><p>Not reached</p></div>
+  </div>
+  <div class="row" style="margin-top:1.2rem;align-items:flex-start;gap:2rem">
+    <div class="col"><h3 style="margin:0 0 .5rem">Locales to test</h3><span class="chip">en-IN</span><span class="chip">hi-IN</span><span class="chip">en-US</span><span class="chip">de-DE</span><span class="chip">ja-JP</span><span class="chip">ar-AE (right-to-left)</span></div>
+    <div class="col"><ul class="pts">
+      <li class="rise" style="--d:1.4s">Each journey becomes an <b>automated Playwright test</b> the client keeps</li>
+      <li class="rise" style="--d:1.6s">Runs across <b>locales</b>: languages, currency, dates, right-to-left</li>
+      <li class="rise" style="--d:1.8s">Every step gets an <b>LLM score</b> with a reason and a screenshot</li>
+      <li class="rise" style="--d:2s">Shows exactly where real customers get stuck</li>
+    </ul><p class="note fade" style="--d:2.2s">Journey Runner, Test Writer and Locale Tester are the next agents in the marketplace.</p></div>
+  </div>
+</section>
+
+<!-- OUTPUTS -->
+<section class="slide" id="outputs">
+  <div class="kicker rise">What the prospect gets</div>
+  <h2 class="rise" style="--d:.1s">Not just a report: things they can use.</h2>
+  <div class="grid4">
+    <div class="card rise" style="--d:.25s"><span class="ic">⚖️</span><h3>LLM scores <span class="tag beta">beta</span></h3><p>Clear scores with reasons, using the same rubric for every site. Tools measure, the model judges design and clarity.</p></div>
+    <div class="card rise" style="--d:.4s"><span class="ic">🧱</span><h3>HTML improvements <span class="tag now">today</span></h3><p>A redesigned homepage in real HTML, built from their brand. Next: ready-to-paste fixes for each issue.</p></div>
+    <div class="card rise" style="--d:.55s"><span class="ic">💬</span><h3>Simple RAG chat <span class="tag next">if needed</span></h3><p>A small chat assistant built from their own pages, answering with source links. An AI feature they can try in the first meeting.</p></div>
+    <div class="card rise" style="--d:.7s"><span class="ic">📊</span><h3>Deck and proposal <span class="tag now">today</span></h3><p>A personalised pitch deck and proposal with a named team, effort and price.</p></div>
+  </div>
+  <div class="tiles" style="margin-top:1.2rem">
+    <div class="tile pop" style="--d:1s"><b class="good">1 URL</b><span>is all we need to start</span></div>
+    <div class="tile pop" style="--d:1.15s"><b>~<span data-count="3">3</span> min</b><span>for a full run</span></div>
+    <div class="tile pop" style="--d:1.3s"><b class="good">0</b><span>things sent without a human</span></div>
+  </div>
+</section>
+
+<!-- 14 OFFICE -->
+<section class="slide" id="s14">
+  <div class="row" style="gap:2.5rem">
+    <div class="col" style="flex:1.2"><div class="officeBox rise" style="--d:.2s"><canvas id="oc"></canvas><div class="plates" id="plates"></div><div class="officesign" id="sign">AI Agents Office</div></div></div>
+    <div class="col" style="flex:.8">
+      <div class="kicker rise">Watch it work</div>
+      <h2 class="rise" style="--d:.1s">The whole run, live.</h2>
+      <p class="lead rise" style="--d:.5s">Every tool call posts to the feed. Results land as cards. The agents hand work to each other, and the office shows who is busy.</p>
+      <p class="lead rise" style="--d:.8s">Every run is saved, so it can be <b>replayed for free</b>, at any speed.</p>
+      <p class="lead rise" style="--d:1.1s">At the end, the Coordinator asks a human to review.</p>
+    </div>
+  </div>
+</section>
+
+<!-- EXPERTS -->
+<section class="slide" id="experts">
+  <div class="kicker rise">Agents + people</div>
+  <h2 class="rise" style="--d:.1s">AI speed, combined with our amazing developers.</h2>
+  <div class="vs" style="margin-top:.6rem">
+    <div class="card rise" style="--d:.3s"><h3>🤖 The agents do the heavy lifting</h3><ul class="pts sm">
+      <li>Crawl, measure and test the site</li><li>Detect the full tech stack</li><li>Score, redesign and draft the pitch</li><li>Work 24x7, run after run</li></ul></div>
+    <div class="plus pop" style="--d:.8s">+</div>
+    <div class="card rise" style="--d:1s"><h3>🧑‍💻 Our experts fine-tune it</h3><ul class="pts sm">
+      <li>Check every finding and number</li><li>Add real project know-how</li><li>Adjust the plan, team and price</li><li>Own the conversation with the CTO</li></ul></div>
+  </div>
+  <div class="bottom fade" style="--d:1.6s;background:var(--hl)">= A pitch that is <span class="grad">fast, streamlined and fine-tuned</span>, with real experts behind every word.</div>
+</section>
+
+<!-- PEOPLE -->
+<section class="slide" id="people">
+  <div class="kicker rise">Engaging our people</div>
+  <h2 class="rise" style="--d:.1s">Every review puts an available expert to work.</h2>
+  <div class="flow" style="margin-top:.6rem">
+    <div class="step rise" style="--d:.3s"><div class="bots"><canvas class="bot" data-id="lead" data-s="3" data-pose="idle"></canvas></div><h4>Run finishes</h4><p>Report ready</p></div><div class="arrow"></div>
+    <div class="step rise" style="--d:.6s"><div class="bots"><canvas class="bot" data-id="bench" data-s="3" data-pose="type"></canvas></div><h4>Assigned</h4><p>To a free developer with the right skills</p></div><div class="arrow"></div>
+    <div class="step rise" style="--d:.9s"><div class="bots"><span class="human">🔔</span></div><h4>Notified</h4><p>Gets the review task</p></div><div class="arrow"></div>
+    <div class="step rise" style="--d:1.2s"><div class="bots"><span class="human">🧑‍💻</span></div><h4>Reviews</h4><p>Fine-tunes and signs off</p></div><div class="arrow"></div>
+    <div class="step rise" style="--d:1.5s;border-color:var(--good)"><div class="bots"><span class="human">🏆</span></div><h4>Credited</h4><p>Name on the pitch</p></div>
+  </div>
+  <ul class="pts" style="margin-top:1.2rem">
+    <li class="rise" style="--d:1.8s">Time between projects turns into <b>useful, visible work</b>, not waiting</li>
+    <li class="rise" style="--d:2s">Developers <b>learn new stacks</b> from real client sites</li>
+    <li class="rise" style="--d:2.2s">The client meets the <b>named expert</b> who reviewed their site</li>
+    <li class="rise" style="--d:2.4s">More engaged people, and a team ready to start on day one</li>
+  </ul>
+</section>
+
+<!-- CTO -->
+<section class="slide" id="cto">
+  <div class="kicker rise">Reaching CTOs</div>
+  <h2 class="rise" style="--d:.1s">Reach CTOs quickly, even during a live meeting.</h2>
+  <div class="tl">
+    <div class="rise" style="--d:.3s"><b class="t">0:00</b><h4>Meeting starts</h4><p>The CTO mentions their website or app.</p></div>
+    <div class="rise" style="--d:.6s"><b class="t">0:30</b><h4>Paste the URL</h4><p>Nitro starts while we keep talking.</p></div>
+    <div class="rise" style="--d:.9s"><b class="t">3:00</b><h4>Show results</h4><p>Score, tech stack and redesign on screen.</p></div>
+    <div class="rise" style="--d:1.2s"><b class="t">10:00</b><h4>Talk specifics</h4><p>Their real issues, our named team, a price range.</p></div>
+    <div class="rise" style="--d:1.5s"><b class="t">Next day</b><h4>Follow up</h4><p>Deck and proposal, reviewed by an expert.</p></div>
+  </div>
+  <ul class="pts" style="margin-top:1.4rem">
+    <li class="rise" style="--d:1.9s">Personal outreach to <b>many CTOs a week</b>, each about their own site</li>
+    <li class="rise" style="--d:2.1s">Proof in the room, not promises a week later</li>
+    <li class="rise" style="--d:2.3s">Saved runs <b>replay for free</b>, so a demo never depends on the network</li>
+  </ul>
+</section>
+
+<!-- ALWAYS ON -->
+<section class="slide" id="always">
+  <div class="kicker rise">Always on</div>
+  <h2 class="rise" style="--d:.1s">Agents that work in the background, 24x7.</h2>
+  <div class="row" style="gap:3rem;margin-top:.6rem">
+    <div class="clock pop" style="--d:.3s"><i class="h"></i><i class="m"></i></div>
+    <ul class="pts col">
+      <li class="rise" style="--d:.5s">Keep a <b>watchlist</b> of target accounts</li>
+      <li class="rise" style="--d:.7s">Re-check every site <b>overnight</b>, automatically</li>
+      <li class="rise" style="--d:.9s">Alert sales when a prospect's site <b>slows down, breaks or relaunches</b></li>
+      <li class="rise" style="--d:1.1s">A <b>morning digest</b>: the best leads, with the pitch already drafted</li>
+      <li class="rise" style="--d:1.3s">Every run is saved and can be reviewed or replayed later</li>
+    </ul>
+  </div>
+  <p class="lead fade" style="--d:1.8s;margin-top:1.2rem">The team sleeps. <span class="grad">The pipeline keeps growing.</span> <span class="note">(Night Watch agent, next in the marketplace.)</span></p>
+</section>
+
+<!-- SCALE -->
+<section class="slide" id="scale">
+  <div class="kicker rise">Effort saved</div>
+  <h2 class="rise" style="--d:.1s">Many more analyses, with far less effort.</h2>
+  <div class="vs" style="margin-top:.4rem;grid-template-columns:1fr 1fr">
+    <div class="card rise" style="--d:.3s"><h3 class="bad">Today: by hand</h3><ul class="pts x sm"><li>Open the site and check it manually</li><li>Guess the tech stack</li><li>Find who is free</li><li>Write the proposal from scratch</li><li>Takes <b>days</b> of senior time</li></ul></div>
+    <div class="card rise" style="--d:.6s"><h3 class="good">With Nitro</h3><ul class="pts sm"><li>Agents measure the site with real tools</li><li>Tech stack read from network traffic</li><li>Available experts matched automatically</li><li>Deck and proposal drafted</li><li>A run takes <b>minutes</b>; an expert reviews it</li></ul></div>
+  </div>
+  <div class="tiles" style="margin-top:1.2rem">
+    <div class="tile pop" style="--d:1.2s"><b>1.5–3 min</b><span>per run in our tests</span></div>
+    <div class="tile pop" style="--d:1.4s"><b>3</b><span>runs at the same time in the app</span></div>
+    <div class="tile pop" style="--d:1.6s"><b class="good">24x7</b><span>agents can keep running</span></div>
+  </div>
+</section>
+
+<!-- MARKETPLACE -->
+<section class="slide" id="market">
+  <div class="kicker rise">Agent marketplace · built in the app</div>
+  <h2 class="rise" style="--d:.1s">A marketplace of agents to showcase across the org.</h2>
+  <div class="mkmini" id="mkmini"></div>
+  <div class="row" style="margin-top:1rem;align-items:flex-start;gap:2rem">
+    <ul class="pts col">
+      <li class="rise" style="--d:1.2s">One catalogue of <b>every agent</b>: what it takes in, what it produces, how to showcase it</li>
+      <li class="rise" style="--d:1.4s">Teams <b>reuse agents</b> instead of rebuilding: <b>Connect</b> links any agent over MCP</li>
+      <li class="rise" style="--d:1.6s">Sales shows clients the agents live, by category: audit, test, build, people, sell, always on</li>
+    </ul>
+    <div class="card rise col" style="--d:1.8s;flex:.8"><h3>In the code</h3><p><code>config/marketplace.json</code> → <code>/api/marketplace</code> → <code>/marketplace.html</code>, with search and filters. Tests check every running agent is listed as live.</p></div>
+  </div>
+</section>
+
+<!-- 15 TECH -->
+<section class="slide" id="s15">
+  <div class="kicker rise">Under the hood</div>
+  <h2 class="rise" style="--d:.1s">Small, honest, and no build step.</h2>
+  <div class="grid3">
+    <div class="card rise" style="--d:.2s"><h3>Runtime</h3><span class="chip">TypeScript</span><span class="chip">Node.js 20</span><span class="chip">tsx</span><span class="chip">Server-Sent Events</span></div>
+    <div class="card rise" style="--d:.35s"><h3>Measuring the web</h3><span class="chip">Playwright</span><span class="chip">Lighthouse 12</span><span class="chip">axe-core</span><span class="chip">Chrome DevTools Protocol</span></div>
+    <div class="card rise" style="--d:.5s"><h3>The model</h3><span class="chip">Claude Sonnet 5.5</span><span class="chip">Anthropic Messages API</span><span class="chip">Streaming</span><span class="chip">Vision</span></div>
+    <div class="card rise" style="--d:.65s"><h3>Output</h3><span class="chip">pptxgenjs (PPTX)</span><span class="chip">Markdown proposal</span><span class="chip">Files in runs/</span></div>
+    <div class="card rise" style="--d:.8s"><h3>Interface</h3><span class="chip">Vanilla HTML/CSS/JS</span><span class="chip">Canvas pixel art</span><span class="chip">Light and dark themes</span></div>
+    <div class="card rise" style="--d:.95s"><h3>Quality</h3><span class="chip">Node test runner</span><span class="chip">Guardrailed planner</span><span class="chip">Offline fallbacks</span></div>
+  </div>
+  <div class="stat6">
+    <div class="pop" style="--d:1.2s"><b data-count="13">13</b><span>agents</span></div><div class="pop" style="--d:1.3s"><b data-count="12">12</b><span>skills</span></div><div class="pop" style="--d:1.4s"><b data-count="3">3</b><span>tools</span></div>
+    <div class="pop" style="--d:1.5s"><b data-count="132">132</b><span>tech signatures</span></div><div class="pop" style="--d:1.6s"><b data-count="43">43</b><span>logged decisions</span></div><div class="pop" style="--d:1.7s"><b data-count="49">49</b><span>tests</span></div>
+  </div>
+</section>
+
+<!-- 16 TRUST -->
+<section class="slide" id="s16">
+  <div class="kicker rise">Why you can trust it</div>
+  <h2 class="rise" style="--d:.1s">Models judge. Tools measure. Humans decide.</h2>
+  <div class="grid4">
+    <div class="card rise" style="--d:.3s"><h3>📏 Real numbers</h3><p>Speed, accessibility, traffic and technologies are measured by tools. Models only judge design and clarity. Findings carry evidence.</p></div>
+    <div class="card rise" style="--d:.5s"><h3>🛡️ Guardrails</h3><p>The planning model chooses the next step, but code enforces order, retry limits and a step budget. A bad answer falls back to rules.</p></div>
+    <div class="card rise" style="--d:.7s"><h3>🔌 Always works</h3><p>No model key or network? Offline mode still runs end to end. Any past run replays for free.</p></div>
+    <div class="card rise" style="--d:.9s"><h3>📓 Fully documented</h3><p>43 logged decisions, 49 tests, and tagged releases to fall back to: v0.1.0, v0.2.0, v0.2.1.</p></div>
+  </div>
+  <p class="lead fade" style="--d:1.5s;margin-top:1.2rem">Talent roster, org skills and pricing constants are labelled <b>sample data</b> until real data is connected.</p>
+</section>
+
+<!-- 17 ROI -->
+<section class="slide" id="s17">
+  <div class="kicker rise">The business case</div>
+  <h2 class="rise" style="--d:.1s">From very few proposals to a pipeline.</h2>
+  <div class="grid3">
+    <div class="card rise" style="--d:.25s"><span class="ic">📈</span><h3>More reach</h3><p>Many more prospects analysed and contacted, each with a pitch about their own site.</p></div>
+    <div class="card rise" style="--d:.4s"><span class="ic">🎯</span><h3>Better pitches</h3><p>Real findings, a redesign and a named team instead of a generic proposal.</p></div>
+    <div class="card rise" style="--d:.55s"><span class="ic">🧑‍💻</span><h3>Talent put to work</h3><p>Developers between projects review, fine-tune and get matched to new work.</p></div>
+  </div>
+  <div class="card rise" style="--d:.8s;margin-top:1rem"><h3>What we will measure</h3><span class="chip">Proposals sent per week</span><span class="chip">Replies from CTOs</span><span class="chip">Conversions</span><span class="chip">Revenue from new clients</span><span class="chip">Talent utilisation</span><span class="chip">Time from first contact to project start</span></div>
+  <p class="note fade" style="--d:1.2s;margin-top:.8rem">We do not claim numbers we have not measured yet. The app's ROI panel takes real figures once they are available.</p>
+</section>
+
+<!-- WHO WINS -->
+<section class="slide" id="who">
+  <div class="kicker rise">Who wins</div>
+  <h2 class="rise" style="--d:.1s">Good for everyone involved.</h2>
+  <div class="grid3">
+    <div class="card rise" style="--d:.25s"><span class="ic">📈</span><h3>Sales and pre-sales</h3><p>More pitches, faster, each one personal. Better meetings with CTOs.</p></div>
+    <div class="card rise" style="--d:.4s"><span class="ic">🧑‍💻</span><h3>Developers between projects</h3><p>Real work, new skills and their name on the pitch.</p></div>
+    <div class="card rise" style="--d:.55s"><span class="ic">🏗️</span><h3>Delivery heads</h3><p>Projects scoped from real data, with a team that is free now.</p></div>
+    <div class="card rise" style="--d:.7s"><span class="ic">💼</span><h3>Leadership and finance</h3><p>Lower unallocated cost, higher win rate, a pipeline that can be measured.</p></div>
+    <div class="card rise" style="--d:.85s"><span class="ic">🎯</span><h3>The client's CTO</h3><p>Free, useful insight on their own site, before signing anything.</p></div>
+    <div class="card rise" style="--d:1s"><span class="ic">🏢</span><h3>The organisation</h3><p>Shows our AI and engineering skill in every single pitch.</p></div>
+  </div>
+</section>
+
+<!-- 18 ROADMAP -->
+<section class="slide" id="s18">
+  <div class="kicker rise">What's next</div>
+  <h2 class="rise" style="--d:.1s">Built in a hackathon. Ready to grow.</h2>
+  <div class="road">
+    <div class="card now rise" style="--d:.3s"><h3 class="good">Now · v0.2.1</h3><ul><li>URL to audit, stack, redesign, team, deck</li><li>Planner-driven lead agent</li><li>Live feed, office and free replay</li><li>Review window</li><li>Agent marketplace</li></ul></div>
+    <div class="card rise" style="--d:.6s"><h3>Next</h3><ul><li>Agent-driven journeys and automated tests</li><li>Locale testing</li><li>LLM scores and HTML fixes for every finding</li><li>Back-end and DevOps inspectors</li><li>Real talent and skills data (HR adapter)</li><li>Review assignment and notifications</li></ul></div>
+    <div class="card later rise" style="--d:.9s"><h3>Later</h3><ul><li>24x7 background agents and watchlists</li><li>Simple RAG chat generator</li><li>Live-meeting assistant</li><li>CRM, approved send and win/loss loop</li><li>Multi-page redesign</li></ul></div>
+  </div>
+</section>
+
+<!-- RECAP -->
+<section class="slide" id="recap">
+  <div class="kicker rise">Nitro in one slide</div>
+  <h2 class="rise" style="--d:.1s">The whole idea, in short.</h2>
+  <div class="recap">
+    <b class="rise" style="--d:.2s">Problem</b><span class="rise" style="--d:.2s">Pre-sales is slow, expensive and generic, while skilled developers wait between projects.</span>
+    <b class="rise" style="--d:.35s">Solution</b><span class="rise" style="--d:.35s">Paste a URL. AI agents audit the site, read the tech stack, redesign the homepage, match our free people and write the pitch.</span>
+    <b class="rise" style="--d:.5s">How</b><span class="rise" style="--d:.5s">A coordinator agent plans the work. Tools measure (Lighthouse, axe-core, Playwright). The model judges and designs. A human approves.</span>
+    <b class="rise" style="--d:.65s">Proof</b><span class="rise" style="--d:.65s">Real runs on allbirds.com, stripe.com and Samsung India. Live feed, office view, free replay, review window.</span>
+    <b class="rise" style="--d:.8s">Impact</b><span class="rise" style="--d:.8s">Many more prospects analysed, personalised outreach to CTOs, better use of our talent, engaged employees.</span>
+    <b class="rise" style="--d:.95s">Next</b><span class="rise" style="--d:.95s">Agent journeys, automated tests, locale testing, HTML fixes, RAG chat, 24x7 agents, all in the agent marketplace.</span>
+  </div>
+  <div class="fade" style="--d:1.3s;margin-top:1.1rem"><span class="chip">Pre-sales automation</span><span class="chip">Multi-agent AI</span><span class="chip">Talent utilisation</span><span class="chip">Personalised pitches</span><span class="chip">Front end · back end · DevOps</span><span class="chip">Performance</span><span class="chip">LLM scores</span><span class="chip">Automated tests</span><span class="chip">Agent journeys</span><span class="chip">Locales</span><span class="chip">HTML improvements</span><span class="chip">RAG chat</span><span class="chip">24x7 agents</span><span class="chip">Agent marketplace</span><span class="chip">Human in the loop</span></div>
+</section>
+
+<div id="hud"><span id="count"></span><span>← → to move · F fullscreen · T theme</span><span><button id="trayBtn" title="Slides (G)">▤ Slides</button><button id="fs">Fullscreen</button></span></div>
+<div id="tray" aria-label="All slides"><div class="th"><span>Jump to a slide · G to open or close · Esc to close</span><button id="trayX" style="all:unset;cursor:pointer;font-size:1.1rem">✕</button></div><div class="tg" id="tg"></div></div>
+
+<script src="/web/sprites.js"></script>
+<script src="/web/office.js"></script>
+<script>
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const esc = (x) => String(x ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
+const slides = $$('.slide'); let idx = 0, token = 0;
+const IDS = ['lead', 'audit', 'tech', 'speed', 'mobile', 'a11y', 'ux', 'geo', 'redesign', 'bench', 'deck'];
+const TEAM = ['lead', 'research', 'tenders', ...IDS.slice(1)];
+const PERSONAS = {
+  research: ['Market Researcher', 'Reads the latest news on the company'], tenders: ['Tender Scout', 'Triages government tenders'],
+  lead: ['Coordinator', 'Plans and runs the whole job'], audit: ['Site Auditor', 'Checks the website'], tech: ['Tech Detector', 'Finds the technologies in use'], speed: ['Speed Tester', 'Measures page speed'],
+  mobile: ['Mobile Tester', 'Checks the site on a phone'], a11y: ['Accessibility Checker', 'Checks it works for everyone'], ux: ['UX Reviewer', 'Reviews usability and design'], geo: ['AI-Search Checker', 'Checks visibility in AI search'],
+  redesign: ['Designer', 'Builds the new homepage'], bench: ['Team Matcher', 'Finds our available people'], deck: ['Deck Writer', 'Writes the pitch deck and proposal'],
+};
+const el = (html) => { const t = document.createElement('div'); t.innerHTML = html.trim(); return t.firstElementChild; };
+const bot = (id, s = 4, pose = 'idle') => `<canvas class="bot" data-id="${id}" data-s="${s}" data-pose="${pose}"></canvas>`;
+
+// ── pixel robots: every canvas.bot is redrawn a few times a second (walk, type, blink) ──
+function drawBots() {
+  const t = performance.now();
+  for (const c of $$('canvas.bot')) {
+    const s = +c.dataset.s || 4; if (c.width !== BOT_W * s) { c.width = BOT_W; c.height = BOT_H; c.style.width = BOT_W * s + 'px'; c.style.height = BOT_H * s + 'px'; }
+    const g = c.getContext('2d'); g.clearRect(0, 0, BOT_W, BOT_H);
+    const blink = (Math.floor(t / 1000) + (c.dataset.id.length)) % 4 === 0 && t % 1000 < 160;
+    g.drawImage(botFrame(c.dataset.id, c.dataset.pose || 'idle', Math.floor(t / 230) % 2, blink), 0, 0);
+  }
+}
+setInterval(drawBots, 120);
+
+// ── count-up numbers ──
+function countUp(root) {
+  $$('[data-count]', root).forEach((n) => {
+    const to = +n.dataset.count, dec = +n.dataset.dec || 0, pre = n.dataset.prefix || '', suf = n.dataset.suffix || '', ind = n.dataset.indian, t0 = performance.now(), dur = 1600;
+    const fmt = (v) => pre + (ind ? new Intl.NumberFormat('en-IN').format(Math.round(v)) : v.toFixed(dec)) + suf;
+    const step = (now) => { const k = Math.min(1, (now - t0) / dur); n.textContent = fmt(to * (1 - (1 - k) ** 3)); if (k < 1) requestAnimationFrame(step); };
+    n.textContent = fmt(0); requestAnimationFrame(step);
+  });
+}
+
+// ── build the data-driven bits ──
+$('#march').innerHTML = IDS.map((id, i) => `<canvas class="bot" data-id="${id}" data-s="4" data-pose="walk" style="--d:${i * 0.9}s"></canvas>`).join('');
+$('#march2').innerHTML = IDS.map((id, i) => `<canvas class="bot" data-id="${id}" data-s="4" data-pose="walk" style="--d:${i * 0.9}s"></canvas>`).join('');
+$('#sleepers').innerHTML = Array.from({ length: 12 }, (_, i) => `<div class="sleeper rise" style="--d:${0.5 + i * 0.12}s">${bot(IDS[i % 11], 4, 'idle')}<i style="--z:${(i % 5) * 0.5}s">z</i></div>`).join('');
+$('#agents').innerHTML = TEAM.map((id, i) => `<div class="agent pop" style="--d:${0.3 + i * 0.1}s">${bot(id, 4, 'idle')}<div><b>${PERSONAS[id][0]}</b><span>${PERSONAS[id][1]}</span></div></div>`).join('')
+  + `<div class="agent sum pop" style="--d:${0.3 + TEAM.length * 0.1}s">13 agents<br>12 in every run · 1 finds tenders</div>`;
+$('#lost').innerHTML = ['lead', 'speed', 'ux'].map((id, i) => `<div class="fade" style="--d:${1.3 + i * .3}s">${bot(id, 4, 'idle')}<i style="--z:${i * .6}s">?</i></div>`).join('');
+$('#needs').innerHTML = ['Shopify', 'Accessibility', 'Web performance', 'Adobe Analytics'].map((n, i) => `<span class="chip need pop" style="--d:${.5 + i * .25}s">${n}</span>`).join('<br>');
+$('#avail').innerHTML = ['Java', 'Python', 'Next.js', 'Manual QA'].map((n, i) => `<span class="chip pop" style="--d:${.6 + i * .25}s">${n}</span>`).join('<br>');
+const ANS = [['Slow, expensive pitches', 'Agents do the research; experts only review', 'done', 'Today'], ['Talent between projects', 'Matches available developers to the job and shows the capacity put to work', 'done', 'Today'], ['Demos are slow to build', 'A redesigned homepage in about 40 seconds', 'done', 'Today'], ['Not personalised', 'Built from their own site, stack, colours and content', 'done', 'Today'], ['Skills not matched', 'Org match score, per-skill coverage, gaps and named people (sample data)', 'done', 'Today'], ['No proof in the room', 'Before and after on their own site, during the meeting', 'done', 'Today'], ['No direction', 'The audit gives a concrete, evidence-backed angle to open with', 'part', 'Partly'], ['No contacts', 'Contact finder and outreach drafts', 'next', 'Next']];
+$('#ans').innerHTML = '<div class="h">The pain</div><div class="h">What Nitro does</div><div class="h">Status</div>' + ANS.map(([p, a, c, t], i) => `<div class="p rise" style="--d:${.4 + i * .3}s">${p}</div><div class="a rise" style="--d:${.4 + i * .3}s">${a}</div><div class="rise" style="--d:${.4 + i * .3}s"><span class="stt ${c}">${t}</span></div>`).join('');
+const BARS = [['Speed', 40, 'F'], ['Mobile', 87, 'B'], ['Accessibility', 70, 'C'], ['UX', 60, 'D'], ['AI search', 62, 'D']];
+const tone = (g) => (/[AB]/.test(g) ? 'var(--good)' : g === 'C' ? 'var(--warn)' : 'var(--bad)');
+$('#bars').innerHTML = BARS.map(([n, v, g], i) => `<div class="brow rise" style="--i:${i};--d:${0.4 + i * 0.2}s"><b>${n}</b><div class="bar"><i style="--w:${v}%;--i:${i};background:${tone(g)}"></i></div><span data-count="${v}">${v}</span><span class="grade g${g}">${g}</span></div>`).join('');
+const TECH = [['Vue.js', 'partial', 'likely'], ['Shopify', '', ''], ['Google Analytics 4', 'strong', ''], ['Microsoft Clarity', '', ''], ['Google Tag Manager', 'strong', ''], ['Meta Pixel', '', ''], ['Google Ads', '', 'likely'], ['Cloudflare', 'strong', 'likely'], ['Microsoft Azure', 'strong', 'likely']];
+$('#chips').innerHTML = TECH.map(([n, st, lk], i) => `<span class="chip ${st} ${lk}" style="--i:${i}">${n}</span>`).join('');
+const DEVS = [['Aarav Mehta', 'Senior Frontend Engineer', 93, 'speed'], ['Dev Malhotra', 'Senior Frontend Engineer', 93, 'mobile'], ['Vikram Das', 'Design Systems Engineer', 82, 'ux'], ['Ananya Rao', 'UX Designer', 72, 'redesign'], ['Isha Patel', 'QA Automation Engineer', 72, 'a11y'], ['Zoya Ali', 'Accessibility Specialist', 71, 'geo']];
+$('#team').innerHTML = DEVS.map(([n, r, f, id], i) => `<div class="dev pop" style="--d:${1 + i * 0.25}s">${bot(id, 3, 'idle')}<div><b>${n}</b><span>${r}</span></div><em>${f}%</em></div>`).join('');
+// What it identifies: eight checks with real values from the Allbirds run (runs/mvo42yzqwy84).
+const RUN = '/runs/mvo42yzqwy84/';
+const ring = (v, color) => `<div class="ringwrap" style="width:9rem;height:9rem;flex:none"><svg viewBox="0 0 120 120"><circle cx="60" cy="60" r="52" fill="none" stroke="var(--inset)" stroke-width="12"/><circle cx="60" cy="60" r="52" fill="none" stroke="${color}" stroke-width="12" stroke-linecap="round" stroke-dasharray="326.7" stroke-dashoffset="${326.7 * (1 - v / 100)}" transform="rotate(-90 60 60)"/></svg><div class="num" style="font-size:2.6rem"><div>${v}</div></div></div>`;
+const FINDS = [
+  ['Backend & stack', 'Server, commerce, CDN, cloud', `<h3>9 technologies detected</h3><div class="sub">Read from network traffic, headers and cookies</div><div style="margin-top:.5rem">${[['Vue.js', 'partial'], ['Shopify', 'strong'], ['Google Analytics 4', 'strong'], ['Microsoft Clarity', ''], ['Google Tag Manager', 'strong'], ['Meta Pixel', ''], ['Google Ads', ''], ['Cloudflare', 'strong'], ['Microsoft Azure', 'strong']].map(([n, c]) => `<span class="chip ${c}">${n}</span>`).join('')}</div><div class="sub" style="margin-top:.7rem;font-weight:700">Quick ways into a backend conversation</div><div class="starts"><div><b>🚚 Logistics</b><span>Shopify orders → inventory and fulfilment</span></div><div><b>📊 Data</b><span>GA4 + Clarity + Tag Manager → one pipeline</span></div><div><b>💰 Finance</b><span>Checkout → payments and reconciliation</span></div><div><b>☁️ Cloud</b><span>Cloudflare + Azure → cost and resilience</span></div><div class="inno"><b>💡 Our in-house innovations</b><span>Mapped to their stack before the first meeting</span></div></div>`],
+  ['Customer data flows', 'Analytics, tags, pixels', `<h3>Customer data goes to 5 tools</h3><div class="sub">Every visit is sent to separate analytics, tag and ad tools, read from network traffic</div><div class="dflow"><span class="src">🧑‍💻</span><i class="ar"></i><div class="dst"><span>Google Analytics 4</span><span>Microsoft Clarity</span><span>Google Tag Manager</span><span>Meta Pixel</span><span>Google Ads</span></div><i class="ar"></i><div class="starts" style="grid-template-columns:1fr;margin:0;flex:1"><div><b>🔀 One data pipeline</b><span>Unify events into one customer view</span></div><div><b>🛡️ Consent and privacy</b><span>Who receives which data, and why</span></div><div><b>🤖 Data to AI</b><span>Use what they collect for real decisions</span></div></div></div>`],
+  ['Speed', 'Lighthouse and Core Web Vitals', `<h3>Speed: 40/100, grade F</h3><div class="sub">Lighthouse, mobile profile</div><div class="frow">${ring(40, 'var(--bad)')}<div class="fgrid" style="flex:1"><div><b>16.9 s</b><span>until the main content appears</span></div><div><b>703 ms</b><span>page blocked while loading</span></div><div><b>6.3 MB</b><span>page weight</span></div><div><b>0.008</b><span>layout shift (good)</span></div></div></div><ul class="flist"><li><span class="sev c">High</span>Reduce unused JavaScript: about 1.8 s to gain</li></ul>`],
+  ['Mobile', 'Layout, tap targets, text size', `<div class="frow"><img class="phone" src="${RUN}shot-mobile.png" alt="Allbirds on a phone"><div><h3>Mobile: 87/100, grade B</h3><div class="sub">Reloaded at phone size</div><div class="fgrid" style="grid-template-columns:1fr"><div><b>12 of 84</b><span>tap targets too small</span></div><div><b>2</b><span>blocks of text too small to read</span></div><div><b>0 px</b><span>horizontal overflow</span></div></div></div></div>`],
+  ['Accessibility', 'WCAG rules with axe-core', `<h3>Accessibility: 70/100, grade C</h3><div class="sub">3 rules failed, 2 of them critical</div><div class="frow">${ring(70, 'var(--warn)')}<ul class="flist" style="flex:1"><li><span class="sev c">Critical</span>Buttons must have discernible text</li><li><span class="sev c">Critical</span>Select element must have an accessible name</li><li><span class="sev m">Moderate</span>All content should be inside landmarks</li></ul></div>`],
+  ['UX and design', 'Vision model, fixed rubric', `<h3>UX: 60/100, grade D</h3><div class="sub">Weakest area: call-to-action clarity</div><div class="frow"><img class="shot" style="width:55%" src="${RUN}shot-desktop.png" alt="Allbirds homepage"><div class="rub" style="flex:1">${[['Visual hierarchy', 4], ['CTA clarity', 2], ['Navigation', 4], ['Trust signals', 3], ['Copy clarity', 2]].map(([n, v]) => `<span>${n}</span><i style="--v:${v}"></i><b>${v}/5</b>`).join('')}</div></div><ul class="flist"><li><span class="sev m">Medium</span>8 competing calls to action above the fold</li></ul>`],
+  ['AI-search visibility', 'Structured data, llms.txt', `<h3>AI search: 62/100, grade D</h3><div class="sub">Can AI assistants find and quote the site?</div><div class="frow">${ring(62, 'var(--bad)')}<ul class="flist" style="flex:1"><li><span class="sev c">Missing</span>No structured data (0 JSON-LD blocks)</li><li><span class="sev c">Missing</span>No schema types</li><li><span class="sev ok">Yes</span>llms.txt present</li><li><span class="sev ok">Yes</span>No AI crawlers blocked</li><li><span class="sev ok">4/5</span>Answerability</li></ul></div>`],
+  ['Brand kit', 'Colours, fonts, content', `<h3>Their brand, extracted</h3><div class="sub">Used to build the redesign in their own style</div><div class="sw"><div style="background:#000;color:#fff">#000000</div><div style="background:#ece9e2">#ece9e2</div></div><div class="fgrid"><div><b style="font-size:1.3rem">Geograph</b><span>typeface</span></div><div><b style="font-size:1.3rem">Shop All</b><span>main call to action</span></div></div><p style="margin:.8rem 0 0;font-size:1.4rem;font-weight:800">"Wildly Comfortable. Super Natural."</p><span class="muted" style="font-size:.8rem">hero copy</span>`],
+];
+$('#fl').innerHTML = FINDS.map(([t, d], i) => `<div class="fr" data-k="${i}"><small>${String(i + 1).padStart(2, '0')}</small><div><b>${t}</b><span>${d}</span></div></div>`).join('');
+let findAt = -1;
+function showFind(i, instant) {
+  $$('#fl .fr').forEach((r) => r.classList.toggle('on', +r.dataset.k === i));
+  const p = $('#fp'); if (i === findAt && !instant) return; findAt = i;
+  if (instant) { p.innerHTML = FINDS[i][2]; return; }
+  p.animate([{ transform: 'rotateY(0)', opacity: 1 }, { transform: 'rotateY(90deg)', opacity: 0.4 }], { duration: 220, easing: 'ease-in' }).onfinish = () => {
+    p.innerHTML = FINDS[i][2];
+    p.animate([{ transform: 'rotateY(-90deg)', opacity: 0.4 }, { transform: 'none', opacity: 1 }], { duration: 300, easing: 'ease-out' });
+  };
+}
+
+// Tender Scout slide: a tender arrives from a feed, the agent works through its checks one by one, then decides.
+const TENDERS = [
+  { src: 'GeM portal', buyer: 'Ministry of Electronics and IT', title: 'Website revamp and GIGW accessibility audit', fit: true,
+    steps: ['Website revamp + accessibility audit', 'Yes: web and compliance work', 'Web ✓  Accessibility ✓', 'Relevant'], why: 'Matches web and accessibility', next: 'Sent to the agents, like a website' },
+  { src: 'CPPP RSS feed', buyer: 'Delhi Metro Rail Corporation', title: 'Civil works for depot expansion', fit: false,
+    steps: ['Construction of a depot', 'No: civil works', 'No skills we offer', 'Not relevant'], why: 'Civil works, not digital', next: 'Dropped, with the reason logged' },
+  { src: 'CPPP RSS feed', buyer: 'Indian Railways (IRCTC)', title: 'Booking app speed and mobile upgrade', fit: true,
+    steps: ['Mobile app + performance', 'Yes: app and web work', 'Mobile ✓  Performance ✓', 'Relevant'], why: 'Matches mobile and performance', next: 'Sent to the agents, like a website' },
+];
+let tenderTimers = [];
+function runTender(i, instant) {
+  tenderTimers.forEach(clearTimeout); tenderTimers = [];
+  const t = TENDERS[i], card = $('#tcard'), steps = $$('#tsteps li'), v = $('#tverdict');
+  $('#tsrcl').textContent = `New tender · ${t.src}`; $('#ttitle').textContent = t.title; $('#tbuyer').textContent = t.buyer;
+  steps.forEach((li) => { li.className = ''; li.querySelector('i').textContent = ''; });
+  v.className = 'tverdict'; card.className = 'tcard';
+  const mark = (k) => ((k === 1 || k === 2) && !t.fit ? 'no' : 'ok');
+  const verdict = () => { v.querySelector('b').textContent = t.fit ? '✓ Relevant' : '✕ Not relevant'; v.querySelector('span').textContent = t.why; v.querySelector('small').textContent = t.next; v.className = 'tverdict on ' + (t.fit ? 'fit' : 'skip'); $('#tthink').textContent = t.fit ? 'Handing it to the team.' : 'Not for us. Moving on.'; };
+  if (instant) { card.style.animationDuration = '0s'; card.className = 'tcard in'; steps.forEach((li, k) => { li.className = mark(k); li.querySelector('i').textContent = t.steps[k]; }); return verdict(); }
+  card.style.animationDuration = ''; void card.offsetWidth; card.className = 'tcard in';
+  const THINK = ['Reading the scope…', 'Is this digital work?', 'Checking our skills…', 'Deciding…'];
+  steps.forEach((li, k) => {
+    tenderTimers.push(setTimeout(() => { li.className = 'run'; $('#tthink').textContent = THINK[k]; }, 700 + k * 900));
+    tenderTimers.push(setTimeout(() => { li.className = mark(k); li.querySelector('i').textContent = t.steps[k]; }, 1300 + k * 900));
+  });
+  tenderTimers.push(setTimeout(verdict, 1300 + 3 * 900 + 300));
+}
+
+// The pitch deck, as five mini slides with real content from the Allbirds run.
+const MINI = [
+  ['Your site today', '<div class="mring"><b>64</b><span>/ 100 · grade D</span></div>'],
+  ['What is costing you customers', [['Speed', 40], ['UX', 60], ['AI search', 62]].map(([n, v]) => `<div class="mbar"><span>${n}</span><i style="--w:${v}%"></i><b>${v}</b></div>`).join('')],
+  ['Before and after', '<div class="mthumbs"><img src="/web/assets/allbirds-before.jpg" alt=""><img src="/web/assets/allbirds-after.jpg" alt=""></div><div class="mnote">Accessibility 70 → 98</div>'],
+  ['Why us', `<div class="mbots">${['speed', 'mobile', 'ux', 'redesign'].map((id) => bot(id, 2, 'idle')).join('')}</div><div class="mnote"><b>88/100</b> organisation match</div>`],
+  ['The plan', '<div class="mlines"><div>Team <b>named</b></div><div>Effort <b>person-days</b></div><div>Timeline <b>weeks</b></div><div>Price <b>range</b></div></div>'],
+];
+$('#fan').innerHTML = MINI.map(([t, body], i) => `<div class="sl" data-i="${i}" style="z-index:${i};transform:translate(-50%,-50%) rotate(${(i - 2) * 2}deg)"><div class="slh"><span>${i + 1}</span>${t}</div><div class="slb">${body}</div></div>`).join('');
+function fanOut(on) { $$('#fan .sl').forEach((c, i) => { c.style.transform = on ? `translate(calc(-50% + ${(i - 2) * 12.6}rem), calc(-50% + ${Math.abs(i - 2) * 0.9}rem)) rotate(${(i - 2) * 4}deg)` : `translate(-50%,-50%) rotate(${(i - 2) * 2}deg)`; }); }
+// Marketplace slide: the same catalogue the app serves at /api/marketplace (fallback list if the API is not reachable).
+const MK_FALLBACK = IDS.map((id) => ({ id, name: PERSONAS[id][0], emoji: '', status: 'live' }));
+function renderMarket(list) { $('#mkmini').innerHTML = list.map((a, i) => `<div class="${a.status} pop" style="--d:${0.2 + i * 0.04}s">${SPECS[a.id] ? bot(a.id, 2, 'idle') : `<span>${a.emoji}</span>`}${a.name}</div>`).join(''); }
+renderMarket(MK_FALLBACK);
+fetch('/api/marketplace').then((r) => r.json()).then((m) => renderMarket(m.agents)).catch(() => {});
+
+// ── before/after slider that sweeps on its own until touched ──
+let sweepOn = true;
+function setCmp(v) { $('#cmpTop').style.clipPath = `inset(0 ${100 - v}% 0 0)`; $('#cmpHd').style.left = v + '%'; $('#cmpRange').value = v; }
+$('#cmpRange').addEventListener('input', (e) => { sweepOn = false; setCmp(+e.target.value); });
+setInterval(() => { if (sweepOn && slides[idx].id === 's11') setCmp(50 + Math.sin(performance.now() / 1100) * 46); }, 40);
+
+// ── the turn: lines and the bang ──
+function bang() {
+  $('#flash').classList.remove('go'); void $('#flash').offsetWidth; $('#flash').classList.add('go');
+  document.body.classList.add('shake'); setTimeout(() => document.body.classList.remove('shake'), 700);
+  [0, 0.15, 0.3].forEach((d) => { const r = document.createElement('div'); r.className = 'ring go'; r.style.setProperty('--d', d + 's'); document.body.appendChild(r); setTimeout(() => r.remove(), 2200); });
+}
+// The "What if" slide is driven by clicks: line one, line two, then the bang.
+function whatIfBang(my) {
+  $('#t2').classList.add('off');
+  setTimeout(() => { if (my !== token) return; bang(); setTimeout(() => { if (my === token) go(idx + 1); }, 700); }, 350);
+}
+
+// ── the bang slide: robots burst out around the URL bar ──
+function burst() {
+  const host = $('#burst'); host.innerHTML = IDS.map((id) => `<canvas class="bot" data-id="${id}" data-s="5" data-pose="cheer" style="transform:translate(-50%,-50%) scale(0);opacity:0"></canvas>`).join('');
+  drawBots();
+  setTimeout(() => $$('canvas', host).forEach((c, i) => { const a = (i / 11) * Math.PI * 2 - Math.PI / 2, rx = host.clientWidth * 0.36, ry = host.clientHeight * 0.34; c.style.opacity = 1; c.style.transform = `translate(calc(-50% + ${Math.cos(a) * rx}px), calc(-50% + ${Math.sin(a) * ry}px)) scale(1)`; }), 2900);
+}
+
+// ── the live office slide: a scripted run drives the same office used in the app ──
+let office = null, officeTimer = null;
+function officeScript() {
+  const E = (from, kind, extra = {}) => ({ from, kind, ...extra });
+  const T = (from, n) => [E(from, 'tool_start', { tool: { callId: from + n, name: 'x' } }), 'wait', E(from, 'tool_end', { tool: { callId: from + n, name: 'x', ok: true } })];
+  return [E('lead', 'plan', { to: 'all' }), 'wait', E('lead', 'handoff', { to: 'audit' }), ...T('audit', 1), E('audit', 'handoff', { to: 'all' }),
+    E('speed', 'tool_start', { tool: { callId: 's1' } }), E('mobile', 'tool_start', { tool: { callId: 'm1' } }), E('a11y', 'tool_start', { tool: { callId: 'a1' } }), E('tech', 'tool_start', { tool: { callId: 't1' } }), E('ux', 'tool_start', { tool: { callId: 'u1' } }), E('geo', 'tool_start', { tool: { callId: 'g1' } }), 'wait', 'wait',
+    E('mobile', 'tool_end', { tool: { callId: 'm1', ok: true } }), E('a11y', 'tool_end', { tool: { callId: 'a1', ok: true } }), E('tech', 'tool_end', { tool: { callId: 't1', ok: true } }), 'wait', E('ux', 'tool_end', { tool: { callId: 'u1', ok: true } }), E('geo', 'tool_end', { tool: { callId: 'g1', ok: true } }), E('speed', 'tool_end', { tool: { callId: 's1', ok: true } }), 'wait',
+    E('lead', 'handoff', { to: 'redesign' }), E('lead', 'handoff', { to: 'bench' }), E('redesign', 'tool_start', { tool: { callId: 'r1' } }), E('bench', 'tool_start', { tool: { callId: 'b1' } }), 'wait', 'wait', 'wait', E('bench', 'tool_end', { tool: { callId: 'b1', ok: true } }), 'wait', E('redesign', 'tool_end', { tool: { callId: 'r1', ok: true } }), E('redesign', 'question', { to: 'audit' }), 'wait', 'wait',
+    E('lead', 'handoff', { to: 'deck' }), E('deck', 'tool_start', { tool: { callId: 'd1' } }), 'wait', 'wait', E('deck', 'tool_end', { tool: { callId: 'd1', ok: true } }), 'wait', E('lead', 'done'), 'wait', 'wait', 'wait', 'wait', 'wait'];
+}
+function startOffice() {
+  if (!office) {
+    const p = Object.fromEntries(IDS.map((id) => [id, { name: PERSONAS[id][0] }]));
+    office = new OFFICE($('#oc'), $('#plates'), p, $('#sign'));
+  }
+  office.resize(); office.reset(); office.start();
+  const seq = officeScript(); let i = 0; clearInterval(officeTimer);
+  officeTimer = setInterval(() => { const x = seq[i++ % seq.length]; if (i % seq.length === 0) office.reset(); if (x !== 'wait') office.handle(x); }, 750);
+}
+function stopOffice() { clearInterval(officeTimer); if (office) office.running = false; }
+
+// ── navigation ──
+let timers = [];
+function typeWriter(root) {
+  $$('.typed', root).forEach((n) => { const text = n.dataset.type, my = token, delay = +n.dataset.delay || 600; n.textContent = ''; let i = 0;
+    const tick = () => { if (my !== token) return; n.textContent = text.slice(0, ++i); if (i < text.length) setTimeout(tick, 55); };
+    setTimeout(tick, delay); });
+}
+// Slide hooks are keyed by slide id, so slides can be added or moved freely.
+function onEnter(n, back = false) {
+  const s = slides[n]; countUp(s); token++; typeWriter(s); initFrags(s, back);
+  if (s.id === 's6') burst();
+  if (s.id === 's13') setTimeout(() => fanOut(true), 700);
+  if (s.id === 's14') startOffice();
+  if (s.id === 's11') { sweepOn = true; }
+}
+// The main track ends at the appendix divider; the counter shows where we are in each part.
+const MAIN = slides.findIndex((x) => x.id === 'appendix');
+function counter(i) { return i < MAIN ? `${i + 1} / ${MAIN}` : i === MAIN ? '<small>Appendix</small>' : `<small>Appendix</small>${i - MAIN} / ${slides.length - MAIN - 1}`; }
+function onLeave(n) { const id = slides[n].id; if (id === 's4') { inboxTimers.forEach(clearTimeout); flyer?.remove(); flyer = null; } if (id === 's14') stopOffice(); if (id === 's13') fanOut(false); if (id === 's6') $('#burst').innerHTML = ''; }
+// ── click-by-click builds: elements with data-frag appear one per click, in order ──
+let frags = [], shown = 0;
+const HOOKS = { turn2: () => $('#t1').classList.add('off'), bang: () => whatIfBang(token), inbox: () => toInbox(token), finds: (f, instant) => showFind(+f.dataset.i, instant), tender: (f, instant) => runTender(+f.dataset.i, instant) };
+const UNHOOKS = { turn2: () => $('#t1').classList.remove('off'), inbox: () => fromInbox(), finds: (f) => showFind(+f.dataset.i - 1), tender: (f) => runTender(+f.dataset.i - 1, true) };
+const NO_REPLAY = new Set(['bang', 'inbox']); // never re-run these when coming back to a slide
+function initFrags(slide, back) {
+  frags = [...slide.querySelectorAll('[data-frag]')].sort((a, b) => a.dataset.frag - b.dataset.frag);
+  frags.forEach((f) => f.classList.remove('on', 'off')); shown = 0;
+  if (slide.id === 's4') fromInbox();
+  if (slide.id === 'finds') showFind(0, true);
+  if (slide.id === 'tenders') { if (back) runTender(0, true); else setTimeout(() => { if (slides[idx] === slide) runTender(0); }, 500); }
+  // Coming back to a slide shows it fully built (but never re-runs the bang or the inbox move).
+  if (back) for (const f of frags) { if (NO_REPLAY.has(f.dataset.hook)) break; f.classList.add('on'); HOOKS[f.dataset.hook]?.(f, true); shown++; }
+}
+function advance() { if (shown < frags.length) { const f = frags[shown++]; f.classList.add('on'); HOOKS[f.dataset.hook]?.(f); } else go(idx + 1); }
+function retreat() { if (shown > 0) { const f = frags[--shown]; f.classList.remove('on'); UNHOOKS[f.dataset.hook]?.(f); } else go(idx - 1); }
+
+// ── canvas-like transitions: each slide says how it leaves (data-out): pan up, pan right, flip,
+// zoom into an element (data-zoom), or fade. Going back plays the same move in reverse. ──
+const DUR = 900, P = 'perspective(1800px) ';
+let finishTransition = null;
+function zoomOrigin(slide) {
+  const t = slide.dataset.zoom && slide.querySelector(slide.dataset.zoom); if (!t) return '50% 50%';
+  const a = t.getBoundingClientRect(), b = slide.getBoundingClientRect();
+  return `${a.left - b.left + a.width / 2}px ${a.top - b.top + a.height / 2}px`;
+}
+function moves(type, fwd, from, to) {
+  const f = (x, y) => (fwd ? x : y);
+  switch (type) {
+    case 'up': return { toStart: f('translateY(100%)', 'translateY(-100%)'), fromEnd: f('translateY(-100%)', 'translateY(100%)'), fade: false };
+    case 'right': return { toStart: f('translateX(100%)', 'translateX(-100%)'), fromEnd: f('translateX(-100%)', 'translateX(100%)'), fade: false };
+    case 'flip': return { toStart: P + f('rotateY(90deg)', 'rotateY(-90deg)'), fromEnd: P + f('rotateY(-90deg)', 'rotateY(90deg)'), fade: true };
+    case 'zoom': return fwd
+      ? { toStart: 'scale(.85)', fromEnd: 'scale(7)', fromOrigin: zoomOrigin(from), fade: true }
+      : { toStart: 'scale(7)', toOrigin: zoomOrigin(to), fromEnd: 'scale(.85)', fade: true };
+    default: return { toStart: 'none', fromEnd: 'none', fade: true };
+  }
+}
+// Email slide, on click: the content pans away, the email card flies into the client's inbox and
+// lands on top of other unread vendor proposals. The next click moves on.
+let inboxTimers = [], flyer = null;
+function toInbox(my) {
+  const sl = $('#s4'), mail = sl.querySelector('.mail'), stage = sl.querySelector('.inboxstage'), r = mail.getBoundingClientRect();
+  fromInbox(); stage.classList.add('on');
+  flyer = mail.cloneNode(true); flyer.classList.add('flyer');
+  Object.assign(flyer.style, { left: r.left + 'px', top: r.top + 'px', width: r.width + 'px', height: r.height + 'px' });
+  flyer.querySelectorAll('p').forEach((p) => { p.style.animation = 'none'; p.style.width = 'auto'; });
+  const st = flyer.querySelector('.stamp'); if (st) { st.style.animation = 'none'; st.style.opacity = '.9'; st.style.transform = 'rotate(-12deg)'; }
+  document.body.appendChild(flyer); sl.classList.add('panned');
+  const at = (ms, fn) => inboxTimers.push(setTimeout(() => { if (my === token) fn(); }, ms));
+  at(900, () => {
+    const row = stage.querySelector('.ir:not(.new)').getBoundingClientRect(), m = flyer.getBoundingClientRect(), k = row.width / m.width;
+    flyer.animate([
+      { transform: 'none', opacity: 1 },
+      { transform: `translate(${(row.left - m.left) * 0.5}px, ${(row.top - m.top) * 0.5 - 70}px) scale(${(1 + k) / 2}) rotate(-4deg)`, opacity: 1, offset: 0.55 },
+      { transform: `translate(${row.left - m.left}px, ${row.top - m.top}px) scale(${k}, ${row.height / m.height})`, opacity: 0 },
+    ], { duration: 1500, easing: 'cubic-bezier(.45,0,.55,1)', fill: 'forwards' });
+  });
+  at(2400, () => { stage.querySelector('.ir.new').classList.add('on'); flyer?.remove(); flyer = null; const b = stage.querySelector('.ibb i'); b.textContent = '6'; b.classList.add('bump'); setTimeout(() => b.classList.remove('bump'), 260); });
+  at(2800, () => stage.classList.add('cap'));
+}
+function fromInbox() {
+  inboxTimers.forEach(clearTimeout); inboxTimers = []; flyer?.remove(); flyer = null;
+  const sl = $('#s4'), stage = sl.querySelector('.inboxstage'); sl.classList.remove('panned');
+  stage.classList.remove('on', 'cap'); stage.querySelector('.ir.new').classList.remove('on'); stage.querySelector('.ibb i').textContent = '5';
+}
+// Swipe: a pixel robot walks across the screen and wipes the next slide into view.
+function swipe(from, to, fwd, finish) {
+  const D = 1300, edge = fwd ? ['inset(0 0 0 100%)', 'inset(0 0 0 0)'] : ['inset(0 100% 0 0)', 'inset(0 0 0 0)'];
+  const away = fwd ? ['inset(0 0 0 0)', 'inset(0 100% 0 0)'] : ['inset(0 0 0 0)', 'inset(0 0 0 100%)']; // the old slide is cut away in step
+  const bot = document.createElement('div'); bot.className = 'swiper';
+  bot.innerHTML = `<canvas class="bot" data-id="redesign" data-s="9" data-pose="walk" style="transform:scaleX(${fwd ? -1 : 1})"></canvas><i></i>`;
+  document.body.appendChild(bot); drawBots();
+  to.style.transition = 'none'; to.style.clipPath = edge[0]; to.style.zIndex = 2; to.classList.add('active');
+  from.style.transition = 'none'; from.style.clipPath = away[0];
+  bot.style.left = fwd ? '100%' : '0%'; void to.offsetWidth;
+  to.style.transition = `clip-path ${D}ms linear`; to.style.clipPath = edge[1];
+  from.style.transition = `clip-path ${D}ms linear`; from.style.clipPath = away[1];
+  bot.style.transition = `left ${D}ms linear`; bot.style.left = fwd ? '0%' : '100%';
+  const done = () => { clearTimeout(timer); finishTransition = null; bot.remove(); from.classList.remove('active'); from.style.transition = ''; from.style.clipPath = ''; to.style.transition = ''; to.style.clipPath = ''; to.style.zIndex = ''; finish?.(); };
+  const timer = setTimeout(done, D + 60); finishTransition = done;
+}
+// Rocket curtain: a rocket flies left to right and its flame trail draws the next slide in behind it (reversed going back).
+function rocket(from, to, fwd, finish) {
+  const D = 1150, ease = 'cubic-bezier(.6,0,.4,1)';
+  const show = fwd ? ['inset(0 100% 0 0)', 'inset(0 0 0 0)'] : ['inset(0 0 0 100%)', 'inset(0 0 0 0)'];
+  const hide = fwd ? ['inset(0 0 0 0)', 'inset(0 0 0 100%)'] : ['inset(0 0 0 0)', 'inset(0 100% 0 0)'];
+  const r = document.createElement('div'); r.className = 'rk' + (fwd ? '' : ' back');
+  r.innerHTML = '<i class="edge"></i><i class="trail"></i><b>🚀</b>';
+  document.body.appendChild(r);
+  to.style.transition = 'none'; to.style.clipPath = show[0]; to.style.zIndex = 2; to.classList.add('active');
+  from.style.transition = 'none'; from.style.clipPath = hide[0];
+  r.style.left = fwd ? '0%' : '100%'; void to.offsetWidth;
+  to.style.transition = `clip-path ${D}ms ${ease}`; to.style.clipPath = show[1];
+  from.style.transition = `clip-path ${D}ms ${ease}`; from.style.clipPath = hide[1];
+  r.style.transition = `left ${D}ms ${ease}`; r.style.left = fwd ? '100%' : '0%';
+  const done = () => { clearTimeout(timer); finishTransition = null; r.remove(); from.classList.remove('active'); from.style.transition = ''; from.style.clipPath = ''; to.style.transition = ''; to.style.clipPath = ''; to.style.zIndex = ''; finish?.(); };
+  const timer = setTimeout(done, D + 80); finishTransition = done;
+}
+function go(n) {
+  n = Math.max(0, Math.min(slides.length - 1, n)); if (n === idx && slides[n].classList.contains('active')) return;
+  finishTransition?.();
+  const from = slides[idx], to = slides[n], fwd = n > idx;
+  const type = Math.abs(n - idx) > 1 ? 'fade' : (fwd ? from.dataset.out : to.dataset.out) || 'right';
+  if (type === 'swipe') { onLeave(idx); swipe(from, to, fwd); return arrive(n, fwd); }
+  if (type === 'rocket') { onLeave(idx); rocket(from, to, fwd); return arrive(n, fwd); }
+  const m = moves(type, fwd, from, to);
+  onLeave(idx);
+  to.style.transition = 'none'; to.style.transform = m.toStart; to.style.transformOrigin = m.toOrigin || '50% 50%'; to.style.opacity = m.fade ? '0' : '1';
+  from.style.transition = 'none'; from.style.transformOrigin = m.fromOrigin || '50% 50%';
+  to.classList.add('active'); void to.offsetWidth;
+  const ease = `transform ${DUR}ms cubic-bezier(.65,0,.25,1), opacity ${DUR}ms ease`;
+  from.style.transition = ease; to.style.transition = ease;
+  // A flip turns the old slide away first, then turns the new one in, like a card.
+  if (type === 'flip') { const h = DUR / 2; from.style.transition = `transform ${h}ms cubic-bezier(.55,0,1,.45), opacity ${h}ms ease-in`; to.style.transition = `transform ${h}ms cubic-bezier(0,.55,.45,1) ${h}ms, opacity ${h}ms ease-out ${h}ms`; }
+  to.style.transform = 'none'; to.style.opacity = '1';
+  from.style.transform = m.fromEnd; from.style.opacity = m.fade ? '0' : '1';
+  const done = () => {
+    clearTimeout(timer); finishTransition = null;
+    from.style.transition = 'none'; from.classList.remove('active');
+    for (const el of [from, to]) { el.style.transform = ''; el.style.opacity = ''; el.style.transformOrigin = ''; }
+    void from.offsetWidth; from.style.transition = ''; to.style.transition = '';
+  };
+  const timer = setTimeout(done, DUR + 40); finishTransition = done;
+  arrive(n, fwd);
+}
+function arrive(n, fwd) {
+  idx = n; markTray();
+  $('#bar').style.width = ((idx + 1) / slides.length) * 100 + '%'; $('#count').innerHTML = counter(idx);
+  history.replaceState(null, '', '#' + (idx + 1)); onEnter(idx, !fwd);
+}
+document.addEventListener('keydown', (e) => {
+  if (['ArrowRight', 'ArrowDown', 'PageDown', ' ', 'Enter'].includes(e.key)) { e.preventDefault(); advance(); }
+  else if (['ArrowLeft', 'ArrowUp', 'PageUp', 'Backspace'].includes(e.key)) { e.preventDefault(); retreat(); }
+  else if (e.key === 'Home') go(0); else if (e.key === 'End') go(MAIN - 1);
+  else if (e.key === 'f' || e.key === 'F') toggleFs(); else if (e.key === 't' || e.key === 'T') theme();
+  else if (e.key === 'g' || e.key === 'G') tray(); else if (e.key === 'Escape') tray(false);
+});
+$('#next').onclick = advance; $('#prev').onclick = retreat;
+// ── slide tray ──
+function slideLabel(sl) {
+  const k = sl.querySelector('.kicker')?.textContent.trim() ?? '';
+  const t = (sl.querySelector('h1, h2, .line')?.innerHTML.replace(/<br\s*\/?>/g, ' ').replace(/<[^>]+>/g, '') ?? sl.id).replace(/\s+/g, ' ').trim();
+  return [k, t.length > 70 ? t.slice(0, 68) + '…' : t];
+}
+function buildTray() {
+  const btn = (i) => { const [k, t] = slideLabel(slides[i]); return `<button class="t" data-go="${i}"><small>${i < MAIN ? i + 1 : i === MAIN ? 'Appendix' : 'A' + (i - MAIN)}${k ? ' · ' + esc(k) : ''}</small>${esc(t)}</button>`; };
+  const range = (a, b) => Array.from({ length: b - a }, (_, i) => a + i);
+  $('#tg').innerHTML = `<h5>Main track</h5><div class="row2">${range(0, MAIN).map(btn).join('')}</div><h5>Appendix</h5><div class="row2">${range(MAIN, slides.length).map(btn).join('')}</div>`;
+}
+function markTray() { $$('#tg .t').forEach((b) => b.classList.toggle('cur', +b.dataset.go === idx)); }
+function tray(open) { $('#tray').classList.toggle('open', open ?? !$('#tray').classList.contains('open')); markTray(); }
+$('#trayBtn').onclick = () => tray(); $('#trayX').onclick = () => tray(false);
+$('#tg').onclick = (e) => { const b = e.target.closest('[data-go]'); if (b) { tray(false); go(+b.dataset.go); } };
+buildTray();
+function toggleFs() { document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen?.(); }
+$('#fs').onclick = toggleFs;
+function theme(t) { const n = t || (document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark'); document.documentElement.dataset.theme = n; try { localStorage.setItem('nitro-theme', n); } catch {} }
+let th = 'light'; try { th = localStorage.getItem('nitro-theme') || 'light'; } catch {} theme(th);
+const start = Math.max(1, Math.min(slides.length, parseInt(location.hash.slice(1)) || 1)) - 1;
+slides[start].classList.add('active'); idx = start; $('#bar').style.width = ((idx + 1) / slides.length) * 100 + '%'; $('#count').innerHTML = counter(idx); drawBots(); onEnter(idx); markTray();
+</script>
+</body>
+</html>

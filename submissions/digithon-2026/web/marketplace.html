@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nitro agent marketplace</title>
+<meta name="description" content="The Nitro agent marketplace: every pre-sales AI agent we run or plan, whether it is working now, and how to reuse it over MCP.">
+<link rel="stylesheet" href="/web/style.css">
+<link rel="stylesheet" href="/web/home.css">
+<style>
+body{overflow:auto}
+.mkmain{padding:16px 20px 28px;display:flex;flex-direction:column;gap:14px;max-width:1280px;margin:0 auto}
+.mkintro{color:var(--muted);max-width:62em;margin:0}
+.mkbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.mkbar input{max-width:320px}
+.mkstats{display:flex;gap:10px;flex-wrap:wrap}.mkstats div{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:8px 14px;text-align:center;min-width:90px}.mkstats b{display:block;font-size:22px}.mkstats span{font-size:12px;color:var(--muted)}.mkstats span.n{font-size:inherit;color:inherit}
+.seg button{text-transform:none}
+.mklist{display:flex;flex-direction:column;gap:8px}
+.mkrow{background:var(--panel);border:1px solid var(--line);border-radius:14px;transition:border-color .2s,box-shadow .2s}
+.mkrow:hover{border-color:var(--acc);box-shadow:0 8px 22px rgba(30,40,80,.08)}
+.mkrow.on{border-color:var(--acc)}
+.mkr{display:grid;grid-template-columns:44px minmax(220px,1.4fr) minmax(200px,1fr) auto;gap:14px;align-items:center;padding:10px 16px;min-height:66px;cursor:pointer}
+.mkr .av{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;font-size:22px;background:var(--panel2);image-rendering:pixelated}
+.mkr h3{margin:0 0 1px;font-size:15.5px;font-weight:700;text-transform:none;letter-spacing:-.01em;color:var(--fg)}
+.mkr .sum{color:var(--muted);font-size:12.5px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.mkr .kind{font-size:10.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;font-weight:700}
+.mka{display:flex;flex-direction:column;gap:2px;min-width:0}
+.mka b{display:flex;align-items:center;gap:7px;font-size:13px}.mka small{color:var(--muted);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mka i{width:9px;height:9px;border-radius:50%;background:var(--dotoff);flex:none}
+.mka.active b{color:var(--good)}.mka.active i{background:var(--good);box-shadow:0 0 0 0 color-mix(in srgb,var(--good) 60%,transparent);animation:mkpulse 1.6s infinite}
+.mka.off b{color:var(--muted)}.mka.planned b{color:var(--muted);font-weight:600}.mka.planned i{background:none;border:1.5px dashed var(--dotoff)}
+@keyframes mkpulse{70%{box-shadow:0 0 0 7px transparent}100%{box-shadow:0 0 0 0 transparent}}
+.st{font-size:11px;font-weight:700;padding:3px 9px;border-radius:999px;border:1px solid var(--line)}
+.st.live{color:var(--good);background:var(--okbg);border-color:transparent}.st.beta{color:var(--warn);background:var(--warnbg);border-color:transparent}.st.planned{color:var(--muted);background:var(--panel2)}
+.mkbtns{display:flex;gap:8px;align-items:center;justify-content:flex-end}
+.mkd{display:none;border-top:1px solid var(--line);padding:14px 16px 16px 74px;gap:18px;grid-template-columns:1fr 1.15fr}
+.mkrow.on .mkd{display:grid}
+.mkd dl{margin:0;display:grid;align-content:start;grid-template-columns:84px 1fr;gap:6px 10px;font-size:13px}.mkd dt{color:var(--muted)}.mkd dd{margin:0}
+.mkd .show{grid-column:1/-1;font-size:13px;color:var(--muted)}
+.mcp{background:var(--panel2);border-radius:12px;padding:12px 14px;font-size:13px;display:flex;flex-direction:column;gap:8px}
+.mcp h4{margin:0;font-size:13px;text-transform:none;letter-spacing:0;color:var(--fg)}
+.mcp p{margin:0;color:var(--txt2)}
+.code{display:flex;gap:8px;align-items:flex-start}.code pre{flex:1;margin:0;background:var(--panel);border:1px solid var(--line);border-radius:9px;padding:8px 10px;font-size:12px;overflow:auto;white-space:pre-wrap;word-break:break-all}
+.tools{display:flex;flex-direction:column;gap:4px}.tools div{font-size:12.5px}.tools code{font-weight:700}
+.mcp .muted{color:var(--muted);font-size:12px}
+@media(max-width:900px){.mkr{grid-template-columns:44px 1fr}.mkr>:nth-child(3),.mkr>:nth-child(4){grid-column:2}.mkd{grid-template-columns:1fr;padding-left:16px}}
+</style>
+</head>
+<body>
+<header class="revhead"><div class="logo"><a href="/" style="text-decoration:none">Nitro</a> <span>Agent marketplace</span></div><span class="pill" id="mkmeta">Loading…</span><a class="pill" href="/">Back to the app</a><button class="pill" id="themeBtn" type="button" style="cursor:pointer">🌙 Dark</button></header>
+<div class="mkmain">
+  <p class="mkintro">Every agent we run or plan, in one list. See which agents are working right now, open one to see what it takes in and what it produces, and press <b>Connect</b> to reuse it directly from Claude or any MCP client. <b>Live</b> agents run in the app today, <b>beta</b> agents are partly built, <b>planned</b> agents are on the roadmap.</p>
+  <div class="mkstats" id="stats"></div>
+  <div class="mkbar"><input type="text" id="q" placeholder="Search agents, e.g. tenders, tests, DevOps" aria-label="Search agents"><span class="seg" id="fs"></span><span class="seg" id="fc"></span></div>
+  <div class="mklist" id="list"><div class="empty">Loading the marketplace…</div></div>
+</div>
+<script src="/web/panels.js"></script>
+<script src="/web/sprites.js"></script>
+<script src="/web/pipeline.js"></script>
+<script>
+initTheme();
+let agents = [], status = 'all', category = 'all', doing = {}, source = 'sim';
+const open = new Set(), toolCache = {};
+const ORIGIN = location.origin;
+const seg = (host, values, current, set) => {
+  host.innerHTML = ['all', ...values].map((v) => `<button data-v="${esc(v)}" class="${v === current ? 'on' : ''}">${v === 'all' ? 'All' : esc(v)}</button>`).join('');
+  host.onclick = (e) => { const v = e.target.dataset.v; if (!v) return; set(v); host.querySelectorAll('button').forEach((b) => b.classList.toggle('on', b.dataset.v === v)); render(); };
+};
+const avatar = (a) => (SPECS[a.id] ? `<img class="av" src="${avatarURL(a.id)}" alt="">` : `<span class="av">${esc(a.emoji)}</span>`);
+const list = (xs) => xs.map(esc).join(', ');
+const mcpUrl = (id) => `${ORIGIN}/mcp?agent=${encodeURIComponent(id)}`;
+const canConnect = (a) => a.status !== 'planned';
+
+// Active or idle: from the home dashboard when it is open in this browser, from live runs on this server, otherwise
+// from the same simulated pipeline the dashboard runs. Planned agents are never active.
+function refreshActivity() {
+  let fromHome = null;
+  try { const s = JSON.parse(localStorage.getItem('nitro-activity') || 'null'); if (s && Date.now() - s.at < 4000) fromHome = s.doing; } catch {}
+  doing = { ...(fromHome ?? pipeSimulatedActivity(Date.now())), ...liveDoing }; source = fromHome ? 'home' : 'sim';
+  drawActivity();
+}
+let liveDoing = {};
+function pollLive() { fetch('/api/activity').then((r) => r.json()).then((d) => { liveDoing = Object.fromEntries((d.active || []).map((a) => [a, 'Working on a live run'])); }).catch(() => {}); }
+function activityHtml(a) {
+  if (a.status === 'planned') return '<div class="mka planned"><b><i></i>Not built yet</b><small>On the roadmap</small></div>';
+  const d = doing[a.id];
+  return d ? `<div class="mka active"><b><i></i>Active</b><small>${esc(d)}</small></div>` : '<div class="mka off"><b><i></i>Idle</b><small>Waiting for work</small></div>';
+}
+function drawActivity() {
+  document.querySelectorAll('.mkrow').forEach((row) => { const a = agents.find((x) => x.id === row.dataset.id); const el = row.querySelector('.actslot'); const html = activityHtml(a); if (el.dataset.h !== html) { el.dataset.h = html; el.innerHTML = html; } });
+  const n = agents.filter((a) => a.status !== 'planned' && doing[a.id]).length;
+  const s = $('#nActive'); if (s) s.textContent = n;
+}
+function connectHtml(a) {
+  if (!canConnect(a)) return `<div class="mcp"><h4>Connect over MCP</h4><p>This agent is not built yet, so there is nothing to connect to.</p></div>`;
+  const name = `nitro-${a.id}`, url = mcpUrl(a.id);
+  const cli = `claude mcp add --transport http ${name} "${url}"`;
+  const cfg = JSON.stringify({ mcpServers: { [name]: { type: 'http', url } } }, null, 2);
+  return `<div class="mcp"><h4>Connect over MCP: reuse this agent directly</h4>
+    <p>Add it to Claude Code with one command, or paste the config into any MCP client. Calls are read-only and work on saved analyses, so they never start a browser or spend model tokens.</p>
+    <div class="code"><pre>${esc(cli)}</pre><button class="h-btn" data-copy="${esc(cli)}">Copy</button></div>
+    <div class="code"><pre>${esc(cfg)}</pre><button class="h-btn" data-copy="${esc(cfg)}">Copy</button></div>
+    <div class="tools" data-tools="${esc(a.id)}"><span class="muted">Loading the tools it offers…</span></div>
+    <span class="muted">The server runs on this machine (${esc(ORIGIN)}), so the client must run here too.</span></div>`;
+}
+async function loadTools(id) {
+  const box = document.querySelector(`[data-tools="${id}"]`); if (!box) return;
+  if (!toolCache[id]) {
+    const r = await fetch(`/mcp?agent=${encodeURIComponent(id)}`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'tools/list' }) }).then((x) => x.json()).catch(() => null);
+    toolCache[id] = r?.result?.tools ?? [];
+  }
+  box.innerHTML = toolCache[id].length ? `<span class="muted">Tools it offers</span>${toolCache[id].map((t) => `<div><code>${esc(t.name)}</code> · ${esc(t.description)}</div>`).join('')}` : '<span class="muted">The MCP endpoint did not answer. Is the app running?</span>';
+}
+function render() {
+  const q = $('#q').value.trim().toLowerCase();
+  const shown = agents.filter((a) => (status === 'all' || a.status === status) && (category === 'all' || a.category === category) && (!q || JSON.stringify(a).toLowerCase().includes(q)));
+  $('#list').innerHTML = shown.length ? shown.map((a) => `<div class="mkrow${open.has(a.id) ? ' on' : ''}" data-id="${esc(a.id)}">
+    <div class="mkr" data-toggle="${esc(a.id)}">${avatar(a)}
+      <div><div class="kind">${esc(a.category)}</div><h3>${esc(a.name)}</h3><div class="sum">${esc(a.summary)}</div></div>
+      <div class="actslot"></div>
+      <div class="mkbtns"><span class="st ${a.status}">${esc(a.status)}</span>${canConnect(a) ? `<button class="h-btn pri" data-connect="${esc(a.id)}">Connect</button>` : ''}<button class="h-btn" data-toggle="${esc(a.id)}">${open.has(a.id) ? 'Less' : 'Details'}</button></div></div>
+    <div class="mkd"><dl><dt>Takes in</dt><dd>${list(a.inputs)}</dd><dt>Produces</dt><dd>${list(a.outputs)}</dd>${a.builtWith.length ? `<dt>Built with</dt><dd>${list(a.builtWith)}</dd>` : ''}<dt>Showcase</dt><dd>${esc(a.showcase)}</dd></dl>${connectHtml(a)}</div></div>`).join('') : '<div class="empty">No agent matches this filter.</div>';
+  drawActivity(); open.forEach((id) => loadTools(id));
+}
+$('#list').onclick = (e) => {
+  const copy = e.target.closest('[data-copy]');
+  if (copy) { navigator.clipboard?.writeText(copy.dataset.copy).then(() => { copy.textContent = 'Copied'; setTimeout(() => { copy.textContent = 'Copy'; }, 1200); }).catch(() => {}); return; }
+  if (e.target.closest('pre,dl,.mcp')) return;
+  const c = e.target.closest('[data-connect]'), t = e.target.closest('[data-toggle]'), id = c?.dataset.connect ?? t?.dataset.toggle;
+  if (!id) return;
+  if (c) open.add(id); else open.has(id) ? open.delete(id) : open.add(id);
+  render();
+  if (c) document.querySelector(`.mkrow[data-id="${id}"] .mcp`)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+};
+fetch('/api/marketplace').then((r) => r.json()).then(({ summary, agents: rows }) => {
+  agents = rows;
+  $('#mkmeta').textContent = `${summary.total} agents`;
+  $('#stats').innerHTML = [['Agents', summary.total], ['Active now', '<span class="n" id="nActive">0</span>'], ['Live', summary.byStatus.live], ['Beta', summary.byStatus.beta], ['Planned', summary.byStatus.planned]].map(([l, n]) => `<div><b>${n}</b><span>${l}</span></div>`).join('');
+  seg($('#fs'), Object.keys(summary.byStatus), status, (v) => { status = v; });
+  seg($('#fc'), Object.keys(summary.byCategory).filter((c) => summary.byCategory[c]), category, (v) => { category = v; });
+  $('#q').oninput = render; render();
+  pollLive(); refreshActivity(); setInterval(refreshActivity, 1000); setInterval(pollLive, 4000);
+}).catch(() => { $('#list').innerHTML = '<div class="empty">The marketplace could not be loaded.</div>'; });
+</script>
+</body>
+</html>

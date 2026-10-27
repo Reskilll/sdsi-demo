@@ -1,0 +1,228 @@
+{
+  "_note": "Synthetic sample bench. dayRate is INR per day.",
+  "currency": "INR",
+  "developers": [
+    {
+      "id": "dev-1",
+      "name": "Aarav Mehta",
+      "role": "Senior Frontend Engineer",
+      "level": 5,
+      "skills": [
+        "nextjs",
+        "responsive-ui",
+        "web-performance"
+      ],
+      "availableFrom": "2026-11-02",
+      "dayRate": 9500
+    },
+    {
+      "id": "dev-2",
+      "name": "Diya Nair",
+      "role": "Frontend Engineer",
+      "level": 3,
+      "skills": [
+        "nextjs",
+        "responsive-ui"
+      ],
+      "availableFrom": "2026-11-02",
+      "dayRate": 6500
+    },
+    {
+      "id": "dev-3",
+      "name": "Rohan Iyer",
+      "role": "Performance Engineer",
+      "level": 4,
+      "skills": [
+        "web-performance",
+        "devops-cdn",
+        "nextjs"
+      ],
+      "availableFrom": "2026-11-09",
+      "dayRate": 9000
+    },
+    {
+      "id": "dev-4",
+      "name": "Meera Kapoor",
+      "role": "Accessibility Specialist",
+      "level": 3,
+      "skills": [
+        "a11y",
+        "qa-testing",
+        "responsive-ui"
+      ],
+      "availableFrom": "2026-11-16",
+      "dayRate": 7500
+    },
+    {
+      "id": "dev-5",
+      "name": "Kabir Singh",
+      "role": "SEO / Schema Engineer",
+      "level": 3,
+      "skills": [
+        "schema-seo",
+        "content-strategy"
+      ],
+      "availableFrom": "2026-11-02",
+      "dayRate": 7000
+    },
+    {
+      "id": "dev-6",
+      "name": "Ananya Rao",
+      "role": "UX Designer",
+      "level": 4,
+      "skills": [
+        "ux-design",
+        "design-systems"
+      ],
+      "availableFrom": "2026-11-02",
+      "dayRate": 8000
+    },
+    {
+      "id": "dev-7",
+      "name": "Vikram Das",
+      "role": "Design Systems Engineer",
+      "level": 4,
+      "skills": [
+        "design-systems",
+        "nextjs",
+        "responsive-ui"
+      ],
+      "availableFrom": "2026-11-02",
+      "dayRate": 8500
+    },
+    {
+      "id": "dev-8",
+      "name": "Isha Patel",
+      "role": "QA Automation Engineer",
+      "level": 4,
+      "skills": [
+        "qa-testing",
+        "a11y"
+      ],
+      "availableFrom": "2026-11-09",
+      "dayRate": 6500
+    },
+    {
+      "id": "dev-9",
+      "name": "Arjun Menon",
+      "role": "DevOps Engineer",
+      "level": 4,
+      "skills": [
+        "devops-cdn",
+        "web-performance"
+      ],
+      "availableFrom": "2026-11-16",
+      "dayRate": 8500
+    },
+    {
+      "id": "dev-10",
+      "name": "Sana Khan",
+      "role": "CMS Developer",
+      "level": 3,
+      "skills": [
+        "cms",
+        "nextjs"
+      ],
+      "availableFrom": "2026-11-02",
+      "dayRate": 7000
+    },
+    {
+      "id": "dev-11",
+      "name": "Neel Joshi",
+      "role": "Delivery Manager",
+      "level": 4,
+      "skills": [
+        "project-mgmt"
+      ],
+      "availableFrom": "2026-11-02",
+      "dayRate": 9000
+    },
+    {
+      "id": "dev-12",
+      "name": "Tara Sen",
+      "role": "Content Strategist",
+      "level": 2,
+      "skills": [
+        "content-strategy",
+        "schema-seo"
+      ],
+      "availableFrom": "2026-11-02",
+      "dayRate": 6000
+    },
+    {
+      "id": "dev-13",
+      "name": "Dev Malhotra",
+      "role": "Senior Frontend Engineer",
+      "level": 5,
+      "skills": [
+        "nextjs",
+        "responsive-ui",
+        "web-performance"
+      ],
+      "availableFrom": "2026-11-09",
+      "dayRate": 9500
+    },
+    {
+      "id": "dev-14",
+      "name": "Riya Bose",
+      "role": "Frontend Engineer",
+      "level": 3,
+      "skills": [
+        "nextjs",
+        "responsive-ui"
+      ],
+      "availableFrom": "2026-11-16",
+      "dayRate": 6500
+    },
+    {
+      "id": "dev-15",
+      "name": "Karan Shah",
+      "role": "Performance Engineer",
+      "level": 4,
+      "skills": [
+        "web-performance",
+        "devops-cdn",
+        "nextjs"
+      ],
+      "availableFrom": "2026-11-02",
+      "dayRate": 9000
+    },
+    {
+      "id": "dev-16",
+      "name": "Zoya Ali",
+      "role": "Accessibility Specialist",
+      "level": 3,
+      "skills": [
+        "a11y",
+        "qa-testing",
+        "responsive-ui"
+      ],
+      "availableFrom": "2026-11-02",
+      "dayRate": 7500
+    },
+    {
+      "id": "dev-17",
+      "name": "Yash Gupta",
+      "role": "SEO / Schema Engineer",
+      "level": 3,
+      "skills": [
+        "schema-seo",
+        "content-strategy"
+      ],
+      "availableFrom": "2026-11-02",
+      "dayRate": 7000
+    },
+    {
+      "id": "dev-18",
+      "name": "Pooja Reddy",
+      "role": "UX Designer",
+      "level": 4,
+      "skills": [
+        "ux-design",
+        "design-systems"
+      ],
+      "availableFrom": "2026-11-09",
+      "dayRate": 8000
+    }
+  ]
+}

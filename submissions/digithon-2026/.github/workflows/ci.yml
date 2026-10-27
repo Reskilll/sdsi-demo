@@ -1,0 +1,32 @@
+name: CI
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    env:
+      PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Typecheck
+        run: npm run typecheck
+      - name: Unit and guardrail tests (no browser, no model key, no network)
+        run: npm test
+      - name: Secret scan (no API keys committed)
+        if: runner.os == 'Linux'
+        shell: bash
+        run: |
+          if git grep -nE 'sk-ant-[A-Za-z0-9_-]{10,}' -- . ':!*.md'; then echo 'An API key is committed.'; exit 1; fi

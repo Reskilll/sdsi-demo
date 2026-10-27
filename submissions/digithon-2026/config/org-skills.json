@@ -1,0 +1,253 @@
+{
+  "_note": "Hardcoded sample org skill inventory. Replace via OrgSkillProvider with HRMS data later.",
+  "skills": [
+    {
+      "id": "nextjs",
+      "label": "Next.js / React",
+      "level": 4,
+      "headcount": 12,
+      "available": 5,
+      "availableFrom": "2026-11-02"
+    },
+    {
+      "id": "web-performance",
+      "label": "Web performance",
+      "level": 4,
+      "headcount": 4,
+      "available": 2,
+      "availableFrom": "2026-11-02"
+    },
+    {
+      "id": "responsive-ui",
+      "label": "Responsive / mobile UI",
+      "level": 5,
+      "headcount": 9,
+      "available": 4,
+      "availableFrom": "2026-11-02"
+    },
+    {
+      "id": "a11y",
+      "label": "Accessibility (WCAG)",
+      "level": 3,
+      "headcount": 3,
+      "available": 1,
+      "availableFrom": "2026-11-09"
+    },
+    {
+      "id": "schema-seo",
+      "label": "Structured data / SEO / GEO",
+      "level": 3,
+      "headcount": 2,
+      "available": 1,
+      "availableFrom": "2026-11-02"
+    },
+    {
+      "id": "ux-design",
+      "label": "UX / UI design",
+      "level": 4,
+      "headcount": 6,
+      "available": 2,
+      "availableFrom": "2026-11-02"
+    },
+    {
+      "id": "design-systems",
+      "label": "Design systems",
+      "level": 4,
+      "headcount": 4,
+      "available": 1,
+      "availableFrom": "2026-11-16"
+    },
+    {
+      "id": "content-strategy",
+      "label": "Content strategy",
+      "level": 2,
+      "headcount": 2,
+      "available": 1,
+      "availableFrom": "2026-11-09"
+    },
+    {
+      "id": "qa-testing",
+      "label": "QA / test automation",
+      "level": 4,
+      "headcount": 8,
+      "available": 3,
+      "availableFrom": "2026-11-02"
+    },
+    {
+      "id": "devops-cdn",
+      "label": "DevOps / CDN / cloud",
+      "level": 4,
+      "headcount": 6,
+      "available": 2,
+      "availableFrom": "2026-11-02"
+    },
+    {
+      "id": "cms",
+      "label": "Headless CMS",
+      "level": 3,
+      "headcount": 4,
+      "available": 1,
+      "availableFrom": "2026-11-16"
+    },
+    {
+      "id": "shopify",
+      "label": "Shopify / commerce",
+      "level": 2,
+      "headcount": 2,
+      "available": 0,
+      "availableFrom": null
+    },
+    {
+      "id": "project-mgmt",
+      "label": "Delivery / project management",
+      "level": 4,
+      "headcount": 5,
+      "available": 2,
+      "availableFrom": "2026-11-02"
+    },
+    {
+      "id": "sap-hybris",
+      "label": "SAP Commerce Cloud (Hybris)",
+      "level": 4,
+      "headcount": 6,
+      "available": 2,
+      "availableFrom": "2026-11-09"
+    },
+    {
+      "id": "salesforce-commerce",
+      "label": "Salesforce Commerce Cloud",
+      "level": 3,
+      "headcount": 4,
+      "available": 1,
+      "availableFrom": "2026-11-16"
+    },
+    {
+      "id": "salesforce-marketing",
+      "label": "Salesforce Marketing Cloud / Pardot",
+      "level": 3,
+      "headcount": 3,
+      "available": 1,
+      "availableFrom": "2026-11-09"
+    },
+    {
+      "id": "adobe-aem",
+      "label": "Adobe Experience Manager",
+      "level": 4,
+      "headcount": 8,
+      "available": 3,
+      "availableFrom": "2026-11-02"
+    },
+    {
+      "id": "adobe-campaign",
+      "label": "Adobe Campaign",
+      "level": 2,
+      "headcount": 2,
+      "available": 0,
+      "availableFrom": null
+    },
+    {
+      "id": "adobe-analytics",
+      "label": "Adobe Analytics / Launch",
+      "level": 3,
+      "headcount": 4,
+      "available": 1,
+      "availableFrom": "2026-11-16"
+    },
+    {
+      "id": "dotnet",
+      "label": ".NET / ASP.NET",
+      "level": 4,
+      "headcount": 10,
+      "available": 4,
+      "availableFrom": "2026-11-02"
+    },
+    {
+      "id": "java",
+      "label": "Java / Spring",
+      "level": 5,
+      "headcount": 20,
+      "available": 7,
+      "availableFrom": "2026-11-02"
+    },
+    {
+      "id": "python",
+      "label": "Python (Flask, Django)",
+      "level": 4,
+      "headcount": 9,
+      "available": 3,
+      "availableFrom": "2026-11-02"
+    },
+    {
+      "id": "nodejs",
+      "label": "Node.js",
+      "level": 4,
+      "headcount": 11,
+      "available": 4,
+      "availableFrom": "2026-11-02"
+    },
+    {
+      "id": "php",
+      "label": "PHP",
+      "level": 3,
+      "headcount": 4,
+      "available": 1,
+      "availableFrom": "2026-11-09"
+    },
+    {
+      "id": "magento",
+      "label": "Adobe Commerce (Magento)",
+      "level": 3,
+      "headcount": 3,
+      "available": 1,
+      "availableFrom": "2026-11-16"
+    },
+    {
+      "id": "wordpress",
+      "label": "WordPress",
+      "level": 3,
+      "headcount": 3,
+      "available": 1,
+      "availableFrom": "2026-11-09"
+    },
+    {
+      "id": "vue",
+      "label": "Vue / Nuxt",
+      "level": 3,
+      "headcount": 4,
+      "available": 1,
+      "availableFrom": "2026-11-09"
+    },
+    {
+      "id": "angular",
+      "label": "Angular",
+      "level": 4,
+      "headcount": 7,
+      "available": 2,
+      "availableFrom": "2026-11-02"
+    },
+    {
+      "id": "web-analytics",
+      "label": "Web analytics & tag management",
+      "level": 4,
+      "headcount": 5,
+      "available": 2,
+      "availableFrom": "2026-11-02"
+    },
+    {
+      "id": "personalization",
+      "label": "Personalization & A/B testing",
+      "level": 3,
+      "headcount": 3,
+      "available": 1,
+      "availableFrom": "2026-11-16"
+    },
+    {
+      "id": "payments",
+      "label": "Payments integration",
+      "level": 3,
+      "headcount": 3,
+      "available": 1,
+      "availableFrom": "2026-11-09"
+    }
+  ]
+}

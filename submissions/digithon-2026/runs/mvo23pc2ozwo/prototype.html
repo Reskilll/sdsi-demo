@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Allbirds: Comfortable, Sustainable Shoes &amp; Apparel</title>
+<meta name="description" content="Allbirds: The world’s most comfortable shoes, flats, and clothing made with natural materials like merino wool and eucalyptus. FREE shipping &amp; returns.">
+<meta name="theme-color" content="#ece9e2">
+<link rel="canonical" href="https://www.allbirds.com/">
+<!-- Perf: zero JavaScript shipped (fixes "unused JS"); hero preloaded at right size from the Shopify CDN; other images lazy-loaded.
+     CI: run axe-core/pa11y (e.g. `npx pa11y-ci` or @axe-core/cli) and Lighthouse CI on every PR; fail on any violation, incl. "button-name". -->
+<link rel="preconnect" href="https://www.allbirds.com/cdn/shop/" crossorigin>
+<link rel="preload" as="image" fetchpriority="high"
+ href="https://www.allbirds.com/cdn/shop/files/26Q1_DasherNZ_Site_Homepage_Hero_Desktop_16x9-3.jpg?v=1779316981&width=1440"
+ imagesrcset="https://www.allbirds.com/cdn/shop/files/26Q1_DasherNZ_Site_Homepage_Hero_Desktop_16x9-3.jpg?v=1779316981&width=800 800w, https://www.allbirds.com/cdn/shop/files/26Q1_DasherNZ_Site_Homepage_Hero_Desktop_16x9-3.jpg?v=1779316981&width=1440 1440w, https://www.allbirds.com/cdn/shop/files/26Q1_DasherNZ_Site_Homepage_Hero_Desktop_16x9-3.jpg?v=1779316981&width=2560 2560w"
+ imagesizes="100vw">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@graph":[
+{"@type":"Organization","name":"Allbirds","url":"https://www.allbirds.com","logo":"https://www.allbirds.com/cdn/shop/files/A11559_25Q3_Cruiser_Dark_Navy_Blizzard_PDP_LEFT-2000x2000_9f5ba943-6b25-4f75-9c74-edd67a6a0aa7.png?v=1751900449&width=300"},
+{"@type":"WebSite","name":"Allbirds","url":"https://www.allbirds.com","description":"Comfortable, sustainable shoes and apparel made with natural materials like merino wool and eucalyptus."}]}
+</script>
+<style>
+:root{--bg:#ece9e2;--ink:#000;--line:#00000026}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 1rem/1.55 Geograph,"Helvetica Neue",Arial,system-ui,sans-serif}
+a{color:inherit}
+:focus-visible{outline:3px solid #0b57d0;outline-offset:3px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.skip{position:absolute;left:8px;top:-60px;background:#000;color:#fff;padding:.6rem 1rem;z-index:20}
+.skip:focus{top:8px}
+/* Dismissible, non-blocking banner (CSS-only) */
+#bn{position:absolute;opacity:0;pointer-events:none}
+.banner{background:#000;color:#fff;display:flex;gap:.75rem;align-items:center;justify-content:center;flex-wrap:wrap;padding:.6rem 3.25rem .6rem 1rem;font-size:.9rem;position:relative;text-align:center}
+.banner a{font-weight:600}
+.banner label{position:absolute;right:.5rem;top:50%;transform:translateY(-50%);cursor:pointer;padding:.35rem .6rem;border:1px solid #fff9;border-radius:99px;font-size:.8rem}
+.banner label:hover{background:#fff;color:#000}
+#bn:checked~.banner{display:none}
+#bn:focus-visible~.banner label{outline:3px solid #fff;outline-offset:2px}
+header{position:sticky;top:0;z-index:10;background:var(--bg);border-bottom:1px solid var(--line)}
+.bar{max-width:1280px;margin:auto;display:flex;align-items:center;justify-content:space-between;padding:.9rem 1.25rem;position:relative}
+.logo{font-weight:800;font-size:1.5rem;letter-spacing:-.03em;text-decoration:none}
+nav ul{display:flex;gap:2rem;list-style:none;margin:0;padding:0}
+nav a{font-weight:600;text-decoration:none;padding:.4rem 0;border-bottom:2px solid transparent}
+nav a:hover{border-color:#000}
+#mt{position:absolute;opacity:0;pointer-events:none}
+.burger{display:none;cursor:pointer;font-weight:700;padding:.5rem 1rem;border:2px solid #000;border-radius:99px}
+.burger:hover{background:#000;color:#fff}
+#mt:focus-visible~.burger{outline:3px solid #0b57d0;outline-offset:3px}
+@media(max-width:700px){
+ .burger{display:inline-block}
+ nav{display:none;position:absolute;left:0;right:0;top:100%;background:var(--bg);border-bottom:1px solid var(--line);padding:.5rem 1.25rem 1.25rem}
+ #mt:checked~nav{display:block}
+ nav ul{flex-direction:column;gap:.25rem}
+ nav a{display:block;font-size:1.25rem;padding:.7rem 0}
+}
+.hero{position:relative;min-height:min(82vh,760px);display:grid;align-items:end;color:#fff;isolation:isolate;background:#222}
+.hero img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:-2}
+.hero::before{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(to top,#000000d9 0%,#000000a6 40%,#00000026 80%)}
+.hero .in{max-width:1280px;margin:auto;width:100%;padding:3rem 1.25rem}
+.eyebrow{font-size:1.15rem;font-weight:700;letter-spacing:.02em;margin:0 0 .75rem}
+h1{font-size:clamp(2.6rem,7vw,5.5rem);line-height:1;font-weight:800;letter-spacing:-.035em;margin:0 0 1.75rem;max-width:14ch;text-shadow:0 2px 20px #0008}
+.btns{display:flex;gap:.9rem;flex-wrap:wrap}
+.btn{display:inline-block;padding:.95rem 1.9rem;border-radius:99px;font-weight:700;font-size:1.05rem;text-decoration:none;border:2px solid #fff;transition:background .2s,color .2s,transform .2s}
+.btn.p{background:#fff;color:#000}
+.btn.p:hover{background:#000;color:#fff}
+.btn.o{background:transparent;color:#fff}
+.btn.o:hover{background:#fff;color:#000}
+.btn:hover{transform:translateY(-2px)}
+main section{max-width:1280px;margin:auto;padding:4.5rem 1.25rem 1rem}
+h2{font-size:clamp(1.9rem,4vw,3rem);letter-spacing:-.03em;line-height:1.1;margin:0 0 .5rem}
+.lead{margin:0 0 2rem;max-width:56ch;font-size:1.1rem}
+.grid{display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fill,minmax(min(100%,340px),1fr))}
+.card{background:#fff;border-radius:18px;overflow:hidden;display:flex;flex-direction:column;transition:transform .25s,box-shadow .25s}
+.card:hover{transform:translateY(-6px);box-shadow:0 18px 40px #0000001f}
+.card img{width:100%;aspect-ratio:2/3;object-fit:cover;display:block;background:#d9d5cb}
+.card div{padding:1.25rem 1.4rem 1.5rem}
+h3{margin:0 0 .85rem;font-size:1.5rem;letter-spacing:-.02em}
+.pill{display:inline-block;margin:0 .4rem .4rem 0;padding:.6rem 1.2rem;border:2px solid #000;border-radius:99px;font-weight:700;text-decoration:none;color:#000}
+.pill:hover{background:#000;color:#fff}
+.cta{max-width:1280px;margin:4.5rem auto 0;padding:0 1.25rem}
+.cta div{background:#000;color:#fff;border-radius:24px;padding:clamp(2.5rem,7vw,5rem) 1.5rem;text-align:center}
+.cta h2{max-width:18ch;margin:0 auto 1rem}
+.cta p{margin:0 auto 2rem;max-width:48ch;font-size:1.1rem}
+footer{max-width:1280px;margin:3rem auto 0;padding:2rem 1.25rem 3rem;border-top:1px solid var(--line);display:flex;flex-wrap:wrap;gap:1rem 2rem;justify-content:space-between;font-size:.95rem}
+footer ul{display:flex;gap:1.5rem;list-style:none;margin:0;padding:0}
+footer a:hover{text-decoration:none}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<input type="checkbox" id="bn" aria-label="Dismiss shipping banner">
+<div class="banner" role="region" aria-label="Shipping information">
+ <span>Shipping to the United States. Spend $100 more to earn free shipping!</span>
+ <a href="https://www.allbirds.com/">Change country</a>
+ <label for="bn"><span aria-hidden="true">✕ </span>Dismiss</label>
+</div>
+<header>
+ <div class="bar">
+  <a class="logo" href="https://www.allbirds.com/" aria-label="Allbirds home">allbirds</a>
+  <input type="checkbox" id="mt" aria-label="Toggle menu">
+  <label class="burger" for="mt">Menu</label>
+  <nav aria-label="Main">
+   <ul>
+    <li><a href="https://www.allbirds.com/collections/new-arrivals-26">New Arrivals</a></li>
+    <li><a href="https://www.allbirds.com/collections/shop-all-26">Shop All</a></li>
+   </ul>
+  </nav>
+ </div>
+</header>
+<main id="main">
+ <div class="hero">
+  <img alt="" width="2560" height="1440" fetchpriority="high" decoding="async"
+   src="https://www.allbirds.com/cdn/shop/files/26Q1_DasherNZ_Site_Homepage_Hero_Desktop_16x9-3.jpg?v=1779316981&width=1440"
+   srcset="https://www.allbirds.com/cdn/shop/files/26Q1_DasherNZ_Site_Homepage_Hero_Desktop_16x9-3.jpg?v=1779316981&width=800 800w, https://www.allbirds.com/cdn/shop/files/26Q1_DasherNZ_Site_Homepage_Hero_Desktop_16x9-3.jpg?v=1779316981&width=1440 1440w, https://www.allbirds.com/cdn/shop/files/26Q1_DasherNZ_Site_Homepage_Hero_Desktop_16x9-3.jpg?v=1779316981&width=2560 2560w"
+   sizes="100vw">
+  <div class="in">
+   <p class="eyebrow">Free ground shipping on orders over $100</p>
+   <h1>Wildly Comfortable. Super Natural.</h1>
+   <div class="btns">
+    <a class="btn p" href="https://www.allbirds.com/collections/shop-all-26">Shop All</a>
+    <a class="btn o" href="https://www.allbirds.com/collections/new-arrivals-26">New Arrivals</a>
+   </div>
+  </div>
+ </div>
+
+ <section aria-labelledby="shop">
+  <h2 id="shop">Find your next favorite pair</h2>
+  <p class="lead">Made with natural materials like merino wool and eucalyptus. Free shipping &amp; returns.</p>
+  <div class="grid">
+   <article class="card">
+    <img src="https://www.allbirds.com/cdn/shop/files/26Q2_CanvasCruiser_Site_Homepage_CategoryRow-01_Desktop-Mobile_2x3_01.jpg?v=1774645561&width=1024" alt="" width="1024" height="1536" loading="lazy" decoding="async">
+    <div><h3>New Arrivals</h3>
+     <a class="pill" href="https://www.allbirds.com/collections/new-arrivals-26">Shop Men<span class="sr"> new arrivals</span></a>
+     <a class="pill" href="https://www.allbirds.com/collections/new-arrivals-26">Shop Women<span class="sr"> new arrivals</span></a></div>
+   </article>
+   <article class="card">
+    <img src="https://www.allbirds.com/cdn/shop/files/26Q2_CanvasCruiser_Site_Homepage_CategoryRow-01_Desktop-Mobile_2x3_01.jpg?v=1774645561&width=1024" alt="" width="1024" height="1536" loading="lazy" decoding="async">
+    <div><h3>Mens</h3>
+     <a class="pill" href="https://www.allbirds.com/collections/mens">Shop Men</a></div>
+   </article>
+   <article class="card">
+    <img src="https://www.allbirds.com/cdn/shop/files/26Q2_CanvasCruiser_Site_Homepage_CategoryRow-01_Desktop-Mobile_2x3_04.jpg?v=1774645561&width=1024" alt="" width="1024" height="1536" loading="lazy" decoding="async">
+    <div><h3>Womens</h3>
+     <a class="pill" href="https://www.allbirds.com/collections/womens">Shop Women</a></div>
+   </article>
+   <article class="card">
+    <img src="https://www.allbirds.com/cdn/shop/files/26Q2_CanvasCruiser_Site_Homepage_CategoryRow-01_Desktop-Mobile_2x3_04.jpg?v=1774645561&width=1024" alt="" width="1024" height="1536" loading="lazy" decoding="async">
+    <div><h3>Best Sellers</h3>
+     <a class="pill" href="https://www.allbirds.com/collections/mens">Shop Men<span class="sr"> best sellers</span></a>
+     <a class="pill" href="https://www.allbirds.com/collections/womens">Shop Women<span class="sr"> best sellers</span></a></div>
+   </article>
+   <article class="card">
+    <img src="https://www.allbirds.com/cdn/shop/files/26Q2_CanvasCruiser_Site_Homepage_CategoryRow-01_Desktop-Mobile_2x3_03.jpg?v=1774645561&width=1024" alt="" width="1024" height="1536" loading="lazy" decoding="async">
+    <div><h3>Summer Travel Essentials</h3>
+     <a class="pill" href="https://www.allbirds.com/collections/shop-all-26">Shop the edit</a></div>
+   </article>
+  </div>
+ </section>
+
+ <div class="cta">
+  <div>
+   <h2>Wildly comfortable, naturally.</h2>
+   <p>Free ground shipping on orders over $100. Find the pair that moves with you.</p>
+   <a class="btn p" href="https://www.allbirds.com/collections/shop-all-26">Shop All</a>
+  </div>
+ </div>
+</main>
+<footer>
+ <p>© Allbirds, Inc. Comfortable, sustainable shoes &amp; apparel.</p>
+ <nav aria-label="Footer"><ul>
+  <li><a href="https://www.allbirds.com/collections/new-arrivals-26">New Arrivals</a></li>
+  <li><a href="https://www.allbirds.com/collections/shop-all-26">Shop All</a></li>
+ </ul></nav>
+</footer>
+<div style="position:fixed;bottom:12px;right:12px;background:#111827;color:#fff;font:12px system-ui;padding:8px 14px;border-radius:999px;z-index:9" role="note">Concept redesign prepared for Allbirds</div></body>
+</html>

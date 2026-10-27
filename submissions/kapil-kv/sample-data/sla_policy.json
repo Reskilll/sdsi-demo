@@ -1,0 +1,6 @@
+[
+  { "priority": "P1", "targetBusinessHours": 4, "isActive": true },
+  { "priority": "P2", "targetBusinessHours": 8, "isActive": true },
+  { "priority": "P3", "targetBusinessHours": 24, "isActive": true },
+  { "priority": "P4", "targetBusinessHours": 72, "isActive": true }
+]

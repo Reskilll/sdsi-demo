@@ -1,0 +1,12 @@
+{
+  "name": "meeting-room-booking",
+  "version": "1.0.0",
+  "description": "Meeting Room Booking Engine — SDSI submission",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "test": "node --test --test-reporter=spec src/**/*.test.js"
+  },
+  "type": "module",
+  "license": "MIT"
+}

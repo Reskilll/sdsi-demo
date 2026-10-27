@@ -1,0 +1,9 @@
+[
+  { "id": "boardroom", "name": "Boardroom", "capacity": 16, "floor": 1 },
+  { "id": "conference-a", "name": "Conference A", "capacity": 10, "floor": 2 },
+  { "id": "conference-b", "name": "Conference B", "capacity": 8, "floor": 2 },
+  { "id": "meeting-1", "name": "Meeting Room 1", "capacity": 4, "floor": 1 },
+  { "id": "meeting-2", "name": "Meeting Room 2", "capacity": 6, "floor": 1 },
+  { "id": "phone-booth", "name": "Phone Booth", "capacity": 2, "floor": 3 },
+  { "id": "training", "name": "Training Room", "capacity": 20, "floor": 3 }
+]

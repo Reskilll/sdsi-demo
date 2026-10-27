@@ -1,0 +1,15 @@
+# Generated state file — products + reservations + sold counts
+state.json
+
+# Python bytecode
+__pycache__/
+*.pyc
+*.pyo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/

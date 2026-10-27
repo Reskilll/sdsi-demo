@@ -1,0 +1,31 @@
+{
+  "config": {
+    "reservation_ttl_seconds": 120
+  },
+  "products": [
+    {
+      "sku": "PS5",
+      "name": "PlayStation 5 Console",
+      "total_stock": 10,
+      "per_user_limit": 1
+    },
+    {
+      "sku": "AIRPODS",
+      "name": "AirPods Pro",
+      "total_stock": 50,
+      "per_user_limit": 2
+    },
+    {
+      "sku": "TSHIRT",
+      "name": "Limited-Edition T-Shirt",
+      "total_stock": 100,
+      "per_user_limit": 3
+    },
+    {
+      "sku": "GIFT_CARD",
+      "name": "$50 Gift Card",
+      "total_stock": 500,
+      "per_user_limit": 0
+    }
+  ]
+}

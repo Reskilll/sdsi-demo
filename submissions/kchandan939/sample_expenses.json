@@ -1,0 +1,40 @@
+[
+  {
+    "description": "Team dinner at Spice Garden",
+    "paid_by": "Alice",
+    "total_amount": 4500,
+    "split_type": "equal",
+    "participants": ["Alice", "Bob", "Charlie"]
+  },
+  {
+    "description": "Uber to office",
+    "paid_by": "Bob",
+    "total_amount": 600,
+    "split_type": "equal",
+    "participants": ["Alice", "Bob"]
+  },
+  {
+    "description": "Movie tickets",
+    "paid_by": "Charlie",
+    "total_amount": 1200,
+    "split_type": "exact",
+    "participants": ["Alice", "Bob", "Charlie"],
+    "splits": {
+      "Alice": 500,
+      "Bob": 400,
+      "Charlie": 300
+    }
+  },
+  {
+    "description": "Drinks at rooftop bar",
+    "paid_by": "Alice",
+    "total_amount": 2000,
+    "split_type": "percentage",
+    "participants": ["Alice", "Bob", "Charlie"],
+    "splits": {
+      "Alice": 50,
+      "Bob": 30,
+      "Charlie": 20
+    }
+  }
+]

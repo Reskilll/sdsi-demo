@@ -1,0 +1,11 @@
+{
+  "targets": {
+    "P1": 240,
+    "P2": 480,
+    "P3": 1440,
+    "P4": 4320
+  },
+  "business_start_hour": 9,
+  "business_end_hour": 18,
+  "description": "P1=4h, P2=8h, P3=24h, P4=72h in business hours (Mon-Fri 09:00-18:00)"
+}

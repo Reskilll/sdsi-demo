@@ -4,13 +4,10 @@ Provides pluggable storage with mutex-based locking and optional
 SQLite persistence (future extension point).
 """
 
-from __future__ import annotations
-
 import json
 import threading
-from copy import deepcopy
 from datetime import date, datetime, time
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional
 
 from app.models.booking import BookingResponse
 from app.models.room import Room

@@ -8,9 +8,7 @@ Swagger UI:  http://localhost:8000/docs
 ReDoc:       http://localhost:8000/redoc
 """
 
-from __future__ import annotations
-
-from datetime import date, time
+from datetime import date
 from typing import List, Optional
 
 from fastapi import FastAPI, HTTPException, Query, status

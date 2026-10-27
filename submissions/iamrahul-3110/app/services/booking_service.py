@@ -9,10 +9,8 @@ Orchestrates M1–M5 business logic:
   M5 — Weekly recurring bookings with per-occurrence conflict reporting
 """
 
-from __future__ import annotations
-
 from datetime import date, datetime, time, timedelta
-from typing import Dict, List, Optional, Tuple
+from typing import List, Optional
 
 from app.config import (
     ERR_BOOKING_NOT_FOUND,

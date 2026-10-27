@@ -1,7 +1,5 @@
 """Room domain model and Pydantic schemas."""
 
-from __future__ import annotations
-
 from typing import List, Optional
 from pydantic import BaseModel, Field
 

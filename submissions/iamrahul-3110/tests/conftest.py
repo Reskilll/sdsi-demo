@@ -1,12 +1,9 @@
 """Pytest fixtures and shared utilities for the booking engine test suite."""
 
-from __future__ import annotations
-
 import json
 import os
 import tempfile
-from datetime import date, datetime, time
-from pathlib import Path
+from datetime import date, time
 from typing import List
 
 import pytest
@@ -18,9 +15,8 @@ from app.models.booking import (
     BookingRecurring,
     BookingUpdate,
     FindSlotRequest,
-    _generate_booking_id,
 )
-from app.storage.repository import Repository, _BookingRecord, get_repository, set_repository
+from app.storage.repository import Repository, set_repository
 
 
 # ---------------------------------------------------------------------------

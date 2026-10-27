@@ -5,9 +5,7 @@ Given a date, duration, and attendee count, returns the earliest available
 start time and the best-fit room (smallest room that can hold the group).
 """
 
-from __future__ import annotations
-
-from datetime import date, datetime, time, timedelta
+from datetime import date, time
 from typing import List, Optional, Tuple
 
 from app.config import BUSINESS_HOURS_END, BUSINESS_HOURS_START

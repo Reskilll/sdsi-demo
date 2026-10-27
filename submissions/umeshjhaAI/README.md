@@ -21,10 +21,12 @@ code, or network operations.
   most `N` jobs whose dependencies finished in earlier stages.
 - **Critical-path analysis (M4)** — dynamic programming over the DAG to compute
   earliest start/finish, the longest weighted path, and a representative
-  critical path.
+  critical path, plus a per-job explanation of why each job is on the path.
 - **Failure propagation (M5)** — given a failed job id, reports every transitive
   downstream dependent that must be skipped.
 - **CLI** — human-readable text output by default, and machine-readable JSON.
+- **Installable console script** — `pip install -e .` exposes the `jobsched`
+  command.
 
 ## Prerequisites
 
@@ -34,12 +36,17 @@ code, or network operations.
 
 ## Setup
 
-No dependencies to install. The package has no third-party requirements.
+No third-party dependencies to install. The package has no external
+requirements beyond the Python standard library.
 
 ```bash
 # optional: create and activate a virtual environment
 python -m venv .venv
 # Windows: .venv\Scripts\activate    |   Unix: source .venv/bin/activate
+
+# optional: install as an editable package to get the `jobsched` command
+pip install -e .
+jobsched --input sample.json
 ```
 
 ## How to run
@@ -133,6 +140,10 @@ parallel workers with zero scheduling overhead. It is a lower bound, **not**
 the completion time of the worker-limited barrier schedule. The two are only
 equal when the worker limit never causes waiting.
 
+The output also explains, for each job on the representative critical path,
+*why* it is on the path — e.g. "longest prerequisite of `load`; its finish
+time determines when the next job can start."
+
 ### Failure propagation
 
 For a failed job `F`, the skipped set is every job reachable from `F` through
@@ -161,7 +172,10 @@ one component only, worker limits (1, greater than job count, invalid values
 including booleans), malformed/missing/zero/negative/non-finite durations,
 invalid JSON, multi-branch failure, jobs with no dependents, unknown failed
 jobs, equal-duration critical paths, non-lexicographic ids, fractional
-durations, and determinism across runs — plus end-to-end CLI tests.
+durations, and determinism across runs — plus end-to-end CLI tests and
+randomized property-based DAG tests (asserting the worker limit, dependency
+readiness, and the critical-path lower bound hold for hundreds of generated
+DAGs).
 
 ## Algorithmic complexity
 
@@ -184,6 +198,7 @@ overhead (a min-heap keyed by id).
 umeshjhaAI/
 ├── main.py                 # CLI entry point
 ├── sample.json             # example input
+├── pyproject.toml          # packaging + `jobsched` console script
 ├── scheduler/
 │   ├── __init__.py         # public API
 │   ├── errors.py           # error types
@@ -192,7 +207,7 @@ umeshjhaAI/
 │   ├── graph.py            # adjacency + M2 topological sort
 │   ├── engine.py           # M3 stages, M4 critical path, M5 failure
 │   └── cli.py              # argparse CLI + text/JSON formatting
-└── tests/                  # unittest suite
+└── tests/                  # unittest suite (incl. property-based tests)
 ```
 
 ## Known limitations and scheduling assumptions

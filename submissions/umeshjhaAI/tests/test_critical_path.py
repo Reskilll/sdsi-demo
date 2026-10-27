@@ -88,6 +88,29 @@ class TestCriticalPath(unittest.TestCase):
         self.assertEqual(dur, 9)
         self.assertEqual(path, ["b"])
 
+    def test_critical_path_reasons(self):
+        from scheduler.engine import build_schedule
+
+        jobs = _make(
+            ("a", 1, []),
+            ("b", 3, ["a"]),
+            ("c", 5, ["a"]),
+            ("d", 1, ["b", "c"]),
+        )
+        schedule = build_schedule(jobs, workers=2)
+        self.assertEqual(schedule.critical_path, ["a", "c", "d"])
+
+        reasons = {r.job_id: r for r in schedule.critical_path_reasons}
+        self.assertEqual(set(reasons), {"a", "c", "d"})
+        # reason strings reference the correct downstream job
+        self.assertIn("'c'", reasons["a"].reason)
+        self.assertIn("'d'", reasons["c"].reason)
+        self.assertIn("overall critical-path duration", reasons["d"].reason)
+        # timing fields match the critical-path analysis
+        self.assertEqual(reasons["c"].earliest_start, 1)
+        self.assertEqual(reasons["c"].earliest_finish, 6)
+        self.assertEqual(reasons["d"].earliest_finish, 7)
+
 
 if __name__ == "__main__":
     unittest.main()

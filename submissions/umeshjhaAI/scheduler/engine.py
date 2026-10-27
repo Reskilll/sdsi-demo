@@ -6,7 +6,7 @@ import heapq
 from typing import Sequence
 
 from .graph import build_adjacency, topological_order
-from .model import Job, JobTiming, Schedule, Stage
+from .model import CriticalPathReason, Job, JobTiming, Schedule, Stage
 
 
 def build_stages(jobs: Sequence[Job], workers: int) -> tuple[list[Stage], float]:
@@ -128,11 +128,73 @@ def propagate_failure(jobs: Sequence[Job], failed_id: str) -> list[str]:
     return sorted(skipped)
 
 
+def explain_critical_path(
+    jobs: Sequence[Job],
+    critical_path: Sequence[str],
+    job_times: dict[str, JobTiming],
+) -> list[CriticalPathReason]:
+    """Produce a short human-readable explanation for each critical-path job.
+
+    For every job on the representative critical path, explain why it is on the
+    path: it has no prerequisites (path start), it is the chosen longest
+    predecessor of the following job (its finish time feeds forward), or it is
+    the final job that determines the overall critical-path duration.
+
+    ``job_times`` supplies the already-computed earliest start/finish so the
+    reported numbers match the critical-path analysis exactly.
+    """
+    durations = {job.id: job.duration for job in jobs}
+    deps = {job.id: tuple(job.depends_on) for job in jobs}
+    path = list(critical_path)
+    reasons: list[CriticalPathReason] = []
+
+    for i, jid in enumerate(path):
+        timing = job_times[jid]
+        start = timing.earliest_start
+        finish = timing.earliest_finish
+
+        if len(path) == 1:
+            reason = (
+                f"only job on the critical path; its finish time ({finish:g}) "
+                "is the overall critical-path duration"
+            )
+        elif i == 0:
+            nxt = path[1]
+            reason = (
+                f"start of the critical path (no prerequisites); its finish "
+                f"time ({finish:g}) feeds the next job {nxt!r}"
+            )
+        elif i == len(path) - 1:
+            reason = (
+                "last job on the critical path; its finish time "
+                f"({finish:g}) is the overall critical-path duration"
+            )
+        else:
+            nxt = path[i + 1]
+            reason = (
+                f"longest prerequisite of {nxt!r}; its finish time ({finish:g}) "
+                "determines when the next job can start"
+            )
+
+        reasons.append(
+            CriticalPathReason(
+                job_id=jid,
+                duration=durations[jid],
+                earliest_start=start,
+                earliest_finish=finish,
+                reason=reason,
+            )
+        )
+
+    return reasons
+
+
 def build_schedule(jobs: Sequence[Job], workers: int) -> Schedule:
     """Assemble the full analysis for a validated job list."""
     order = topological_order(jobs)
     stages, total_time = build_stages(jobs, workers)
     job_times, cp_duration, cp_path = critical_path_analysis(jobs, order)
+    cp_reasons = explain_critical_path(jobs, cp_path, job_times)
     return Schedule(
         topo_order=order,
         stages=stages,
@@ -140,4 +202,5 @@ def build_schedule(jobs: Sequence[Job], workers: int) -> Schedule:
         critical_path=cp_path,
         critical_path_duration=cp_duration,
         job_times=job_times,
+        critical_path_reasons=cp_reasons,
     )

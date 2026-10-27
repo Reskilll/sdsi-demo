@@ -36,6 +36,17 @@ class JobTiming:
     earliest_finish: float
 
 
+@dataclass(frozen=True)
+class CriticalPathReason:
+    """Explanation of why one job lies on the critical path."""
+
+    job_id: str
+    duration: float
+    earliest_start: float
+    earliest_finish: float
+    reason: str
+
+
 @dataclass
 class Schedule:
     """Full analysis result for a valid job graph."""
@@ -47,3 +58,4 @@ class Schedule:
     critical_path_duration: float
     job_times: dict[str, JobTiming] = field(default_factory=dict)
     skipped: Optional[list[str]] = None
+    critical_path_reasons: list[CriticalPathReason] = field(default_factory=list)

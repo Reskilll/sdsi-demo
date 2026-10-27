@@ -119,6 +119,10 @@ def format_text(schedule: Schedule, workers: int, failed_job: Optional[str]) -> 
     lines.append(
         f"Critical path duration (unlimited workers): {schedule.critical_path_duration:g}"
     )
+    if schedule.critical_path_reasons:
+        lines.append("Why each job is on the critical path:")
+        for r in schedule.critical_path_reasons:
+            lines.append(f"  {r.job_id}: {r.reason}")
 
     lines.append("")
     lines.append("Per-job timings (earliest start -> earliest finish):")
@@ -150,6 +154,16 @@ def format_json(schedule: Schedule, workers: int) -> dict[str, Any]:
         "total_completion_time": schedule.total_time,
         "critical_path": schedule.critical_path,
         "critical_path_duration": schedule.critical_path_duration,
+        "critical_path_reasons": [
+            {
+                "job_id": r.job_id,
+                "duration": r.duration,
+                "earliest_start": r.earliest_start,
+                "earliest_finish": r.earliest_finish,
+                "reason": r.reason,
+            }
+            for r in schedule.critical_path_reasons
+        ],
         "job_timings": {
             jid: {
                 "earliest_start": schedule.job_times[jid].earliest_start,

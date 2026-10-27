@@ -78,7 +78,7 @@ The suite is `unittest`-based (`tests/`), run with:
 python -m unittest discover -s tests -v
 ```
 
-Final result: **82 tests, all passing** (ran via `py -3` on Windows).
+Final result: **86 tests, all passing** (ran via `py -3` on Windows).
 
 Three of the initial test expectations were corrected during development
 (implementation behavior was correct; the test expectations were wrong):
@@ -89,6 +89,27 @@ Three of the initial test expectations were corrected during development
   `validate` before `transform`.
 - `propagate_failure([], "x")` correctly raises an "unknown failed job" error,
   since an empty graph has no known ids; the test had expected an empty list.
+
+A fourth correction was made while adding the critical-path explanation: the
+start-of-path reason string initially said "feeds the next job" without naming
+that job, which a test asserted against; the string was updated to name the
+downstream job explicitly.
+
+## Enhancements (added after the core requirements passed)
+
+Three lower-risk enhancements were added on request, each with test coverage:
+
+1. **Critical-path explanations** — a `CriticalPathReason` model and
+   `explain_critical_path()` in `engine.py`, surfaced in both text and JSON
+   output, explaining why each job is on the representative critical path.
+   Covered by `test_critical_path_reasons`.
+2. **Randomized property-based DAG tests** — `tests/test_properties.py`
+   generates acyclic graphs and asserts three invariants (worker limit per
+   stage, dependency readiness, and critical-path ≤ worker-limited total) over
+   hundreds of random DAGs plus a deep-chain and many-independent-jobs stress
+   case.
+3. **Packaging** — `pyproject.toml` with a `jobsched` console script entry
+   point; verified with `pip install -e .` in a throwaway venv.
 
 ## Implementation trade-offs
 
@@ -118,5 +139,12 @@ The following are the actual prompts supplied to the AI during this task
 2. The instruction "continue" after the initial repository inspection, to
    proceed from planning into implementation.
 
+3. "suggest what can be done over top of this?" — a request to propose
+   follow-up work, which led to the enhancements listed above.
+
+4. "implement 'lower effort / nice-to-have' and push" — the instruction to
+   implement the critical-path explanations, property-based tests, and
+   packaging, then commit and push.
+
 No other prompts were issued. No illustrative prompts are included beyond the
-two above.
+ones above.

@@ -1,6 +1,6 @@
-"""Data models for products, reservations, stock reports, and audit events."""
+"""Lightweight, slot-optimized models for products, reservations, and stock reports."""
 
-from dataclasses import dataclass, field, asdict
+from dataclasses import dataclass, asdict
 from enum import Enum
 import time
 from typing import Optional, Dict, Any
@@ -14,14 +14,17 @@ class ReservationStatus(str, Enum):
     EXPIRED = "EXPIRED"
 
 
-@dataclass
+@dataclass(slots=True)
 class Product:
-    """Represents a product item in the inventory."""
+    """Product model with embedded counters for zero-overhead, single-lookup access."""
     sku: str
     name: str
     initial_stock: int
     price: float = 0.0
     per_user_limit: int = 2
+    available: int = 0
+    reserved: int = 0
+    sold: int = 0
 
     def __post_init__(self):
         if not self.sku or not isinstance(self.sku, str):
@@ -32,11 +35,12 @@ class Product:
             raise ValueError(f"per_user_limit for '{self.sku}' must be a positive integer.")
         if self.price < 0.0:
             raise ValueError(f"Price for '{self.sku}' cannot be negative.")
+        self.available = self.initial_stock
 
 
-@dataclass
+@dataclass(slots=True)
 class Reservation:
-    """Represents a temporary stock hold for a user."""
+    """Slot-optimized temporary stock reservation."""
     reservation_id: str
     user_id: str
     sku: str
@@ -48,25 +52,30 @@ class Reservation:
     cancelled_at: Optional[float] = None
 
     def is_expired(self, current_time: Optional[float] = None) -> bool:
-        """Returns True if current time has passed expiry timestamp."""
         now = time.time() if current_time is None else current_time
         return now >= self.expires_at
 
     def time_remaining(self, current_time: Optional[float] = None) -> float:
-        """Returns seconds remaining before expiration (min 0.0)."""
         now = time.time() if current_time is None else current_time
         return max(0.0, self.expires_at - now)
 
     def to_dict(self) -> Dict[str, Any]:
-        """Convert to dictionary representation."""
-        data = asdict(self)
-        data["status"] = self.status.value
-        return data
+        return {
+            "reservation_id": self.reservation_id,
+            "user_id": self.user_id,
+            "sku": self.sku,
+            "quantity": self.quantity,
+            "created_at": self.created_at,
+            "expires_at": self.expires_at,
+            "status": self.status.value,
+            "confirmed_at": self.confirmed_at,
+            "cancelled_at": self.cancelled_at,
+        }
 
 
-@dataclass
+@dataclass(slots=True)
 class StockReport:
-    """Snapshot of stock counts for a specific SKU."""
+    """Report snapshot with invariant validation."""
     sku: str
     name: str
     initial_stock: int
@@ -75,23 +84,27 @@ class StockReport:
     sold: int
 
     def __post_init__(self):
-        # Strict consistency invariant check
-        total_accounted = self.available + self.reserved + self.sold
-        if total_accounted != self.initial_stock:
+        total = self.available + self.reserved + self.sold
+        if total != self.initial_stock:
             raise ValueError(
-                f"Invariant violation for SKU '{self.sku}': "
-                f"available ({self.available}) + reserved ({self.reserved}) + sold ({self.sold}) = "
-                f"{total_accounted} != initial_stock ({self.initial_stock})"
+                f"Invariant violation for '{self.sku}': avail({self.available}) + res({self.reserved}) + "
+                f"sold({self.sold}) = {total} != initial({self.initial_stock})"
             )
 
     def to_dict(self) -> Dict[str, Any]:
-        """Convert to dictionary representation."""
-        return asdict(self)
+        return {
+            "sku": self.sku,
+            "name": self.name,
+            "initial_stock": self.initial_stock,
+            "available": self.available,
+            "reserved": self.reserved,
+            "sold": self.sold,
+        }
 
 
-@dataclass
+@dataclass(slots=True)
 class AuditEvent:
-    """Immutable audit record for tracking flash sale transactions."""
+    """Minimal audit event."""
     event_id: str
     event_type: str
     timestamp: float
@@ -99,8 +112,16 @@ class AuditEvent:
     user_id: Optional[str] = None
     quantity: Optional[int] = None
     reservation_id: Optional[str] = None
-    details: Dict[str, Any] = field(default_factory=dict)
+    details: Optional[Dict[str, Any]] = None
 
     def to_dict(self) -> Dict[str, Any]:
-        return asdict(self)
-
+        return {
+            "event_id": self.event_id,
+            "event_type": self.event_type,
+            "timestamp": self.timestamp,
+            "sku": self.sku,
+            "user_id": self.user_id,
+            "quantity": self.quantity,
+            "reservation_id": self.reservation_id,
+            "details": self.details or {},
+        }

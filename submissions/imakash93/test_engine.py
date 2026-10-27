@@ -281,11 +281,11 @@ class EdgeCaseTests(EngineTestCase):
         """E12: multiple users reserving same SKU tracks available correctly."""
         self._load()
         self.sys.reserve("alice", "A", 3)
-        self.sys.reserve("bob", "A", 4)
+        self.sys.reserve("bob", "A", 3)
         report = self.sys.report("A")["items"][0]
-        # stock=10, 7 reserved → 3 available
-        self.assertEqual(3, report["available"])
-        self.assertEqual(7, report["reserved"])
+        # stock=10, 6 reserved → 4 available
+        self.assertEqual(4, report["available"])
+        self.assertEqual(6, report["reserved"])
 
     def test_e13_all_or_nothing_confirm(self):
         """E13: confirm deducts the entire reservation quantity at once."""

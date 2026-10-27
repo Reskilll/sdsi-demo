@@ -2,6 +2,12 @@ import Joi from "joi";
 
 /** Safe environment variable access — all values validated at startup */
 
+/**
+ * Email validation regex — avoids Joi's built-in TLD list which can fail
+ * to load in some environments (e.g. newer Node.js versions on Windows).
+ */
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
 interface EnvConfig {
   NODE_ENV: "development" | "production" | "test";
   MONGODB_URI: string;
@@ -21,7 +27,7 @@ function envSchema(): Joi.ObjectSchema<EnvConfig> {
   return Joi.object({
     NODE_ENV: Joi.string().valid("development", "production", "test").default("development"),
     MONGODB_URI: Joi.string().uri().required(),
-    ADMIN_EMAIL: Joi.string().email().required(),
+    ADMIN_EMAIL: Joi.string().pattern(EMAIL_PATTERN, "email").required(),
     ADMIN_PASSWORD: Joi.string().min(8).required(),
     SESSION_SECRET: Joi.string().min(32).required(),
     APP_TIMEZONE: Joi.string().default("Asia/Kolkata"),

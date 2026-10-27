@@ -46,19 +46,19 @@ npm run verify
 
 ### Scripts
 
-| Script | What it does |
-|---|---|
-| `npm run dev` | Watch-mode server via `tsx` |
-| `npm run build` | Compile TypeScript to `dist/` |
-| `npm start` | Run the compiled server |
-| `npm test` | Vitest unit + integration suite |
-| `npm run test:cov` | Suite with V8 coverage (thresholds enforced) |
-| `npm run test:e2e` | Build, boot the server on port 3111, run the HTTP smoke test |
-| `npm run typecheck` | `tsc --noEmit`, strict |
-| `npm run lint` / `lint:fix` | ESLint 9 flat config |
-| `npm run format` | Prettier |
-| `npm run db:prune` | Delete links expired > `PRUNE_AFTER_DAYS` ago |
-| `npm run verify` | typecheck + lint + test |
+| Script                      | What it does                                                 |
+| --------------------------- | ------------------------------------------------------------ |
+| `npm run dev`               | Watch-mode server via `tsx`                                  |
+| `npm run build`             | Compile TypeScript to `dist/`                                |
+| `npm start`                 | Run the compiled server                                      |
+| `npm test`                  | Vitest unit + integration suite                              |
+| `npm run test:cov`          | Suite with V8 coverage (thresholds enforced)                 |
+| `npm run test:e2e`          | Build, boot the server on port 3111, run the HTTP smoke test |
+| `npm run typecheck`         | `tsc --noEmit`, strict                                       |
+| `npm run lint` / `lint:fix` | ESLint 9 flat config                                         |
+| `npm run format`            | Prettier                                                     |
+| `npm run db:prune`          | Delete links expired > `PRUNE_AFTER_DAYS` ago                |
+| `npm run verify`            | typecheck + lint + test                                      |
 
 ---
 
@@ -118,11 +118,11 @@ client report maps to exactly one log line.
 
 ### `POST /shorten`
 
-| Field | Type | Required | Notes |
-|---|---|---|---|
-| `url` | string | yes | Absolute `http`/`https` URL, ≤ `MAX_URL_LENGTH` (2048) |
-| `alias` | string | no | 3–32 chars of `[A-Za-z0-9_-]`, not a reserved word |
-| `expiresAt` | string | no | ISO-8601 **with zone** (`Z` or `±hh:mm`), future-only, ≤ 10 years |
+| Field       | Type   | Required | Notes                                                             |
+| ----------- | ------ | -------- | ----------------------------------------------------------------- |
+| `url`       | string | yes      | Absolute `http`/`https` URL, ≤ `MAX_URL_LENGTH` (2048)            |
+| `alias`     | string | no       | 3–32 chars of `[A-Za-z0-9_-]`, not a reserved word                |
+| `expiresAt` | string | no       | ISO-8601 **with zone** (`Z` or `±hh:mm`), future-only, ≤ 10 years |
 
 - `201 Created` — new code minted.
 - `200 OK` — identical URL already shortened; the existing code is returned
@@ -143,11 +143,11 @@ client report maps to exactly one log line.
 
 ### `GET /:code` · `HEAD /:code`
 
-| Status | Meaning | Headers |
-|---|---|---|
-| `302` | Redirect to the target | `Location`, `Cache-Control: no-store`, `Referrer-Policy: no-referrer`, `X-Robots-Tag: noindex` |
-| `410` | Expired or deleted | `error.code = LINK_GONE` |
-| `404` | Unknown code | `error.code = LINK_NOT_FOUND` |
+| Status | Meaning                | Headers                                                                                        |
+| ------ | ---------------------- | ---------------------------------------------------------------------------------------------- |
+| `302`  | Redirect to the target | `Location`, `Cache-Control: no-store`, `Referrer-Policy: no-referrer`, `X-Robots-Tag: noindex` |
+| `410`  | Expired or deleted     | `error.code = LINK_GONE`                                                                       |
+| `404`  | Unknown code           | `error.code = LINK_NOT_FOUND`                                                                  |
 
 `HEAD` validates the link but does **not** count a click, so link previews and uptime
 probes cannot inflate analytics. `GET` is always a **302**, never a 301, so expiry and
@@ -184,13 +184,13 @@ Stats stay readable for expired and deleted links so historical numbers survive.
 
 ### Other endpoints
 
-| Method | Path | Auth | Purpose |
-|---|---|---|---|
-| `GET` | `/stats/:code/clicks?limit=20` | configurable | Recent clicks (UA + referrer only) |
-| `GET` | `/links?limit=50&offset=0` | required | Paginated link listing for the dashboard |
-| `DELETE` | `/:code` | required | Soft delete → future hits return 410 |
-| `GET` | `/health` | public | Liveness + schema version, never cached, never rate limited |
-| `GET` | `/` | public | Dashboard (static HTML/CSS/JS) |
+| Method   | Path                           | Auth         | Purpose                                                     |
+| -------- | ------------------------------ | ------------ | ----------------------------------------------------------- |
+| `GET`    | `/stats/:code/clicks?limit=20` | configurable | Recent clicks (UA + referrer only)                          |
+| `GET`    | `/links?limit=50&offset=0`     | required     | Paginated link listing for the dashboard                    |
+| `DELETE` | `/:code`                       | required     | Soft delete → future hits return 410                        |
+| `GET`    | `/health`                      | public       | Liveness + schema version, never cached, never rate limited |
+| `GET`    | `/`                            | public       | Dashboard (static HTML/CSS/JS)                              |
 
 ---
 
@@ -198,25 +198,25 @@ Stats stay readable for expired and deleted links so historical numbers survive.
 
 Every value has a working default; production mode additionally validates secrets.
 
-| Variable | Default | Description |
-|---|---|---|
-| `NODE_ENV` | `development` | `development` \| `test` \| `production` |
-| `PORT` / `HOST` | `3000` / `127.0.0.1` | HTTP listener |
-| `BASE_URL` | `http://127.0.0.1:3000` | Public origin used to build `shortUrl` |
-| `DATABASE_PATH` | `./data/links.db` | SQLite path (`:memory:` supported) |
-| `CODE_LENGTH` | `7` | Generated code length, 6–8 |
-| `MAX_URL_LENGTH` | `2048` | Longest accepted target URL |
-| `ALLOW_PRIVATE_HOSTS` | `false` | Allow loopback/private targets (local demos only) |
-| `EXPIRY_MAX_DAYS` | `3650` | Maximum expiry horizon |
-| `API_KEYS` | *(empty)* | Comma-separated keys; **required in production** |
-| `STATS_REQUIRE_AUTH` | `false` | Require a key to read stats |
-| `TRUST_PROXY` | `0` | `0`/`false`, `true`, or hop count |
-| `IP_SALT` | `dev-only-salt` | HMAC salt for visitor IPs; **must be changed in production** |
-| `LOG_LEVEL` | `info` | pino level |
-| `RATE_LIMIT_GLOBAL_PER_MINUTE` | `300` | All routes |
-| `RATE_LIMIT_WRITE_PER_MINUTE` | `30` | `POST /shorten`, `DELETE` |
-| `RATE_LIMIT_REDIRECT_PER_MINUTE` | `600` | `GET /:code` |
-| `PRUNE_AFTER_DAYS` | `30` | Retention for `npm run db:prune` |
+| Variable                         | Default                 | Description                                                  |
+| -------------------------------- | ----------------------- | ------------------------------------------------------------ |
+| `NODE_ENV`                       | `development`           | `development` \| `test` \| `production`                      |
+| `PORT` / `HOST`                  | `3000` / `127.0.0.1`    | HTTP listener                                                |
+| `BASE_URL`                       | `http://127.0.0.1:3000` | Public origin used to build `shortUrl`                       |
+| `DATABASE_PATH`                  | `./data/links.db`       | SQLite path (`:memory:` supported)                           |
+| `CODE_LENGTH`                    | `7`                     | Generated code length, 6–8                                   |
+| `MAX_URL_LENGTH`                 | `2048`                  | Longest accepted target URL                                  |
+| `ALLOW_PRIVATE_HOSTS`            | `false`                 | Allow loopback/private targets (local demos only)            |
+| `EXPIRY_MAX_DAYS`                | `3650`                  | Maximum expiry horizon                                       |
+| `API_KEYS`                       | _(empty)_               | Comma-separated keys; **required in production**             |
+| `STATS_REQUIRE_AUTH`             | `false`                 | Require a key to read stats                                  |
+| `TRUST_PROXY`                    | `0`                     | `0`/`false`, `true`, or hop count                            |
+| `IP_SALT`                        | `dev-only-salt`         | HMAC salt for visitor IPs; **must be changed in production** |
+| `LOG_LEVEL`                      | `info`                  | pino level                                                   |
+| `RATE_LIMIT_GLOBAL_PER_MINUTE`   | `300`                   | All routes                                                   |
+| `RATE_LIMIT_WRITE_PER_MINUTE`    | `30`                    | `POST /shorten`, `DELETE`                                    |
+| `RATE_LIMIT_REDIRECT_PER_MINUTE` | `600`                   | `GET /:code`                                                 |
+| `PRUNE_AFTER_DAYS`               | `30`                    | Retention for `npm run db:prune`                             |
 
 Production mode refuses to boot when `API_KEYS` is empty, `IP_SALT` is the development
 default, `ALLOW_PRIVATE_HOSTS` is enabled, or `BASE_URL` is plain `http://` on a
@@ -226,22 +226,22 @@ non-loopback host.
 
 ## Design decisions (and why)
 
-| Decision | Rationale |
-|---|---|
-| **302, never 301** | A permanent redirect is cached by browsers, so expiry and deletion would be silently ignored. |
-| **`Cache-Control: no-store` on redirects** | Prevents intermediary caching of the hop and keeps click counts honest. |
-| **Idempotency on a canonical URL hash** | Scheme/host case, default ports and trailing root dots are normalised, so `HTTPS://Example.com:443` and `https://example.com` share a code (M4). Path/query case is preserved. |
-| **Expired link re-shorten mints a new code** | The old code keeps returning 410, so its historical stats stay attributable instead of being resurrected. |
-| **Partial unique index + `BEGIN IMMEDIATE`** | The transaction serialises read-then-insert; the index is a hard guarantee under concurrency. |
-| **Soft delete** | Preserves analytics and prevents code reuse by a third party for a different destination. |
-| **Aliases are case-sensitive** | `CaseAlias` and `casealias` are different codes; routing is case-sensitive so an alias can never shadow `/stats`. |
-| **Reserved-word blocklist** | No alias can collide with `/health`, `/links`, `/shorten`, `/stats`, `favicon.ico`, etc. |
-| **Codes from `crypto.randomInt`** | Uniform (no modulo bias), unguessable, and not sequential — enumeration-resistant. |
-| **Fail-open analytics** | A click-write failure is logged but never blocks the redirect; availability beats metrics. |
-| **Hashed visitor IPs** | HMAC-SHA256 with a server salt keeps unique-visitor counts without storing personal data. |
-| **Structured logs without URLs** | Target URLs can embed tokens/PII, so logs carry path + status + latency + request id only. |
-| **Fail-fast configuration** | An invalid env aborts boot with a readable message instead of producing mysterious 500s. |
-| **CSP with no inline script** | The dashboard ships external JS/CSS only, so a stored-XSS payload has no execution surface. |
+| Decision                                     | Rationale                                                                                                                                                                      |
+| -------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **302, never 301**                           | A permanent redirect is cached by browsers, so expiry and deletion would be silently ignored.                                                                                  |
+| **`Cache-Control: no-store` on redirects**   | Prevents intermediary caching of the hop and keeps click counts honest.                                                                                                        |
+| **Idempotency on a canonical URL hash**      | Scheme/host case, default ports and trailing root dots are normalised, so `HTTPS://Example.com:443` and `https://example.com` share a code (M4). Path/query case is preserved. |
+| **Expired link re-shorten mints a new code** | The old code keeps returning 410, so its historical stats stay attributable instead of being resurrected.                                                                      |
+| **Partial unique index + `BEGIN IMMEDIATE`** | The transaction serialises read-then-insert; the index is a hard guarantee under concurrency.                                                                                  |
+| **Soft delete**                              | Preserves analytics and prevents code reuse by a third party for a different destination.                                                                                      |
+| **Aliases are case-sensitive**               | `CaseAlias` and `casealias` are different codes; routing is case-sensitive so an alias can never shadow `/stats`.                                                              |
+| **Reserved-word blocklist**                  | No alias can collide with `/health`, `/links`, `/shorten`, `/stats`, `favicon.ico`, etc.                                                                                       |
+| **Codes from `crypto.randomInt`**            | Uniform (no modulo bias), unguessable, and not sequential — enumeration-resistant.                                                                                             |
+| **Fail-open analytics**                      | A click-write failure is logged but never blocks the redirect; availability beats metrics.                                                                                     |
+| **Hashed visitor IPs**                       | HMAC-SHA256 with a server salt keeps unique-visitor counts without storing personal data.                                                                                      |
+| **Structured logs without URLs**             | Target URLs can embed tokens/PII, so logs carry path + status + latency + request id only.                                                                                     |
+| **Fail-fast configuration**                  | An invalid env aborts boot with a readable message instead of producing mysterious 500s.                                                                                       |
+| **CSP with no inline script**                | The dashboard ships external JS/CSS only, so a stored-XSS payload has no execution surface.                                                                                    |
 
 ### Data model
 
@@ -281,16 +281,16 @@ npm run test:cov       # coverage with thresholds
 npm run test:e2e       # build + boot + 34 live HTTP checks
 ```
 
-| Area | File |
-|---|---|
-| base62 generation, alphabet, uniformity | `tests/unit/base62.test.ts` |
-| URL validation/normalisation matrix (schemes, CRLF, IDN, numeric IPs, private hosts) | `tests/unit/url.test.ts` |
-| alias rules and reserved words | `tests/unit/alias.test.ts` |
-| expiry parsing (zones, past, horizon) | `tests/unit/expiry.test.ts` |
-| config parsing/validation, dense series, clamping | `tests/unit/support.test.ts` |
-| M1–M5 over HTTP, concurrency races | `tests/integration/links.test.ts` |
-| auth, rate limiting, input hardening | `tests/integration/security.test.ts` |
-| service + persistence, migrations, cascade, fail-open | `tests/integration/service.test.ts` |
+| Area                                                                                 | File                                 |
+| ------------------------------------------------------------------------------------ | ------------------------------------ |
+| base62 generation, alphabet, uniformity                                              | `tests/unit/base62.test.ts`          |
+| URL validation/normalisation matrix (schemes, CRLF, IDN, numeric IPs, private hosts) | `tests/unit/url.test.ts`             |
+| alias rules and reserved words                                                       | `tests/unit/alias.test.ts`           |
+| expiry parsing (zones, past, horizon)                                                | `tests/unit/expiry.test.ts`          |
+| config parsing/validation, dense series, clamping                                    | `tests/unit/support.test.ts`         |
+| M1–M5 over HTTP, concurrency races                                                   | `tests/integration/links.test.ts`    |
+| auth, rate limiting, input hardening                                                 | `tests/integration/security.test.ts` |
+| service + persistence, migrations, cascade, fail-open                                | `tests/integration/service.test.ts`  |
 
 Every HTTP test uses an **in-memory database** and an **injected clock**, so tests are
 deterministic, parallel-safe and never touch the filesystem.
@@ -332,22 +332,22 @@ A/B rotation.
 
 ## Documentation index
 
-| Document | Contents |
-|---|---|
-| [`docs/API.md`](docs/API.md) | Full endpoint reference with every error code |
-| [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) | Layers, data model, request flows, scaling |
-| [`docs/EDGE_CASES.md`](docs/EDGE_CASES.md) | ~50 edge cases with expected behaviour and covering test |
-| [`docs/SECURITY.md`](docs/SECURITY.md) | Threat model and mitigations |
-| [`docs/SKILLS_AND_GUARDRAILS.md`](docs/SKILLS_AND_GUARDRAILS.md) | Agent skills/instructions used to build this |
-| [`PROMPTS.md`](PROMPTS.md) | AI collaboration log |
+| Document                                                         | Contents                                                 |
+| ---------------------------------------------------------------- | -------------------------------------------------------- |
+| [`docs/API.md`](docs/API.md)                                     | Full endpoint reference with every error code            |
+| [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md)                   | Layers, data model, request flows, scaling               |
+| [`docs/EDGE_CASES.md`](docs/EDGE_CASES.md)                       | ~50 edge cases with expected behaviour and covering test |
+| [`docs/SECURITY.md`](docs/SECURITY.md)                           | Threat model and mitigations                             |
+| [`docs/SKILLS_AND_GUARDRAILS.md`](docs/SKILLS_AND_GUARDRAILS.md) | Agent skills/instructions used to build this             |
+| [`PROMPTS.md`](PROMPTS.md)                                       | AI collaboration log                                     |
 
 ## Troubleshooting
 
-| Symptom | Fix |
-|---|---|
-| `node:sqlite` unavailable | Use Node 22.5+ (`node -e "new (require('node:sqlite').DatabaseSync)(':memory:')"` to check) |
-| `EADDRINUSE` | Another process owns the port; change `PORT` |
-| `401 UNAUTHORIZED` on writes | `API_KEYS` is set — send `Authorization: Bearer <key>` |
-| `400 BLOCKED_HOST` for localhost | Set `ALLOW_PRIVATE_HOSTS=true` for local demos |
-| Stats always zero | Check you are hitting the code with `GET` (not `HEAD`) |
-| Config error at boot | The message names the offending variable and why it is refused |
+| Symptom                          | Fix                                                                                         |
+| -------------------------------- | ------------------------------------------------------------------------------------------- |
+| `node:sqlite` unavailable        | Use Node 22.5+ (`node -e "new (require('node:sqlite').DatabaseSync)(':memory:')"` to check) |
+| `EADDRINUSE`                     | Another process owns the port; change `PORT`                                                |
+| `401 UNAUTHORIZED` on writes     | `API_KEYS` is set — send `Authorization: Bearer <key>`                                      |
+| `400 BLOCKED_HOST` for localhost | Set `ALLOW_PRIVATE_HOSTS=true` for local demos                                              |
+| Stats always zero                | Check you are hitting the code with `GET` (not `HEAD`)                                      |
+| Config error at boot             | The message names the offending variable and why it is refused                              |

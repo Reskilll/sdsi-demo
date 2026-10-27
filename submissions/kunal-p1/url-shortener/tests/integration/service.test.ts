@@ -132,7 +132,9 @@ describe('persistence', () => {
       const second = openDatabase({ path });
       const row = second.prepare('SELECT code FROM links').get() as { code: string };
       expect(row.code).toBe('keep123');
-      const version = second.prepare('SELECT MAX(id) AS v FROM schema_migrations').get() as { v: number };
+      const version = second.prepare('SELECT MAX(id) AS v FROM schema_migrations').get() as {
+        v: number;
+      };
       expect(version.v).toBe(2);
       second.close();
     } finally {
@@ -143,14 +145,14 @@ describe('persistence', () => {
   it('enforces unique codes at the database level', () => {
     const now = T0;
     ctx.db
-      .prepare(
-        `INSERT INTO links (code, url, url_hash, alias, created_at) VALUES (?, ?, ?, 0, ?)`,
-      )
+      .prepare(`INSERT INTO links (code, url, url_hash, alias, created_at) VALUES (?, ?, ?, 0, ?)`)
       .run('dupe123', 'https://example.com/a', 'hash-a', now);
 
     expect(() =>
       ctx.db
-        .prepare(`INSERT INTO links (code, url, url_hash, alias, created_at) VALUES (?, ?, ?, 0, ?)`)
+        .prepare(
+          `INSERT INTO links (code, url, url_hash, alias, created_at) VALUES (?, ?, ?, 0, ?)`,
+        )
         .run('dupe123', 'https://example.com/b', 'hash-b', now),
     ).toThrow(/UNIQUE/);
   });
@@ -160,7 +162,9 @@ describe('persistence', () => {
     ctx.service.recordClick(created.link.code);
     ctx.db.prepare('DELETE FROM links WHERE code = ?').run(created.link.code);
 
-    const remaining = ctx.db.prepare('SELECT COUNT(*) AS total FROM clicks').get() as { total: number };
+    const remaining = ctx.db.prepare('SELECT COUNT(*) AS total FROM clicks').get() as {
+      total: number;
+    };
     expect(remaining.total).toBe(0);
   });
 

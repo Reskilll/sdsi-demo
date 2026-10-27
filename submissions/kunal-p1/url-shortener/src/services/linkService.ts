@@ -357,8 +357,7 @@ export class LinkService {
   /** Health probe: cheap query that proves the database is readable. */
   checkDatabase(): { ok: boolean; schemaVersion: number } {
     const row = this.#db.prepare('SELECT MAX(id) AS version FROM schema_migrations').get() as
-      | { version: number | null }
-      | undefined;
+      { version: number | null } | undefined;
     return { ok: true, schemaVersion: row?.version ?? 0 };
   }
 }

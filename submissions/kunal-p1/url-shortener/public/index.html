@@ -61,7 +61,9 @@
           </div>
 
           <div class="field">
-            <label for="apiKey">API key <span class="optional">(only if the server requires one)</span></label>
+            <label for="apiKey"
+              >API key <span class="optional">(only if the server requires one)</span></label
+            >
             <input
               id="apiKey"
               name="apiKey"
@@ -86,9 +88,18 @@
             <button type="button" id="copy-btn" class="secondary small">Copy</button>
           </div>
           <dl class="result-meta">
-            <div><dt>Code</dt><dd id="result-code"></dd></div>
-            <div><dt>Target</dt><dd id="result-target" class="truncate"></dd></div>
-            <div><dt>Expires</dt><dd id="result-expires"></dd></div>
+            <div>
+              <dt>Code</dt>
+              <dd id="result-code"></dd>
+            </div>
+            <div>
+              <dt>Target</dt>
+              <dd id="result-target" class="truncate"></dd>
+            </div>
+            <div>
+              <dt>Expires</dt>
+              <dd id="result-expires"></dd>
+            </div>
           </dl>
         </div>
       </section>
@@ -104,14 +115,28 @@
           />
         </div>
 
-        <div id="stats-empty" class="empty">Pick a link below or enter a code to see its analytics.</div>
+        <div id="stats-empty" class="empty">
+          Pick a link below or enter a code to see its analytics.
+        </div>
 
         <div id="stats-panel" hidden>
           <dl class="stats-grid">
-            <div><dt>Total clicks</dt><dd id="stat-total">0</dd></div>
-            <div><dt>Unique visitors</dt><dd id="stat-unique">0</dd></div>
-            <div><dt>Last access</dt><dd id="stat-last">—</dd></div>
-            <div><dt>Status</dt><dd id="stat-status">—</dd></div>
+            <div>
+              <dt>Total clicks</dt>
+              <dd id="stat-total">0</dd>
+            </div>
+            <div>
+              <dt>Unique visitors</dt>
+              <dd id="stat-unique">0</dd>
+            </div>
+            <div>
+              <dt>Last access</dt>
+              <dd id="stat-last">—</dd>
+            </div>
+            <div>
+              <dt>Status</dt>
+              <dd id="stat-status">—</dd>
+            </div>
           </dl>
 
           <div class="chart-block">

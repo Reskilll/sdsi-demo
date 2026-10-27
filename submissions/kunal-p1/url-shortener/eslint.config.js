@@ -60,4 +60,23 @@ export default tseslint.config(
       'no-console': 'off',
     },
   },
+  {
+    // Standalone Node ESM scripts (smoke/e2e runners).
+    files: ['scripts/**/*.mjs'],
+    languageOptions: {
+      ecmaVersion: 2023,
+      sourceType: 'module',
+      globals: {
+        process: 'readonly',
+        console: 'readonly',
+        fetch: 'readonly',
+        AbortSignal: 'readonly',
+        setTimeout: 'readonly',
+        URL: 'readonly',
+      },
+    },
+    rules: {
+      'no-console': 'off',
+    },
+  },
 );

@@ -51,7 +51,10 @@ function stripBrackets(hostname: string): string {
 
 function isPrivateIPv4(value: string): boolean {
   const parts = value.split('.').map((part) => Number(part));
-  if (parts.length !== 4 || parts.some((part) => !Number.isInteger(part) || part < 0 || part > 255)) {
+  if (
+    parts.length !== 4 ||
+    parts.some((part) => !Number.isInteger(part) || part < 0 || part > 255)
+  ) {
     return true; // unparseable -> fail closed
   }
   const [a = 0, b = 0, c = 0] = parts;

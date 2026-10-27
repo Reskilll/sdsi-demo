@@ -103,12 +103,12 @@ async function main() {
   const stats = await get(`/stats/${code}`);
   expectEqual('M5 stats returns 200', stats.status, 200);
   expectEqual('M5 totalClicks counts only the GET (not HEAD)', stats.body.totalClicks, 1);
+  expectEqual('M5 lastAccessedAt is set', typeof stats.body.lastAccessedAt === 'string', true);
   expectEqual(
-    'M5 lastAccessedAt is set',
-    typeof stats.body.lastAccessedAt === 'string',
+    'M5 clicksPerDay is a non-empty array',
+    Array.isArray(stats.body.clicksPerDay) && stats.body.clicksPerDay.length > 0,
     true,
   );
-  expectEqual('M5 clicksPerDay is a non-empty array', Array.isArray(stats.body.clicksPerDay) && stats.body.clicksPerDay.length > 0, true);
 
   // --- M3 -----------------------------------------------------------------
   const bad = await post({ url: 'javascript:alert(1)' });

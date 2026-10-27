@@ -21,12 +21,18 @@ describe('alias validation', () => {
     },
   );
 
-  it.each([['ab'], ['a'.repeat(33)], [''], ['has space'], ['has/slash'], ['has.dot'], ['emoji🎉'], ['per%cent']])(
-    'rejects %j',
-    (alias) => {
-      expect(code(() => validateAlias(alias))).toBe('INVALID_ALIAS');
-    },
-  );
+  it.each([
+    ['ab'],
+    ['a'.repeat(33)],
+    [''],
+    ['has space'],
+    ['has/slash'],
+    ['has.dot'],
+    ['emoji🎉'],
+    ['per%cent'],
+  ])('rejects %j', (alias) => {
+    expect(code(() => validateAlias(alias))).toBe('INVALID_ALIAS');
+  });
 
   it('rejects non-string input', () => {
     for (const value of [undefined, null, 1, {}, [], true]) {

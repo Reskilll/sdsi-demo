@@ -61,9 +61,9 @@ expect(maxDeviation).toBeLessThan(0.15);
 > Resolve a code: 302 redirect, 410 for expired, 404 for unknown.
 
 **Correction that mattered**: the draft used `res.redirect(link.url)` (Express default 302)
-but did *not* set cache headers. Discussed 301 vs 302 explicitly: **301 is cached
+but did _not_ set cache headers. Discussed 301 vs 302 explicitly: **301 is cached
 heuristically by browsers**, so a link that expires or is deleted would keep redirecting from
-a user's local cache. Decision recorded as a guardrail: *302 only, always `no-store`*.
+a user's local cache. Decision recorded as a guardrail: _302 only, always `no-store`_.
 
 **Second correction**: `res.redirect()` in Express 5 sends a small HTML body, which is fine,
 but a `HEAD` handler initially reused `res.redirect` — that both wrote a body and recorded a
@@ -82,13 +82,13 @@ rejection, host-label validation.
 
 **Corrected/added after review**:
 
-| Model's first pass | Why it was insufficient | Fix |
-|---|---|---|
-| `url.startsWith('javascript:')` | Trivially bypassed (`JaVaScRiPt:`, leading spaces, `\t`) | Parse with `URL`, then compare `protocol` |
-| Allowed all hosts | Open redirect into `localhost`/metadata is the classic shortener abuse | `isPrivateHostname` with full IPv4/IPv6 range logic |
-| Checked only `127.0.0.1` and `10.*` | Missed CGNAT, link-local, ULA, multicast, IPv4-mapped IPv6 | Explicit range classification + tests per range |
-| Compared the raw string for private IPs | Bypassed by `2130706433` and `0x7f.1` | Classify **after** `new URL()` canonicalisation (documented in code) |
-| Ignored embedded credentials | `https://bank.com@evil.com` reads as bank.com to a human | `URL_HAS_CREDENTIALS` |
+| Model's first pass                      | Why it was insufficient                                                | Fix                                                                  |
+| --------------------------------------- | ---------------------------------------------------------------------- | -------------------------------------------------------------------- |
+| `url.startsWith('javascript:')`         | Trivially bypassed (`JaVaScRiPt:`, leading spaces, `\t`)               | Parse with `URL`, then compare `protocol`                            |
+| Allowed all hosts                       | Open redirect into `localhost`/metadata is the classic shortener abuse | `isPrivateHostname` with full IPv4/IPv6 range logic                  |
+| Checked only `127.0.0.1` and `10.*`     | Missed CGNAT, link-local, ULA, multicast, IPv4-mapped IPv6             | Explicit range classification + tests per range                      |
+| Compared the raw string for private IPs | Bypassed by `2130706433` and `0x7f.1`                                  | Classify **after** `new URL()` canonicalisation (documented in code) |
+| Ignored embedded credentials            | `https://bank.com@evil.com` reads as bank.com to a human               | `URL_HAS_CREDENTIALS`                                                |
 
 **Bug the unit tests caught**: the IPv6 expander returned a 9-element array for
 `::ffff:127.0.0.1` because the dotted tail was appended before the `::` expansion. The test
@@ -187,16 +187,16 @@ Output became `docs/EDGE_CASES.md` (111 rows). It surfaced decisions the brief w
 
 ## 4. Places the model was wrong (and how it was caught)
 
-| # | Model output | Caught by | Resolution |
-|---|---|---|---|
-| 1 | `DailyClicks` declared twice in `types.ts` (interface + type alias) | TypeScript `--noEmit` | Removed the alias, kept `DailyClicksEntry[]` |
-| 2 | A test used `expect.anything() as never` as an error code | Reading the assertion while writing the next test | Rewrote as a table of `[input, expectedCode]` |
-| 3 | `Stats: public or auth` handled by mounting the auth middleware unconditionally | Integration test `keeps stats public by default` failed with 401 | Introduced `statsAuth` conditional |
-| 4 | `DELETE /:code` fell through to the redirect router's catch-all and returned 405 | Integration test `protects deletes…` | Mounted the links router (with DELETE) **before** the redirect router |
-| 5 | `ip_hash` test asserted non-null while supertest sent no IP | Test failed | Test corrected to assert "no raw IP" rather than a specific hash |
-| 6 | IPv6 expander off-by-one for IPv4-mapped addresses | `isPrivateHostname('::ffff:127.0.0.1')` | Fixed the expansion, added the case to the matrix |
-| 7 | Route order: `/:code` mounted before `/links` | 404 on `/links` | Reordered mounts; documented as a trap in the skill |
-| 8 | Config test asserted non-existent properties | `tsc` | Replaced with real defaults |
+| #   | Model output                                                                     | Caught by                                                        | Resolution                                                            |
+| --- | -------------------------------------------------------------------------------- | ---------------------------------------------------------------- | --------------------------------------------------------------------- |
+| 1   | `DailyClicks` declared twice in `types.ts` (interface + type alias)              | TypeScript `--noEmit`                                            | Removed the alias, kept `DailyClicksEntry[]`                          |
+| 2   | A test used `expect.anything() as never` as an error code                        | Reading the assertion while writing the next test                | Rewrote as a table of `[input, expectedCode]`                         |
+| 3   | `Stats: public or auth` handled by mounting the auth middleware unconditionally  | Integration test `keeps stats public by default` failed with 401 | Introduced `statsAuth` conditional                                    |
+| 4   | `DELETE /:code` fell through to the redirect router's catch-all and returned 405 | Integration test `protects deletes…`                             | Mounted the links router (with DELETE) **before** the redirect router |
+| 5   | `ip_hash` test asserted non-null while supertest sent no IP                      | Test failed                                                      | Test corrected to assert "no raw IP" rather than a specific hash      |
+| 6   | IPv6 expander off-by-one for IPv4-mapped addresses                               | `isPrivateHostname('::ffff:127.0.0.1')`                          | Fixed the expansion, added the case to the matrix                     |
+| 7   | Route order: `/:code` mounted before `/links`                                    | 404 on `/links`                                                  | Reordered mounts; documented as a trap in the skill                   |
+| 8   | Config test asserted non-existent properties                                     | `tsc`                                                            | Replaced with real defaults                                           |
 
 Pattern: **the tests and the strict compiler caught the model, not the other way round.** That
 is the intended division of labour.
@@ -205,34 +205,34 @@ is the intended division of labour.
 
 ## 5. Prompts that worked well (reusable)
 
-- *"What is the smallest pure function that decides this, and which inputs would break a naive
-  implementation?"* — produced the URL and private-host matrices.
-- *"Write the failing test first, then the minimum code that passes it, then tell me which
-  other test this change could break."* — kept the concurrency and expiry tests honest.
-- *"Do not weaken the assertion. If the behaviour is right, tell me which test is wrong and
-  why."* — used twice; both times the test was wrong, once the code was.
-- *"List the residual risks you are not fixing."* — produced the honest limitations section
+- _"What is the smallest pure function that decides this, and which inputs would break a naive
+  implementation?"_ — produced the URL and private-host matrices.
+- _"Write the failing test first, then the minimum code that passes it, then tell me which
+  other test this change could break."_ — kept the concurrency and expiry tests honest.
+- _"Do not weaken the assertion. If the behaviour is right, tell me which test is wrong and
+  why."_ — used twice; both times the test was wrong, once the code was.
+- _"List the residual risks you are not fixing."_ — produced the honest limitations section
   rather than an over-claimed security posture.
 
 ## 6. Prompts that worked badly (and the fix)
 
-- *"Make it production ready."* — produced cosmetic changes (more middleware) without
+- _"Make it production ready."_ — produced cosmetic changes (more middleware) without
   addressing correctness. Replaced with a checklist: transactions, cache headers, config
   validation, graceful shutdown, privacy.
-- *"Add tests."* — produced assertions of the form `expect(status).toBeGreaterThanOrEqual(400)`.
-  Replaced with *"for each error path, assert the exact code and status, and name the test
-  after the milestone"*.
+- _"Add tests."_ — produced assertions of the form `expect(status).toBeGreaterThanOrEqual(400)`.
+  Replaced with _"for each error path, assert the exact code and status, and name the test
+  after the milestone"_.
 
 ---
 
 ## 7. Division of labour
 
-| Human | AI |
-|---|---|
-| Chose the stack, scope, and which requirements were in/out | Produced the layered skeleton and most first drafts |
-| Decided the semantic questions (expired re-shorten, alias after expiry, 301 vs 302, private hosts) | Enumerated options and trade-offs for each |
-| Rejected weakened tests and over-claims | Wrote the test matrices once the rules were fixed |
-| Verified by running the suite and the curl walkthrough | Kept docs, guardrails and code consistent |
+| Human                                                                                              | AI                                                  |
+| -------------------------------------------------------------------------------------------------- | --------------------------------------------------- |
+| Chose the stack, scope, and which requirements were in/out                                         | Produced the layered skeleton and most first drafts |
+| Decided the semantic questions (expired re-shorten, alias after expiry, 301 vs 302, private hosts) | Enumerated options and trade-offs for each          |
+| Rejected weakened tests and over-claims                                                            | Wrote the test matrices once the rules were fixed   |
+| Verified by running the suite and the curl walkthrough                                             | Kept docs, guardrails and code consistent           |
 
 Everything in this repository was reviewed line by line; the corrections above are the audit
 trail of that review.

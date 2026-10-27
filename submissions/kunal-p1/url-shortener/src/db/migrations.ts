@@ -88,7 +88,9 @@ export function runMigrations(db: DatabaseType): number {
 
   const appliedRows = db.prepare('SELECT id FROM schema_migrations').all() as Array<{ id: number }>;
   const applied = new Set(appliedRows.map((row) => row.id));
-  const record = db.prepare('INSERT INTO schema_migrations (id, name, applied_at) VALUES (?, ?, ?)');
+  const record = db.prepare(
+    'INSERT INTO schema_migrations (id, name, applied_at) VALUES (?, ?, ?)',
+  );
 
   for (const migration of migrations) {
     if (applied.has(migration.id)) continue;
@@ -112,7 +114,6 @@ export function runMigrations(db: DatabaseType): number {
 
 export function schemaVersion(db: DatabaseType): number {
   const row = db.prepare('SELECT MAX(id) AS version FROM schema_migrations').get() as
-    | { version: number | null }
-    | undefined;
+    { version: number | null } | undefined;
   return row?.version ?? 0;
 }

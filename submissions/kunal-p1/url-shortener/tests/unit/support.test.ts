@@ -24,13 +24,22 @@ describe('buildDenseSeries', () => {
   });
 
   it('caps the series length', () => {
-    const series = buildDenseSeries([], Date.parse('2020-01-01T00:00:00Z'), Date.parse('2026-01-01T00:00:00Z'), 30);
+    const series = buildDenseSeries(
+      [],
+      Date.parse('2020-01-01T00:00:00Z'),
+      Date.parse('2026-01-01T00:00:00Z'),
+      30,
+    );
     expect(series).toHaveLength(30);
     expect(series[series.length - 1]?.date).toBe('2026-01-01');
   });
 
   it('does not run past the current day', () => {
-    const series = buildDenseSeries([], Date.parse('2026-01-15T00:00:00Z'), Date.parse('2026-01-15T23:59:00Z'));
+    const series = buildDenseSeries(
+      [],
+      Date.parse('2026-01-15T00:00:00Z'),
+      Date.parse('2026-01-15T23:59:00Z'),
+    );
     expect(series).toHaveLength(1);
     expect(series[0]).toEqual({ date: '2026-01-15', clicks: 0 });
   });
@@ -90,7 +99,9 @@ describe('configuration', () => {
   });
 
   it('rejects production without API keys or a real salt', () => {
-    expect(() => parseConfig({ NODE_ENV: 'production', BASE_URL: 'https://sho.rt' })).toThrow(ConfigError);
+    expect(() => parseConfig({ NODE_ENV: 'production', BASE_URL: 'https://sho.rt' })).toThrow(
+      ConfigError,
+    );
     expect(() =>
       parseConfig({
         NODE_ENV: 'production',

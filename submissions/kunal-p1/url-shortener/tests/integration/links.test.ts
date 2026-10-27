@@ -173,27 +173,48 @@ describe('M3: URL validation over HTTP', () => {
 
 describe('M4: idempotent shortening', () => {
   it('returns the same code for the same URL', async () => {
-    const first = await request(ctx.app).post('/shorten').send({ url: 'https://example.com/same' }).expect(201);
-    const second = await request(ctx.app).post('/shorten').send({ url: 'https://example.com/same' }).expect(200);
+    const first = await request(ctx.app)
+      .post('/shorten')
+      .send({ url: 'https://example.com/same' })
+      .expect(201);
+    const second = await request(ctx.app)
+      .post('/shorten')
+      .send({ url: 'https://example.com/same' })
+      .expect(200);
 
     expect(second.body.code).toBe(first.body.code);
     expect(second.body.created).toBe(false);
   });
 
   it('normalises before comparing', async () => {
-    const first = await request(ctx.app).post('/shorten').send({ url: 'https://Example.com:443/path' }).expect(201);
-    const second = await request(ctx.app).post('/shorten').send({ url: 'https://example.com/path' }).expect(200);
+    const first = await request(ctx.app)
+      .post('/shorten')
+      .send({ url: 'https://Example.com:443/path' })
+      .expect(201);
+    const second = await request(ctx.app)
+      .post('/shorten')
+      .send({ url: 'https://example.com/path' })
+      .expect(200);
     expect(second.body.code).toBe(first.body.code);
   });
 
   it('treats different paths as different links', async () => {
-    const first = await request(ctx.app).post('/shorten').send({ url: 'https://example.com/a' }).expect(201);
-    const second = await request(ctx.app).post('/shorten').send({ url: 'https://example.com/b' }).expect(201);
+    const first = await request(ctx.app)
+      .post('/shorten')
+      .send({ url: 'https://example.com/a' })
+      .expect(201);
+    const second = await request(ctx.app)
+      .post('/shorten')
+      .send({ url: 'https://example.com/b' })
+      .expect(201);
     expect(second.body.code).not.toBe(first.body.code);
   });
 
   it('does not reuse codes for alias requests', async () => {
-    const generated = await request(ctx.app).post('/shorten').send({ url: 'https://example.com/alias-test' }).expect(201);
+    const generated = await request(ctx.app)
+      .post('/shorten')
+      .send({ url: 'https://example.com/alias-test' })
+      .expect(201);
     const aliased = await request(ctx.app)
       .post('/shorten')
       .send({ url: 'https://example.com/alias-test', alias: 'my-alias' })
@@ -218,7 +239,10 @@ describe('M4: idempotent shortening', () => {
   });
 
   it('returns 409 when the alias is used for a different URL', async () => {
-    await request(ctx.app).post('/shorten').send({ url: 'https://example.com/one', alias: 'shared' }).expect(201);
+    await request(ctx.app)
+      .post('/shorten')
+      .send({ url: 'https://example.com/one', alias: 'shared' })
+      .expect(201);
     const response = await request(ctx.app)
       .post('/shorten')
       .send({ url: 'https://example.com/two', alias: 'shared' })
@@ -236,7 +260,10 @@ describe('M4: idempotent shortening', () => {
     // Jump past the expiry.
     ctx.clock.set(Date.parse('2026-01-21T00:00:00Z'));
 
-    const second = await request(ctx.app).post('/shorten').send({ url: 'https://example.com/renew' }).expect(201);
+    const second = await request(ctx.app)
+      .post('/shorten')
+      .send({ url: 'https://example.com/renew' })
+      .expect(201);
 
     expect(second.body.code).not.toBe(first.body.code);
     // The old code stays gone rather than being resurrected.
@@ -272,7 +299,10 @@ describe('M4: idempotent shortening', () => {
 
 describe('M2: resolving codes', () => {
   it('redirects with 302 and no-store caching', async () => {
-    const created = await request(ctx.app).post('/shorten').send({ url: 'https://example.com/go' }).expect(201);
+    const created = await request(ctx.app)
+      .post('/shorten')
+      .send({ url: 'https://example.com/go' })
+      .expect(201);
 
     const response = await request(ctx.app).get(`/${created.body.code}`).expect(302);
     expect(response.headers.location).toBe('https://example.com/go');
@@ -281,7 +311,10 @@ describe('M2: resolving codes', () => {
   });
 
   it('answers HEAD without recording a click', async () => {
-    const created = await request(ctx.app).post('/shorten').send({ url: 'https://example.com/head' }).expect(201);
+    const created = await request(ctx.app)
+      .post('/shorten')
+      .send({ url: 'https://example.com/head' })
+      .expect(201);
 
     await request(ctx.app).head(`/${created.body.code}`).expect(302);
     await request(ctx.app).head(`/${created.body.code}`).expect(302);
@@ -319,19 +352,28 @@ describe('M2: resolving codes', () => {
   });
 
   it('is case sensitive: codes are matched exactly', async () => {
-    await request(ctx.app).post('/shorten').send({ url: 'https://example.com/case', alias: 'CaseAlias' }).expect(201);
+    await request(ctx.app)
+      .post('/shorten')
+      .send({ url: 'https://example.com/case', alias: 'CaseAlias' })
+      .expect(201);
 
     await request(ctx.app).get('/CaseAlias').expect(302);
     await request(ctx.app).get('/casealias').expect(404);
   });
 
   it('returns 302 for an alias route that looks reserved but is longer', async () => {
-    await request(ctx.app).post('/shorten').send({ url: 'https://example.com/x', alias: 'stats2' }).expect(201);
+    await request(ctx.app)
+      .post('/shorten')
+      .send({ url: 'https://example.com/x', alias: 'stats2' })
+      .expect(201);
     await request(ctx.app).get('/stats2').expect(302);
   });
 
   it('rejects unsafe verbs on a code', async () => {
-    const created = await request(ctx.app).post('/shorten').send({ url: 'https://example.com/v' }).expect(201);
+    const created = await request(ctx.app)
+      .post('/shorten')
+      .send({ url: 'https://example.com/v' })
+      .expect(201);
     const response = await request(ctx.app).put(`/${created.body.code}`).expect(405);
     expect(response.body.error.code).toBe('METHOD_NOT_ALLOWED');
   });
@@ -344,7 +386,10 @@ describe('M2: resolving codes', () => {
 
 describe('M5: click analytics', () => {
   it('counts clicks, buckets by UTC day and tracks last access', async () => {
-    const created = await request(ctx.app).post('/shorten').send({ url: 'https://example.com/track' }).expect(201);
+    const created = await request(ctx.app)
+      .post('/shorten')
+      .send({ url: 'https://example.com/track' })
+      .expect(201);
     const code = created.body.code as string;
 
     await request(ctx.app).get(`/${code}`).expect(302);
@@ -359,7 +404,10 @@ describe('M5: click analytics', () => {
     expect(stats.body.firstAccessedAt).toBe('2026-01-15T10:00:00.000Z');
 
     const byDate = Object.fromEntries(
-      (stats.body.clicksPerDay as Array<{ date: string; clicks: number }>).map((point) => [point.date, point.clicks]),
+      (stats.body.clicksPerDay as Array<{ date: string; clicks: number }>).map((point) => [
+        point.date,
+        point.clicks,
+      ]),
     );
     expect(byDate['2026-01-15']).toBe(2);
     expect(byDate['2026-01-16']).toBe(0);
@@ -389,7 +437,10 @@ describe('M5: click analytics', () => {
   });
 
   it('treats untrusted clients as a single visitor when TRUST_PROXY is off', async () => {
-    const created = await request(ctx.app).post('/shorten').send({ url: 'https://example.com/no-proxy' }).expect(201);
+    const created = await request(ctx.app)
+      .post('/shorten')
+      .send({ url: 'https://example.com/no-proxy' })
+      .expect(201);
     const code = created.body.code as string;
 
     await request(ctx.app).get(`/${code}`).set('X-Forwarded-For', '203.0.113.7').expect(302);
@@ -402,7 +453,10 @@ describe('M5: click analytics', () => {
   });
 
   it('returns zeroed stats for a link with no clicks', async () => {
-    const created = await request(ctx.app).post('/shorten').send({ url: 'https://example.com/none' }).expect(201);
+    const created = await request(ctx.app)
+      .post('/shorten')
+      .send({ url: 'https://example.com/none' })
+      .expect(201);
     const stats = await request(ctx.app).get(`/stats/${created.body.code}`).expect(200);
 
     expect(stats.body.totalClicks).toBe(0);
@@ -432,7 +486,10 @@ describe('M5: click analytics', () => {
   });
 
   it('lists recent clicks newest first, without exposing raw IPs', async () => {
-    const created = await request(ctx.app).post('/shorten').send({ url: 'https://example.com/recent' }).expect(201);
+    const created = await request(ctx.app)
+      .post('/shorten')
+      .send({ url: 'https://example.com/recent' })
+      .expect(201);
     const code = created.body.code as string;
 
     await request(ctx.app).get(`/${code}`).set('User-Agent', 'first-agent').expect(302);
@@ -447,10 +504,18 @@ describe('M5: click analytics', () => {
   });
 
   it('stores only hashed IPs in the database', async () => {
-    const created = await request(ctx.app).post('/shorten').send({ url: 'https://example.com/hash' }).expect(201);
-    await request(ctx.app).get(`/${created.body.code}`).set('X-Forwarded-For', '203.0.113.9').expect(302);
+    const created = await request(ctx.app)
+      .post('/shorten')
+      .send({ url: 'https://example.com/hash' })
+      .expect(201);
+    await request(ctx.app)
+      .get(`/${created.body.code}`)
+      .set('X-Forwarded-For', '203.0.113.9')
+      .expect(302);
 
-    const rows = ctx.db.prepare('SELECT ip_hash FROM clicks').all() as Array<{ ip_hash: string | null }>;
+    const rows = ctx.db.prepare('SELECT ip_hash FROM clicks').all() as Array<{
+      ip_hash: string | null;
+    }>;
     expect(rows).toHaveLength(1);
     expect(rows[0]?.ip_hash).toMatch(/^[0-9a-f]{32}$/);
     expect(rows[0]?.ip_hash).not.toContain('203.0.113');
@@ -459,7 +524,10 @@ describe('M5: click analytics', () => {
 
 describe('link management', () => {
   it('soft-deletes a link so it returns 410 but keeps stats', async () => {
-    const created = await request(ctx.app).post('/shorten').send({ url: 'https://example.com/del' }).expect(201);
+    const created = await request(ctx.app)
+      .post('/shorten')
+      .send({ url: 'https://example.com/del' })
+      .expect(201);
     const code = created.body.code as string;
 
     await request(ctx.app).get(`/${code}`).expect(302);
@@ -474,7 +542,10 @@ describe('link management', () => {
   });
 
   it('is idempotent when deleting twice', async () => {
-    const created = await request(ctx.app).post('/shorten').send({ url: 'https://example.com/del2' }).expect(201);
+    const created = await request(ctx.app)
+      .post('/shorten')
+      .send({ url: 'https://example.com/del2' })
+      .expect(201);
     await request(ctx.app).delete(`/${created.body.code}`).expect(200);
     await request(ctx.app).delete(`/${created.body.code}`).expect(200);
   });
@@ -486,13 +557,18 @@ describe('link management', () => {
   it('lists links newest first with pagination', async () => {
     for (let index = 0; index < 5; index += 1) {
       ctx.clock.advance(1_000);
-      await request(ctx.app).post('/shorten').send({ url: `https://example.com/p/${index}` }).expect(201);
+      await request(ctx.app)
+        .post('/shorten')
+        .send({ url: `https://example.com/p/${index}` })
+        .expect(201);
     }
 
     const firstPage = await request(ctx.app).get('/links?limit=2&offset=0').expect(200);
     expect(firstPage.body.items).toHaveLength(2);
     expect(firstPage.body.total).toBe(5);
-    expect(firstPage.body.items[0].targetUrl ?? firstPage.body.items[0].url).toBe('https://example.com/p/4');
+    expect(firstPage.body.items[0].targetUrl ?? firstPage.body.items[0].url).toBe(
+      'https://example.com/p/4',
+    );
 
     const secondPage = await request(ctx.app).get('/links?limit=2&offset=2').expect(200);
     expect(secondPage.body.items[0].url).toBe('https://example.com/p/2');

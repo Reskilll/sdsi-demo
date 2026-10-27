@@ -9,7 +9,9 @@ export const systemClock: Clock = {
 };
 
 /** A clock that can be advanced manually; used by tests and the demo script. */
-export function fixedClock(start: number): Clock & { set: (value: number) => void; advance: (ms: number) => void } {
+export function fixedClock(
+  start: number,
+): Clock & { set: (value: number) => void; advance: (ms: number) => void } {
   let current = start;
   return {
     now: () => current,

@@ -15,7 +15,10 @@ const SAFE_ID = /^[A-Za-z0-9._:-]+$/;
 export function requestId(req: Request, res: Response, next: NextFunction): void {
   const incoming = req.get(REQUEST_ID_HEADER);
   const id =
-    typeof incoming === 'string' && incoming.length > 0 && incoming.length <= MAX_CLIENT_ID_LENGTH && SAFE_ID.test(incoming)
+    typeof incoming === 'string' &&
+    incoming.length > 0 &&
+    incoming.length <= MAX_CLIENT_ID_LENGTH &&
+    SAFE_ID.test(incoming)
       ? incoming
       : randomUUID();
 

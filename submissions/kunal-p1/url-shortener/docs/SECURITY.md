@@ -10,24 +10,24 @@ A URL shortener is a **trust boundary in two directions**:
   launder a malicious destination through a trusted-looking domain, or to probe internal
   networks.
 
-| Threat | Impact | Mitigation |
-|---|---|---|
-| `javascript:`/`data:` targets | Stored XSS on click | Scheme allowlist (`http:`, `https:` only) rejects everything else with `UNSUPPORTED_SCHEME` |
-| Open redirect to private hosts | SSRF-adjacent internal probing, metadata credential theft | `BLOCKED_HOST` for loopback/RFC1918/link-local/CGNAT/ULA/metadata/single-label hosts, with `ALLOW_PRIVATE_HOSTS` opt-in for demos |
-| Obfuscated IPv4 (`2130706433`, `0x7f.1`) | Bypass of private-host filter | WHATWG `URL` canonicalises numeric hosts to dotted quads before classification |
-| Credential phishing display (`https://bank.com@evil.com`) | User misreads destination | `URL_HAS_CREDENTIALS` rejects `user:pass@` |
-| CRLF / header injection via URL or `x-request-id` | Response splitting | Control characters and invisible chars rejected; request ids pattern-validated, otherwise regenerated |
-| Homograph / bidi spoofing | Misleading links | Invisible/bidi chars rejected; unicode hosts stored as punycode |
-| Stored XSS via dashboard | Session/API-key theft | `textContent`-only rendering, CSP with no `unsafe-inline`, no inline handlers |
-| Alias shadowing a route | Broken API, auth bypass | Reserved-word blocklist + case-sensitive routing |
-| Enumeration of codes | Private link discovery | 62⁷ ≈ 3.5 × 10¹² space, `crypto.randomInt` (uniform, non-sequential) |
-| Brute force / key guessing | Unauthorised writes | Constant-time comparison over all configured keys; rate limits |
-| Timing oracle on API keys | Key recovery | `timingSafeEqual`; length mismatch still performs a comparison |
-| Storage exhaustion | Cost/DoS | 8 KB body cap, write rate limit, URL length cap, prune job |
-| Log-based PII leakage | Privacy breach | Query strings and target URLs are never logged; only path + status + request id |
-| Database leak exposing visitors | Privacy breach | IPs stored as HMAC-SHA256 with a server-side salt; UA/referer truncated |
-| Concurrent double-allocation | Duplicate codes / lost updates | `BEGIN IMMEDIATE` + partial unique index + constraint mapping |
-| Click-write failure taking down redirects | Availability | Fail-open with warning log |
+| Threat                                                    | Impact                                                    | Mitigation                                                                                                                        |
+| --------------------------------------------------------- | --------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| `javascript:`/`data:` targets                             | Stored XSS on click                                       | Scheme allowlist (`http:`, `https:` only) rejects everything else with `UNSUPPORTED_SCHEME`                                       |
+| Open redirect to private hosts                            | SSRF-adjacent internal probing, metadata credential theft | `BLOCKED_HOST` for loopback/RFC1918/link-local/CGNAT/ULA/metadata/single-label hosts, with `ALLOW_PRIVATE_HOSTS` opt-in for demos |
+| Obfuscated IPv4 (`2130706433`, `0x7f.1`)                  | Bypass of private-host filter                             | WHATWG `URL` canonicalises numeric hosts to dotted quads before classification                                                    |
+| Credential phishing display (`https://bank.com@evil.com`) | User misreads destination                                 | `URL_HAS_CREDENTIALS` rejects `user:pass@`                                                                                        |
+| CRLF / header injection via URL or `x-request-id`         | Response splitting                                        | Control characters and invisible chars rejected; request ids pattern-validated, otherwise regenerated                             |
+| Homograph / bidi spoofing                                 | Misleading links                                          | Invisible/bidi chars rejected; unicode hosts stored as punycode                                                                   |
+| Stored XSS via dashboard                                  | Session/API-key theft                                     | `textContent`-only rendering, CSP with no `unsafe-inline`, no inline handlers                                                     |
+| Alias shadowing a route                                   | Broken API, auth bypass                                   | Reserved-word blocklist + case-sensitive routing                                                                                  |
+| Enumeration of codes                                      | Private link discovery                                    | 62⁷ ≈ 3.5 × 10¹² space, `crypto.randomInt` (uniform, non-sequential)                                                              |
+| Brute force / key guessing                                | Unauthorised writes                                       | Constant-time comparison over all configured keys; rate limits                                                                    |
+| Timing oracle on API keys                                 | Key recovery                                              | `timingSafeEqual`; length mismatch still performs a comparison                                                                    |
+| Storage exhaustion                                        | Cost/DoS                                                  | 8 KB body cap, write rate limit, URL length cap, prune job                                                                        |
+| Log-based PII leakage                                     | Privacy breach                                            | Query strings and target URLs are never logged; only path + status + request id                                                   |
+| Database leak exposing visitors                           | Privacy breach                                            | IPs stored as HMAC-SHA256 with a server-side salt; UA/referer truncated                                                           |
+| Concurrent double-allocation                              | Duplicate codes / lost updates                            | `BEGIN IMMEDIATE` + partial unique index + constraint mapping                                                                     |
+| Click-write failure taking down redirects                 | Availability                                              | Fail-open with warning log                                                                                                        |
 
 **Explicitly out of scope** (documented rather than pretended): DNS rebinding checks at
 redirect time, malware/phishing reputation feeds, user accounts, per-tenant quotas, and
@@ -35,14 +35,14 @@ distributed rate limiting.
 
 ## Input validation rules
 
-| Input | Rule |
-|---|---|
-| `url` | string → trim → reject empty, > `MAX_URL_LENGTH`, control/invisible chars, `\`; parse with `URL`; scheme ∈ {http, https}; no credentials; hostname labels match `^(?!-)[a-z0-9-]{1,63}(?<!-)$`; public host unless allowed; not a self-origin |
-| `alias` | string, 3–32 chars, `^[A-Za-z0-9_-]+$`, not a reserved word (case-insensitive) |
-| `expiresAt` | string, `YYYY-MM-DDThh:mm[:ss[.sss]]` + `Z`/`±hh:mm`, strictly future, ≤ `EXPIRY_MAX_DAYS` |
-| Body | `application/json` only, ≤ 8 KB, strict object (unknown keys rejected) |
-| `limit`/`offset` | integers, clamped (`1..100`, `≥ 0`) |
-| `x-request-id` | ≤ 64 chars of `[A-Za-z0-9._:-]`, else regenerated |
+| Input            | Rule                                                                                                                                                                                                                                          |
+| ---------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `url`            | string → trim → reject empty, > `MAX_URL_LENGTH`, control/invisible chars, `\`; parse with `URL`; scheme ∈ {http, https}; no credentials; hostname labels match `^(?!-)[a-z0-9-]{1,63}(?<!-)$`; public host unless allowed; not a self-origin |
+| `alias`          | string, 3–32 chars, `^[A-Za-z0-9_-]+$`, not a reserved word (case-insensitive)                                                                                                                                                                |
+| `expiresAt`      | string, `YYYY-MM-DDThh:mm[:ss[.sss]]` + `Z`/`±hh:mm`, strictly future, ≤ `EXPIRY_MAX_DAYS`                                                                                                                                                    |
+| Body             | `application/json` only, ≤ 8 KB, strict object (unknown keys rejected)                                                                                                                                                                        |
+| `limit`/`offset` | integers, clamped (`1..100`, `≥ 0`)                                                                                                                                                                                                           |
+| `x-request-id`   | ≤ 64 chars of `[A-Za-z0-9._:-]`, else regenerated                                                                                                                                                                                             |
 
 Validation order matters: cheap structural checks (type, length, control chars) run before
 parsing, so pathological inputs are rejected without allocating a `URL` object.
@@ -79,11 +79,11 @@ HTTPS deployment should re-enable it and HSTS.
 
 ## Rate limiting
 
-| Bucket | Default | Purpose |
-|---|---|---|
-| global | 300/min | blunt flood protection |
-| write | 30/min | creation abuse, which is also the phishing vector |
-| redirect | 600/min | hot-link hammering of one code |
+| Bucket   | Default | Purpose                                           |
+| -------- | ------- | ------------------------------------------------- |
+| global   | 300/min | blunt flood protection                            |
+| write    | 30/min  | creation abuse, which is also the phishing vector |
+| redirect | 600/min | hot-link hammering of one code                    |
 
 Keyed on client IP (`req.ip`), which is why `TRUST_PROXY` must be set correctly behind a
 proxy — otherwise every request appears to come from the proxy and one client can throttle
@@ -92,13 +92,13 @@ orchestrator probes never trip it.
 
 ## Data protection
 
-| Data | Treatment |
-|---|---|
-| Target URLs | Stored (needed to redirect); excluded from logs |
-| Visitor IPs | HMAC-SHA256 + salt, truncated to 32 hex chars; never returned by the API |
-| User agent / referer | Truncated to 512 chars; exposed only via `/stats/:code/clicks` |
-| API keys | Never logged (`redact` paths), never returned |
-| `IP_SALT` | Required ≥ 16 chars and non-default in production |
+| Data                 | Treatment                                                                |
+| -------------------- | ------------------------------------------------------------------------ |
+| Target URLs          | Stored (needed to redirect); excluded from logs                          |
+| Visitor IPs          | HMAC-SHA256 + salt, truncated to 32 hex chars; never returned by the API |
+| User agent / referer | Truncated to 512 chars; exposed only via `/stats/:code/clicks`           |
+| API keys             | Never logged (`redact` paths), never returned                            |
+| `IP_SALT`            | Required ≥ 16 chars and non-default in production                        |
 
 Retention: `npm run db:prune -- <days>` physically removes links expired beyond the window
 (clicks cascade). There is no automatic scheduler in the MVP — wire the script to cron/Task

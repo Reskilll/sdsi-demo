@@ -22,13 +22,13 @@ Dependencies point **inwards**: `domain/` imports nothing from `db/`, `services/
 `routes/`. That is what allows the URL matrix, alias rules and expiry rules to be unit
 tested in microseconds, and it keeps Express out of the business logic.
 
-| Layer | Files | Responsibility |
-|---|---|---|
-| Domain | `src/domain/*` | Pure validation and normalisation. Throws `AppError` with stable codes. No I/O. |
-| Persistence | `src/db/*` | Connection + pragmas, forward-only migrations, prepared statements. Uses Node's built-in `node:sqlite` (no native build). |
-| Service | `src/services/linkService.ts` | Orchestration and transactions: create/resolve/delete/stats/list. |
-| HTTP | `src/app.ts`, `src/routes/*`, `src/middleware/*` | Parsing, auth, limits, headers, status codes, error envelope. |
-| Support | `src/lib/*`, `src/config.ts` | Clock, logging, HMAC/IP hashing, enum-validated env config. |
+| Layer       | Files                                            | Responsibility                                                                                                            |
+| ----------- | ------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------- |
+| Domain      | `src/domain/*`                                   | Pure validation and normalisation. Throws `AppError` with stable codes. No I/O.                                           |
+| Persistence | `src/db/*`                                       | Connection + pragmas, forward-only migrations, prepared statements. Uses Node's built-in `node:sqlite` (no native build). |
+| Service     | `src/services/linkService.ts`                    | Orchestration and transactions: create/resolve/delete/stats/list.                                                         |
+| HTTP        | `src/app.ts`, `src/routes/*`, `src/middleware/*` | Parsing, auth, limits, headers, status codes, error envelope.                                                             |
+| Support     | `src/lib/*`, `src/config.ts`                     | Clock, logging, HMAC/IP hashing, enum-validated env config.                                                               |
 
 ## Data model
 
@@ -59,15 +59,15 @@ erDiagram
 
 Indexes:
 
-| Index | Purpose |
-|---|---|
-| `idx_links_code` (UNIQUE) | Redirect lookup + alias collision detection |
+| Index                                                                                         | Purpose                                              |
+| --------------------------------------------------------------------------------------------- | ---------------------------------------------------- |
+| `idx_links_code` (UNIQUE)                                                                     | Redirect lookup + alias collision detection          |
 | `idx_links_dedupe` (UNIQUE, partial: `alias=0 AND expires_at IS NULL AND deleted_at IS NULL`) | Hard guarantee of one live non-expiring link per URL |
-| `idx_links_url_hash` | Dedupe/activity lookups including expiring links |
-| `idx_links_created_at` | Dashboard listing order |
-| `idx_links_expires_at` (partial) | Prune job |
-| `idx_clicks_code_time` | Per-day aggregation and recent-clicks |
-| `idx_clicks_time` | Retention/reporting across codes |
+| `idx_links_url_hash`                                                                          | Dedupe/activity lookups including expiring links     |
+| `idx_links_created_at`                                                                        | Dashboard listing order                              |
+| `idx_links_expires_at` (partial)                                                              | Prune job                                            |
+| `idx_clicks_code_time`                                                                        | Per-day aggregation and recent-clicks                |
+| `idx_clicks_time`                                                                             | Retention/reporting across codes                     |
 
 ### Why denormalise `click_count`?
 
@@ -161,22 +161,22 @@ makes contention wait rather than throw.
 
 ## Concurrency and consistency
 
-| Risk | Mitigation |
-|---|---|
+| Risk                                        | Mitigation                                                                   |
+| ------------------------------------------- | ---------------------------------------------------------------------------- |
 | Two requests create a code for the same URL | `BEGIN IMMEDIATE` + partial unique index; verified by a 20-way parallel test |
-| Two requests claim the same alias | UNIQUE index on `code`; the loser maps the constraint error to `409` |
-| Generated code collides | Retry up to 8 times, then `503 CODE_GENERATION_FAILED` |
-| Click write fails mid-redirect | Caught, logged, redirect proceeds |
-| Reader starves writer | WAL mode: readers never block the writer |
-| Process killed | Graceful shutdown closes the DB so WAL checkpoints |
+| Two requests claim the same alias           | UNIQUE index on `code`; the loser maps the constraint error to `409`         |
+| Generated code collides                     | Retry up to 8 times, then `503 CODE_GENERATION_FAILED`                       |
+| Click write fails mid-redirect              | Caught, logged, redirect proceeds                                            |
+| Reader starves writer                       | WAL mode: readers never block the writer                                     |
+| Process killed                              | Graceful shutdown closes the DB so WAL checkpoints                           |
 
 ## Cache and header strategy
 
-| Route | Caching |
-|---|---|
-| `GET /:code` | `no-store` — the hop must never be cached or expiry/deletion break |
-| `GET /stats/*` | `no-store` — analytics change with every click |
-| `GET /health` | `no-store` |
+| Route            | Caching                                                            |
+| ---------------- | ------------------------------------------------------------------ |
+| `GET /:code`     | `no-store` — the hop must never be cached or expiry/deletion break |
+| `GET /stats/*`   | `no-store` — analytics change with every click                     |
+| `GET /health`    | `no-store`                                                         |
 | Static dashboard | `maxAge: 0`, `etag: false` (tiny assets, always fresh in the demo) |
 
 302 rather than 301 is a correctness decision: 301 is heuristically cacheable and would
@@ -200,12 +200,12 @@ keep redirecting after a link expired or was deleted.
 
 Measured locally with the default 7-character codes:
 
-| Operation | Work |
-|---|---|
-| Redirect | 1 indexed lookup + 1 transaction (2 writes) — sub-millisecond on SSD |
-| Shorten (new) | 1 hash lookup + 1 insert |
-| Shorten (repeat) | 1 hash lookup |
-| Stats | 1 lookup + 1 aggregate over `idx_clicks_code_time` + 1 min/max |
+| Operation        | Work                                                                 |
+| ---------------- | -------------------------------------------------------------------- |
+| Redirect         | 1 indexed lookup + 1 transaction (2 writes) — sub-millisecond on SSD |
+| Shorten (new)    | 1 hash lookup + 1 insert                                             |
+| Shorten (repeat) | 1 hash lookup                                                        |
+| Stats            | 1 lookup + 1 aggregate over `idx_clicks_code_time` + 1 min/max       |
 
 Prepared statements are compiled once at construction, so per-request parse cost is zero.
 `code` is a 7-char indexed text key (≈ 4 KB per 1000 codes including the index).
@@ -228,14 +228,14 @@ scope and called out rather than pretended.
 
 ## Deliberate trade-offs
 
-| Trade-off | Chosen | Why |
-|---|---|---|
-| Redirect speed vs. exact analytics | Record synchronously | Single-node SQLite write is cheap; a queue adds an operational dependency to the MVP |
-| Scope creep vs. focus | No accounts, QR, dedupe | Brief asks for codes, redirects, validation, idempotency, stats |
-| Soft delete vs. hard delete | Soft | Preserves stats and prevents code reuse for a different destination |
-| Alias vs. generated namespace | Shared, case-sensitive | One `code` column keeps lookup a single indexed read |
-| Code length | 7 (configurable 6–8) | 62⁷ ≈ 3.5T combinations; brief allows 6–8 |
-| Native driver vs. built-in SQLite | `node:sqlite` | `npm install` needs no Python/C++ toolchain, so the project actually runs on a fresh machine |
+| Trade-off                          | Chosen                  | Why                                                                                          |
+| ---------------------------------- | ----------------------- | -------------------------------------------------------------------------------------------- |
+| Redirect speed vs. exact analytics | Record synchronously    | Single-node SQLite write is cheap; a queue adds an operational dependency to the MVP         |
+| Scope creep vs. focus              | No accounts, QR, dedupe | Brief asks for codes, redirects, validation, idempotency, stats                              |
+| Soft delete vs. hard delete        | Soft                    | Preserves stats and prevents code reuse for a different destination                          |
+| Alias vs. generated namespace      | Shared, case-sensitive  | One `code` column keeps lookup a single indexed read                                         |
+| Code length                        | 7 (configurable 6–8)    | 62⁷ ≈ 3.5T combinations; brief allows 6–8                                                    |
+| Native driver vs. built-in SQLite  | `node:sqlite`           | `npm install` needs no Python/C++ toolchain, so the project actually runs on a fresh machine |
 
 ## Choosing `node:sqlite` over a native driver
 

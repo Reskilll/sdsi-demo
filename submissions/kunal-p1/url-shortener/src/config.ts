@@ -10,7 +10,11 @@ import { z } from 'zod';
 
 const booleanish = z
   .union([z.boolean(), z.string()])
-  .transform((value) => (typeof value === 'boolean' ? value : ['1', 'true', 'yes', 'on'].includes(value.trim().toLowerCase())));
+  .transform((value) =>
+    typeof value === 'boolean'
+      ? value
+      : ['1', 'true', 'yes', 'on'].includes(value.trim().toLowerCase()),
+  );
 
 const csv = z
   .string()
@@ -50,9 +54,7 @@ const envSchema = z.object({
       return Number.isInteger(hops) && hops > 0 ? hops : false;
     }),
 
-  LOG_LEVEL: z
-    .enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent'])
-    .default('info'),
+  LOG_LEVEL: z.enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent']).default('info'),
 
   RATE_LIMIT_GLOBAL_PER_MINUTE: z.coerce.number().int().min(1).default(300),
   RATE_LIMIT_WRITE_PER_MINUTE: z.coerce.number().int().min(1).default(30),
@@ -106,7 +108,10 @@ export function parseConfig(raw: NodeJS.ProcessEnv = process.env): AppConfig {
     if (env.ALLOW_PRIVATE_HOSTS) {
       problems.push('ALLOW_PRIVATE_HOSTS must not be enabled in production');
     }
-    if (env.BASE_URL.startsWith('http://') && !/^http:\/\/(127\.0\.0\.1|localhost)/.test(env.BASE_URL)) {
+    if (
+      env.BASE_URL.startsWith('http://') &&
+      !/^http:\/\/(127\.0\.0\.1|localhost)/.test(env.BASE_URL)
+    ) {
       problems.push('BASE_URL must use https:// in production');
     }
   }

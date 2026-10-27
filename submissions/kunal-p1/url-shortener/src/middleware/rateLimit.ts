@@ -59,7 +59,8 @@ export function createRateLimiters(options: RateLimitOptions): RateLimiters {
     skip: (req: Request) => req.path === '/health',
   };
 
-  const noop = ((_req: Request, _res: Response, next: NextFunction) => next()) as unknown as RateLimitRequestHandler;
+  const noop = ((_req: Request, _res: Response, next: NextFunction) =>
+    next()) as unknown as RateLimitRequestHandler;
 
   if (options.disabled) {
     return { global: noop, write: noop, redirect: noop };

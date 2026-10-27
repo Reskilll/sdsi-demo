@@ -175,7 +175,10 @@
       loadStats(payload.code);
       loadLinks();
     } catch (error) {
-      showError(els.formError, 'Network error: ' + (error && error.message ? error.message : 'unknown'));
+      showError(
+        els.formError,
+        'Network error: ' + (error && error.message ? error.message : 'unknown'),
+      );
     } finally {
       els.submit.disabled = false;
       els.submit.textContent = 'Shorten';
@@ -243,7 +246,10 @@
       renderChart(payload.clicksPerDay);
     } catch (error) {
       els.statsPanel.hidden = true;
-      showError(els.statsError, 'Network error: ' + (error && error.message ? error.message : 'unknown'));
+      showError(
+        els.statsError,
+        'Network error: ' + (error && error.message ? error.message : 'unknown'),
+      );
     }
   }
 
@@ -326,7 +332,10 @@
       }
       renderLinks(payload.items);
     } catch (error) {
-      showError(els.formError, 'Could not load links: ' + (error && error.message ? error.message : 'unknown'));
+      showError(
+        els.formError,
+        'Could not load links: ' + (error && error.message ? error.message : 'unknown'),
+      );
     }
   }
 

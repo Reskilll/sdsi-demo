@@ -36,7 +36,11 @@ export function validateBody<T>(schema: z.ZodType<T>) {
         field: issue.path.join('.') || '(root)',
         message: issue.message,
       }));
-      next(new AppError('VALIDATION_ERROR', details[0]?.message ?? 'Invalid request body', { issues: details }));
+      next(
+        new AppError('VALIDATION_ERROR', details[0]?.message ?? 'Invalid request body', {
+          issues: details,
+        }),
+      );
       return;
     }
     req.body = result.data;

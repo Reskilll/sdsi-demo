@@ -19,7 +19,10 @@ describe('authentication', () => {
   it('requires a key for writes when configured', async () => {
     ctx = createTestContext({ env: { API_KEYS: 'secret-1,secret-2' } });
 
-    const missing = await request(ctx.app).post('/shorten').send({ url: 'https://example.com/a' }).expect(401);
+    const missing = await request(ctx.app)
+      .post('/shorten')
+      .send({ url: 'https://example.com/a' })
+      .expect(401);
     expect(missing.body.error.code).toBe('UNAUTHORIZED');
 
     const wrong = await request(ctx.app)
@@ -84,7 +87,9 @@ describe('authentication', () => {
 
     await request(ctx.app).get(`/stats/${created.body.code}`).expect(200);
 
-    const guarded = createTestContext({ env: { API_KEYS: 'secret-1', STATS_REQUIRE_AUTH: 'true' } });
+    const guarded = createTestContext({
+      env: { API_KEYS: 'secret-1', STATS_REQUIRE_AUTH: 'true' },
+    });
     try {
       const other = await request(guarded.app)
         .post('/shorten')
@@ -122,10 +127,15 @@ describe('rate limiting', () => {
     });
 
     for (let index = 0; index < 3; index += 1) {
-      await request(ctx.app).post('/shorten').send({ url: `https://example.com/rl-${index}` }).expect(201);
+      await request(ctx.app)
+        .post('/shorten')
+        .send({ url: `https://example.com/rl-${index}` })
+        .expect(201);
     }
 
-    const limited = await request(ctx.app).post('/shorten').send({ url: 'https://example.com/rl-over' });
+    const limited = await request(ctx.app)
+      .post('/shorten')
+      .send({ url: 'https://example.com/rl-over' });
     expect(limited.status).toBe(429);
     expect(limited.body.error.code).toBe('RATE_LIMITED');
   });
@@ -147,9 +157,14 @@ describe('rate limiting', () => {
       disableRateLimit: false,
     });
 
-    const response = await request(ctx.app).post('/shorten').send({ url: 'https://example.com/headers' }).expect(201);
+    const response = await request(ctx.app)
+      .post('/shorten')
+      .send({ url: 'https://example.com/headers' })
+      .expect(201);
     const header =
-      response.headers['ratelimit-limit'] ?? response.headers['ratelimit'] ?? response.headers['rateLimit-Limit'];
+      response.headers['ratelimit-limit'] ??
+      response.headers['ratelimit'] ??
+      response.headers['rateLimit-Limit'];
     expect(String(header)).toContain('10');
   });
 });

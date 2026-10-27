@@ -56,12 +56,18 @@ describe('expiry parsing', () => {
   });
 
   it('rejects past and exactly-now timestamps', () => {
-    expect(codeOf(() => parseExpiresAt('2026-01-15T09:59:59Z', NOW, MAX_DAYS))).toBe('EXPIRY_IN_PAST');
-    expect(codeOf(() => parseExpiresAt('2026-01-15T10:00:00Z', NOW, MAX_DAYS))).toBe('EXPIRY_IN_PAST');
+    expect(codeOf(() => parseExpiresAt('2026-01-15T09:59:59Z', NOW, MAX_DAYS))).toBe(
+      'EXPIRY_IN_PAST',
+    );
+    expect(codeOf(() => parseExpiresAt('2026-01-15T10:00:00Z', NOW, MAX_DAYS))).toBe(
+      'EXPIRY_IN_PAST',
+    );
   });
 
   it('rejects timestamps beyond the configured horizon', () => {
-    expect(codeOf(() => parseExpiresAt('2046-01-15T10:00:01Z', NOW, MAX_DAYS))).toBe('EXPIRY_TOO_FAR');
+    expect(codeOf(() => parseExpiresAt('2046-01-15T10:00:01Z', NOW, MAX_DAYS))).toBe(
+      'EXPIRY_TOO_FAR',
+    );
   });
 
   it('formats timestamps as ISO UTC', () => {

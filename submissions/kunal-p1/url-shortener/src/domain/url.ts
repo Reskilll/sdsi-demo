@@ -87,11 +87,10 @@ export function normalizeUrl(raw: unknown, options: NormalizeOptions): Normalize
     throw new AppError('INVALID_URL', 'URL must not be empty', { field: 'url' });
   }
   if (candidate.length > options.maxUrlLength) {
-    throw new AppError(
-      'URL_TOO_LONG',
-      `URL must be at most ${options.maxUrlLength} characters`,
-      { field: 'url', maxLength: options.maxUrlLength },
-    );
+    throw new AppError('URL_TOO_LONG', `URL must be at most ${options.maxUrlLength} characters`, {
+      field: 'url',
+      maxLength: options.maxUrlLength,
+    });
   }
   if (FORBIDDEN_CHARS.test(candidate)) {
     throw new AppError('INVALID_URL', 'URL must not contain control or invisible characters', {
@@ -110,11 +109,10 @@ export function normalizeUrl(raw: unknown, options: NormalizeOptions): Normalize
   }
 
   if (!ALLOWED_PROTOCOLS.has(parsed.protocol)) {
-    throw new AppError(
-      'UNSUPPORTED_SCHEME',
-      'Only http:// and https:// URLs are supported',
-      { field: 'url', scheme: parsed.protocol.replace(':', '') },
-    );
+    throw new AppError('UNSUPPORTED_SCHEME', 'Only http:// and https:// URLs are supported', {
+      field: 'url',
+      scheme: parsed.protocol.replace(':', ''),
+    });
   }
 
   if (parsed.username !== '' || parsed.password !== '') {
@@ -134,11 +132,10 @@ export function normalizeUrl(raw: unknown, options: NormalizeOptions): Normalize
 
   if (!options.allowPrivateHosts) {
     if (isPrivateHostname(parsed.hostname)) {
-      throw new AppError(
-        'BLOCKED_HOST',
-        'URL host is not a publicly routable address',
-        { field: 'url', host: parsed.hostname.replace(/^\[|\]$/g, '') },
-      );
+      throw new AppError('BLOCKED_HOST', 'URL host is not a publicly routable address', {
+        field: 'url',
+        host: parsed.hostname.replace(/^\[|\]$/g, ''),
+      });
     }
   }
 
@@ -156,11 +153,10 @@ export function normalizeUrl(raw: unknown, options: NormalizeOptions): Normalize
   const canonicalOrigin = parsed.origin;
   for (const selfOrigin of options.selfOrigins ?? []) {
     if (canonicalOrigin === selfOrigin) {
-      throw new AppError(
-        'SELF_REFERENCE',
-        'URL points back at the shortener itself',
-        { field: 'url', host: parsed.hostname },
-      );
+      throw new AppError('SELF_REFERENCE', 'URL points back at the shortener itself', {
+        field: 'url',
+        host: parsed.hostname,
+      });
     }
   }
 

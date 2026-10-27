@@ -17,13 +17,41 @@ go test -race ./internal/...
 ```
 
 The first command drives the engine with a scripted flash-sale demo (reserve →
-confirm, reserve → cancel, TTL expiry, limit rejection, oversell rejection) and
-prints one JSON response per command. The second runs the test suite with the
-race detector enabled.
+confirm, reserve → cancel, limit rejection, oversell rejection) and prints one
+JSON response per command. The second runs the test suite with the race
+detector enabled (requires a C toolchain for CGO; plain `go test ./internal/...`
+also passes).
+
+Sample output (real run of `demo-commands.txt`, timestamps will differ):
+
+```
+{"ok":true,"op":"report","data":[{"sku":"EARBUDS-PRO","name":"Wireless Earbuds Pro","stock":200,"available":200,"reserved":0,"sold":0,"pricePaise":499900,"userLimit":3},{"sku":"PHONE-128-BLK","name":"Smartphone 128GB Black","stock":50,"available":50,"reserved":0,"sold":0,"pricePaise":2999900,"userLimit":2},{"sku":"POWERBANK-20K","name":"Power Bank 20000mAh","stock":10,"available":10,"reserved":0,"sold":0,"pricePaise":149900,"userLimit":1},{"sku":"WATCH-ACTIVE","name":"Smartwatch Active","stock":0,"available":0,"reserved":0,"sold":0,"pricePaise":899900,"userLimit":1}]}
+{"ok":true,"op":"reserve","data":{"available":49,"expiresAt":"2026-10-27T05:47:01Z","id":"r1","qty":1,"sku":"PHONE-128-BLK","state":"reserved","user":"u1"}}
+{"ok":true,"op":"reserve","data":{"available":48,"expiresAt":"2026-10-27T05:47:01Z","id":"r2","qty":1,"sku":"PHONE-128-BLK","state":"reserved","user":"u1"}}
+{"ok":false,"op":"reserve","error":"per-user purchase limit exceeded: sku \"PHONE-128-BLK\" limit 2, already committed 2, requested 1","errorKind":"user-limit"}
+{"ok":true,"op":"confirm","data":{"id":"r1","qty":1,"sku":"PHONE-128-BLK","state":"sold","user":"u1"}}
+{"ok":true,"op":"cancel","data":{"id":"r2","qty":1,"sku":"PHONE-128-BLK","state":"canceled","user":"u1"}}
+{"ok":true,"op":"reserve","data":{"available":9,"expiresAt":"2026-10-27T05:47:01Z","id":"r3","qty":1,"sku":"POWERBANK-20K","state":"reserved","user":"u2"}}
+{"ok":false,"op":"reserve","error":"per-user purchase limit exceeded: sku \"POWERBANK-20K\" limit 1, already committed 1, requested 1","errorKind":"user-limit"}
+{"ok":false,"op":"reserve","error":"insufficient stock: sku \"WATCH-ACTIVE\" wants 1, has 0","errorKind":"insufficient-stock"}
+{"ok":false,"op":"reserve","error":"insufficient stock: sku \"EARBUDS-PRO\" wants 500, has 200","errorKind":"insufficient-stock"}
+{"ok":false,"op":"reserve","error":"unknown sku: \"UNKNOWN-SKU\"","errorKind":"unknown-sku"}
+{"ok":false,"op":"confirm","error":"reservation id not found: \"does-not-exist\"","errorKind":"unknown-reservation"}
+{"ok":true,"op":"report","data":[{"sku":"EARBUDS-PRO","name":"Wireless Earbuds Pro","stock":200,"available":200,"reserved":0,"sold":0,"pricePaise":499900,"userLimit":3},{"sku":"PHONE-128-BLK","name":"Smartphone 128GB Black","stock":50,"available":49,"reserved":0,"sold":1,"pricePaise":2999900,"userLimit":2},{"sku":"POWERBANK-20K","name":"Power Bank 20000mAh","stock":10,"available":9,"reserved":1,"sold":0,"pricePaise":149900,"userLimit":1},{"sku":"WATCH-ACTIVE","name":"Smartwatch Active","stock":0,"available":0,"reserved":0,"sold":0,"pricePaise":899900,"userLimit":1}]}
+```
 
 A REST API for live demos is also built in: `go run ./cmd/inventory-cli -serve`
 (listens on `127.0.0.1:8080`; `POST /reserve`, `POST /confirm?id=`, `POST /cancel?id=`,
-`GET /report`).
+`GET /report`). Smoke-tested end to end:
+
+```
+$ curl -s -X POST localhost:8080/reserve -d '{"user":"u1","sku":"PHONE-128-BLK","qty":1}'
+{"available":49,"expiresAt":"2026-10-27T05:48:30Z","id":"r1"}
+$ curl -s -X POST "localhost:8080/confirm?id=r1"
+{"id":"r1","qty":1,"sku":"PHONE-128-BLK","state":"sold","user":"u1"}
+$ curl -s -X POST localhost:8080/reserve -d '{"user":"u1","sku":"NOPE","qty":1}'
+{"error":"unknown sku: \"NOPE\""}
+```
 
 ## Input format
 

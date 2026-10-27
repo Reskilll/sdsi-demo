@@ -119,3 +119,58 @@ test('healthz responds ok', async (t) => {
   assert.strictEqual(res.statusCode, 200);
   assert.deepStrictEqual(res.json(), { ok: true });
 });
+
+test('edge: aliases are validated (regex + reserved words)', async (t) => {
+  const { app } = await makeApp();
+  t.after(() => app.close());
+
+  for (const alias of ['stats', 'api', 'healthz']) {
+    const res = await app.inject({
+      method: 'POST',
+      url: '/api/shorten',
+      payload: { url: 'https://example.com/x', alias },
+    });
+    assert.strictEqual(res.statusCode, 400, `reserved alias "${alias}" should be 400`);
+  }
+
+  const bad = await app.inject({
+    method: 'POST',
+    url: '/api/shorten',
+    payload: { url: 'https://example.com/y', alias: 'has space and !' },
+  });
+  assert.strictEqual(bad.statusCode, 400);
+});
+
+test('edge: invalid ttl rejected', async (t) => {
+  const { app } = await makeApp();
+  t.after(() => app.close());
+
+  for (const ttl of [-1, -5]) {
+    const res = await app.inject({
+      method: 'POST',
+      url: '/api/shorten',
+      payload: { url: 'https://example.com/x', ttl },
+    });
+    assert.strictEqual(res.statusCode, 400, `ttl=${ttl} should be 400`);
+  }
+
+  // Non-numeric string should also be rejected.
+  const strRes = await app.inject({
+    method: 'POST',
+    url: '/api/shorten',
+    payload: { url: 'https://example.com/y', ttl: 'abc' },
+  });
+  assert.strictEqual(strRes.statusCode, 400);
+});
+
+test('edge: cannot shorten a URL pointing back at this service', async (t) => {
+  const { app } = await makeApp();
+  t.after(() => app.close());
+
+  const res = await app.inject({
+    method: 'POST',
+    url: '/api/shorten',
+    payload: { url: 'http://localhost/foo' },
+  });
+  assert.strictEqual(res.statusCode, 400);
+});

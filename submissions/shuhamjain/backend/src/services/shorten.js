@@ -10,10 +10,16 @@ const RESERVED = new Set([
 ]);
 
 function shorten(db, input) {
-  const { url, ttl, alias } = input;
+  const { url, ttl, alias, selfHosts } = input;
 
   const { canonical, hostname } = canonicalize(url);
   const urlHash = hashUrl(canonical);
+
+  // Refuse to shorten a URL that points back at this service — otherwise a
+  // short link could redirect to itself and loop forever.
+  if (selfHosts && selfHosts.has(hostname)) {
+    throw new ValidationError('cannot shorten a URL that points back to this service');
+  }
 
   // --- custom alias path (M4: alias always creates its own mapping) ---
   if (alias !== undefined && alias !== null) {

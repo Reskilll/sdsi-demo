@@ -18,6 +18,7 @@ module.exports = async function buildRoutes(fastify, { db }) {
       url: body.url,
       ttl: body.ttl,
       alias: body.alias,
+      selfHosts: selfHostsFor(request),
     });
     return { ...result, shortUrl: absoluteUrl(request, result.shortUrl) };
   });
@@ -47,4 +48,15 @@ module.exports = async function buildRoutes(fastify, { db }) {
 
 function absoluteUrl(request, path) {
   return `${request.protocol}://${request.host}${path}`;
+}
+
+// Hosts that should never be shortenable: the request's own host (prevents
+// self-referential redirect loops) plus any configured allowed hosts.
+function selfHostsFor(request) {
+  const hosts = new Set();
+  if (request.hostname) hosts.add(request.hostname);
+  // Also cover the common localhost aliases during development.
+  hosts.add('localhost');
+  hosts.add('127.0.0.1');
+  return hosts;
 }

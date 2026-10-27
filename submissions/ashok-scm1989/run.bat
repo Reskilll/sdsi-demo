@@ -1,0 +1,3 @@
+@echo off
+echo Starting PS2 Meeting Room Booking Engine Backend...
+call mvnw.cmd spring-boot:run

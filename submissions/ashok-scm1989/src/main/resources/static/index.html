@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Meeting Room Booking Engine (PS2) — SDSI Hackathon</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card-bg: #1e293b;
+      --card-border: #334155;
+      --primary: #3b82f6;
+      --primary-hover: #2563eb;
+      --accent: #10b981;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 24px;
+      line-height: 1.5;
+    }
+    .container { max-width: 1280px; margin: 0 auto; }
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 24px;
+      border-bottom: 1px solid var(--card-border);
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+    .brand h1 { font-size: 1.75rem; font-weight: 800; color: #fff; letter-spacing: -0.02em; }
+    .brand p { color: var(--text-muted); font-size: 0.875rem; margin-top: 4px; }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 4px 10px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      border-radius: 9999px;
+      background: #1e3a8a;
+      color: #93c5fd;
+    }
+    .demo-bar {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 24px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+    }
+    .demo-bar-title {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-right: 8px;
+    }
+    .demo-btn {
+      background: #334155;
+      color: #e2e8f0;
+      border: 1px solid #475569;
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .demo-btn:hover { background: var(--primary); color: #fff; border-color: var(--primary); }
+    .tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 24px;
+      border-bottom: 1px solid var(--card-border);
+      padding-bottom: 8px;
+    }
+    .tab-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      padding: 10px 18px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      border-radius: 8px;
+      transition: all 0.2s;
+    }
+    .tab-btn.active {
+      background: var(--primary);
+      color: #fff;
+    }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 24px; }
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 20px;
+    }
+    .card h2 { font-size: 1.2rem; font-weight: 700; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between; }
+    .form-group { margin-bottom: 14px; }
+    label { display: block; font-size: 0.8rem; font-weight: 600; color: var(--text-muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.03em; }
+    input, select, textarea {
+      width: 100%;
+      background: #0f172a;
+      border: 1px solid var(--card-border);
+      color: #fff;
+      padding: 10px 12px;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-family: inherit;
+    }
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3);
+    }
+    .btn {
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      padding: 10px 18px;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: background 0.2s;
+    }
+    .btn:hover { background: var(--primary-hover); }
+    .btn-danger { background: var(--danger); }
+    .btn-danger:hover { background: #dc2626; }
+    .btn-success { background: var(--accent); }
+    .btn-success:hover { background: #059669; }
+    .table-container { overflow-x: auto; margin-top: 12px; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+    th { text-align: left; padding: 10px; color: var(--text-muted); border-bottom: 1px solid var(--card-border); }
+    td { padding: 12px 10px; border-bottom: 1px solid #1e293b; }
+    tr:hover td { background: rgba(255,255,255,0.02); }
+    pre {
+      background: #090d16;
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      padding: 14px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      color: #38bdf8;
+      max-height: 280px;
+      overflow-y: auto;
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+    .room-card {
+      background: #0f172a;
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      padding: 14px;
+      margin-bottom: 12px;
+    }
+    .room-header { display: flex; justify-content: space-between; align-items: baseline; }
+    .room-name { font-weight: 700; color: #fff; }
+    .room-cap { font-size: 0.75rem; background: #334155; color: #cbd5e1; padding: 2px 8px; border-radius: 99px; }
+    .room-amenities { margin-top: 8px; display: flex; flex-wrap: wrap; gap: 4px; }
+    .amenity-tag { font-size: 0.7rem; background: #1e3a8a; color: #bfdbfe; padding: 2px 6px; border-radius: 4px; }
+    .result-box {
+      margin-top: 16px;
+      padding: 14px;
+      border-radius: 8px;
+      border: 1px solid;
+    }
+    .result-success { background: rgba(16, 185, 129, 0.1); border-color: var(--accent); color: #6ee7b7; }
+    .result-error { background: rgba(239, 68, 68, 0.1); border-color: var(--danger); color: #fca5a5; }
+    .tag { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 600; }
+    .tag-ok { background: rgba(16, 185, 129, 0.2); color: #34d399; }
+    .tag-conflict { background: rgba(239, 68, 68, 0.2); color: #f87171; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="brand">
+        <h1>🏢 Office Meeting Room Booking Engine</h1>
+        <p>SDSI Developer Screening Track &bull; PS2 Backend Service with Spring Boot 3 &amp; Java 21</p>
+      </div>
+      <div style="display: flex; gap: 10px; align-items: center;">
+        <span class="badge">09:00 - 18:00 Office Hours</span>
+        <span class="badge" style="background: #065f46; color: #a7f3d0;">Engine Active</span>
+      </div>
+    </header>
+
+    <!-- Demo Scenarios Bar -->
+    <div class="demo-bar">
+      <span class="demo-bar-title">⚡ Quick Tests:</span>
+      <button class="demo-btn" onclick="demoM2Overlap()">M2: Overlap Rejection</button>
+      <button class="demo-btn" onclick="demoM2BackToBack()">M2: Back-to-Back Allowed</button>
+      <button class="demo-btn" onclick="demoM3Capacity()">M3: Capacity Exceeded</button>
+      <button class="demo-btn" onclick="demoM4FindSlot()">M4: Find Earliest Slot</button>
+      <button class="demo-btn" onclick="demoM5Recurring()">M5: Weekly Recurring Conflicts</button>
+      <button class="demo-btn" onclick="refreshAll()" style="margin-left:auto; background: var(--primary);">🔄 Refresh</button>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchTab('find-slot')">🔍 M4: Find-Slot</button>
+      <button class="tab-btn" onclick="switchTab('bookings')">📅 M1 & M2: Bookings</button>
+      <button class="tab-btn" onclick="switchTab('recurring')">🔁 M5: Weekly Recurring</button>
+      <button class="tab-btn" onclick="switchTab('rooms')">🚪 M3: Room Catalog</button>
+    </div>
+
+    <!-- TAB 1: Find Slot (M4) -->
+    <div id="tab-find-slot" class="tab-content">
+      <div class="grid">
+        <div class="card">
+          <h2>Find Earliest Available Slot</h2>
+          <form id="findSlotForm" onsubmit="handleFindSlot(event)">
+            <div class="form-group">
+              <label>Date (YYYY-MM-DD)</label>
+              <input type="date" id="fs-date" required>
+            </div>
+            <div class="form-group">
+              <label>Duration (Minutes)</label>
+              <input type="number" id="fs-duration" value="45" min="1" max="540" required>
+            </div>
+            <div class="form-group">
+              <label>Attendee Count</label>
+              <input type="number" id="fs-attendees" value="6" min="1" required>
+            </div>
+            <button type="submit" class="btn btn-success" style="width: 100%;">
+              Search Earliest Slot (09:00 - 18:00)
+            </button>
+          </form>
+
+          <div id="fs-result" style="display: none;"></div>
+        </div>
+
+        <div class="card">
+          <h2>Algorithm &amp; Live Response</h2>
+          <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 12px;">
+            M4 evaluates all candidate rooms where <code>capacity &gt;= attendeeCount</code>, finds free gaps within 09:00 to 18:00, and selects the slot with the earliest start time (tie-broken by best-fit capacity to prevent wasting oversized rooms).
+          </p>
+          <pre id="fs-json">// Live API JSON response will appear here...</pre>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 2: Bookings (M1, M2, M3) -->
+    <div id="tab-bookings" class="tab-content" style="display: none;">
+      <div class="grid">
+        <div class="card">
+          <h2>Create New Booking</h2>
+          <form id="createBookingForm" onsubmit="handleCreateBooking(event)">
+            <div class="form-group">
+              <label>Room</label>
+              <select id="cb-room" required></select>
+            </div>
+            <div class="form-group">
+              <label>Meeting Title</label>
+              <input type="text" id="cb-title" value="Sprint Sync" required>
+            </div>
+            <div class="form-group">
+              <label>Organiser Email</label>
+              <input type="text" id="cb-organiser" value="alice@example.com" required>
+            </div>
+            <div style="display: flex; gap: 12px;">
+              <div class="form-group" style="flex: 1;">
+                <label>Start Time (ISO-8601)</label>
+                <input type="datetime-local" id="cb-start" required>
+              </div>
+              <div class="form-group" style="flex: 1;">
+                <label>End Time (ISO-8601)</label>
+                <input type="datetime-local" id="cb-end" required>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Attendees (Comma separated)</label>
+              <input type="text" id="cb-attendees" value="bob@example.com, charlie@example.com" required>
+            </div>
+            <button type="submit" class="btn" style="width: 100%;">Create Booking</button>
+          </form>
+          <div id="cb-result" style="display: none;"></div>
+        </div>
+
+        <div class="card">
+          <h2>Live Bookings List</h2>
+          <div class="table-container">
+            <table id="bookingsTable">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Room</th>
+                  <th>Title</th>
+                  <th>Start</th>
+                  <th>End</th>
+                  <th>Att.</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td colspan="7" style="text-align: center; color: var(--text-muted);">Loading bookings...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 3: Weekly Recurring (M5) -->
+    <div id="tab-recurring" class="tab-content" style="display: none;">
+      <div class="grid">
+        <div class="card">
+          <h2>Schedule Weekly Recurring Meeting</h2>
+          <form id="recurringForm" onsubmit="handleRecurringBooking(event)">
+            <div class="form-group">
+              <label>Room</label>
+              <select id="rb-room" required></select>
+            </div>
+            <div class="form-group">
+              <label>Meeting Title</label>
+              <input type="text" id="rb-title" value="Weekly Engineering Sync" required>
+            </div>
+            <div class="form-group">
+              <label>Organiser Email</label>
+              <input type="text" id="rb-organiser" value="engineering@example.com" required>
+            </div>
+            <div style="display: flex; gap: 12px;">
+              <div class="form-group" style="flex: 1;">
+                <label>First Start</label>
+                <input type="datetime-local" id="rb-start" required>
+              </div>
+              <div class="form-group" style="flex: 1;">
+                <label>First End</label>
+                <input type="datetime-local" id="rb-end" required>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Number of Weeks (Occurrences)</label>
+              <input type="number" id="rb-occurrences" value="4" min="1" max="26" required>
+            </div>
+            <div class="form-group">
+              <label>Policy</label>
+              <select id="rb-policy">
+                <option value="BOOK_AVAILABLE">BOOK_AVAILABLE (Book clear weeks, report conflicts)</option>
+                <option value="ALL_OR_NOTHING">ALL_OR_NOTHING (Abort all if any conflict)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Attendees</label>
+              <input type="text" id="rb-attendees" value="dev1@example.com, dev2@example.com" required>
+            </div>
+            <button type="submit" class="btn btn-primary" style="width: 100%;">Process Weekly Recurrence</button>
+          </form>
+        </div>
+
+        <div class="card">
+          <h2>Per-Occurrence Conflict Report</h2>
+          <div id="rb-summary" style="margin-bottom: 12px; font-size: 0.9rem; color: var(--text-muted);">
+            Submit a recurring request to view conflict analysis.
+          </div>
+          <pre id="rb-json">// Recurring API JSON response...</pre>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 4: Room Catalog (M3) -->
+    <div id="tab-rooms" class="tab-content" style="display: none;">
+      <div class="card">
+        <h2>Seeded Room Inventory (from rooms.json)</h2>
+        <div id="rooms-list" class="grid" style="margin-top: 16px;"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let roomsCache = [];
+
+    // Helper: set default date to tomorrow
+    function getTomorrowIso() {
+      const d = new Date();
+      d.setDate(d.getDate() + 1);
+      return d.toISOString().split('T')[0];
+    }
+
+    function initDefaults() {
+      const tomorrow = getTomorrowIso();
+      document.getElementById('fs-date').value = tomorrow;
+
+      const defaultStart = `${tomorrow}T10:00`;
+      const defaultEnd = `${tomorrow}T11:00`;
+
+      document.getElementById('cb-start').value = defaultStart;
+      document.getElementById('cb-end').value = defaultEnd;
+
+      document.getElementById('rb-start').value = `${tomorrow}T14:00`;
+      document.getElementById('rb-end').value = `${tomorrow}T15:00`;
+    }
+
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-content').forEach(el => el.style.display = 'none');
+      document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+      document.getElementById(`tab-${tabId}`).style.display = 'block';
+      event.target.classList.add('active');
+    }
+
+    async function loadRooms() {
+      try {
+        const res = await fetch('/api/rooms');
+        roomsCache = await res.json();
+        
+        // Populate dropdowns
+        const cbRoom = document.getElementById('cb-room');
+        const rbRoom = document.getElementById('rb-room');
+        cbRoom.innerHTML = '';
+        rbRoom.innerHTML = '';
+
+        const roomsList = document.getElementById('rooms-list');
+        roomsList.innerHTML = '';
+
+        roomsCache.forEach(r => {
+          const opt = `<option value="${r.id}">${r.name} (${r.id}) — Cap: ${r.capacity}</option>`;
+          cbRoom.innerHTML += opt;
+          rbRoom.innerHTML += opt;
+
+          const card = `
+            <div class="room-card">
+              <div class="room-header">
+                <span class="room-name">${r.name}</span>
+                <span class="room-cap">Cap: ${r.capacity}</span>
+              </div>
+              <div style="font-size: 0.8rem; color: #94a3b8; margin-top: 4px;">ID: <code>${r.id}</code> &bull; Floor: ${r.floor}</div>
+              <div class="room-amenities">
+                ${r.amenities.map(a => `<span class="amenity-tag">${a}</span>`).join('')}
+              </div>
+            </div>
+          `;
+          roomsList.innerHTML += card;
+        });
+      } catch (err) {
+        console.error('Failed to load rooms:', err);
+      }
+    }
+
+    async function loadBookings() {
+      try {
+        const res = await fetch('/api/bookings');
+        const bookings = await res.json();
+        const tbody = document.querySelector('#bookingsTable tbody');
+        if (bookings.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; color: #94a3b8;">No bookings created yet.</td></tr>';
+          return;
+        }
+
+        tbody.innerHTML = bookings.map(b => `
+          <tr>
+            <td><code style="color:#38bdf8;">${b.id}</code></td>
+            <td><strong>${b.roomId}</strong></td>
+            <td>${b.title || 'Meeting'}</td>
+            <td>${b.startTime.replace('T', ' ')}</td>
+            <td>${b.endTime.replace('T', ' ')}</td>
+            <td>${b.attendeeCount}</td>
+            <td>
+              <button class="btn btn-danger" style="padding: 4px 8px; font-size: 0.75rem;" onclick="deleteBooking('${b.id}')">Cancel</button>
+            </td>
+          </tr>
+        `).join('');
+      } catch (err) {
+        console.error('Failed to load bookings:', err);
+      }
+    }
+
+    async function deleteBooking(id) {
+      if (!confirm(`Cancel booking ${id}?`)) return;
+      await fetch(`/api/bookings/${id}`, { method: 'DELETE' });
+      await loadBookings();
+    }
+
+    async function handleFindSlot(e) {
+      e.preventDefault();
+      const date = document.getElementById('fs-date').value;
+      const duration = document.getElementById('fs-duration').value;
+      const attendees = document.getElementById('fs-attendees').value;
+
+      const resBox = document.getElementById('fs-result');
+      const jsonPre = document.getElementById('fs-json');
+
+      try {
+        const res = await fetch(`/api/rooms/find-slot?date=${date}&duration=${duration}&attendees=${attendees}`);
+        const data = await res.json();
+        jsonPre.textContent = JSON.stringify(data, null, 2);
+
+        if (res.ok) {
+          resBox.style.display = 'block';
+          resBox.className = 'result-box result-success';
+          resBox.innerHTML = `
+            <strong>Earliest Slot Found!</strong><br>
+            Room: <strong>${data.roomName}</strong> (<code>${data.roomId}</code>, Cap: ${data.roomCapacity})<br>
+            Time: <strong>${data.startTime.replace('T', ' ')}</strong> to <strong>${data.endTime.replace('T', ' ')}</strong> (${data.durationMinutes} mins)
+            <div style="margin-top: 10px;">
+              <button class="btn btn-success" style="padding: 6px 12px; font-size: 0.8rem;" onclick="bookRecommendedSlot('${data.roomId}', '${data.startTime}', '${data.endTime}')">
+                Instant Book This Slot
+              </button>
+            </div>
+          `;
+        } else {
+          resBox.style.display = 'block';
+          resBox.className = 'result-box result-error';
+          resBox.innerHTML = `<strong>Search Failed:</strong> ${data.message || 'No slot available'}`;
+        }
+      } catch (err) {
+        resBox.style.display = 'block';
+        resBox.className = 'result-box result-error';
+        resBox.textContent = 'Error querying engine: ' + err.message;
+      }
+    }
+
+    async function bookRecommendedSlot(roomId, start, end) {
+      const attendees = prompt("Enter attendee emails (comma separated):", "alice@example.com, bob@example.com");
+      if (!attendees) return;
+
+      const payload = {
+        roomId: roomId,
+        title: "Booked via Find-Slot",
+        organiser: "organiser@example.com",
+        startTime: start,
+        endTime: end,
+        attendees: attendees.split(',').map(s => s.trim())
+      };
+
+      const res = await fetch('/api/bookings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+      if (res.ok) {
+        alert("Booking confirmed! ID: " + data.id);
+        refreshAll();
+      } else {
+        alert("Booking failed: " + (data.message || 'Conflict'));
+      }
+    }
+
+    async function handleCreateBooking(e) {
+      e.preventDefault();
+      const payload = {
+        roomId: document.getElementById('cb-room').value,
+        title: document.getElementById('cb-title').value,
+        organiser: document.getElementById('cb-organiser').value,
+        startTime: document.getElementById('cb-start').value + ':00',
+        endTime: document.getElementById('cb-end').value + ':00',
+        attendees: document.getElementById('cb-attendees').value.split(',').map(s => s.trim())
+      };
+
+      const resBox = document.getElementById('cb-result');
+      try {
+        const res = await fetch('/api/bookings', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        resBox.style.display = 'block';
+
+        if (res.ok) {
+          resBox.className = 'result-box result-success';
+          resBox.innerHTML = `Booking created successfully! ID: <code>${data.id}</code>`;
+          loadBookings();
+        } else {
+          resBox.className = 'result-box result-error';
+          resBox.innerHTML = `<strong>Error (${data.code || res.status}):</strong> ${data.message}`;
+        }
+      } catch (err) {
+        resBox.style.display = 'block';
+        resBox.className = 'result-box result-error';
+        resBox.textContent = err.message;
+      }
+    }
+
+    async function handleRecurringBooking(e) {
+      e.preventDefault();
+      const payload = {
+        roomId: document.getElementById('rb-room').value,
+        title: document.getElementById('rb-title').value,
+        organiser: document.getElementById('rb-organiser').value,
+        startTime: document.getElementById('rb-start').value + ':00',
+        endTime: document.getElementById('rb-end').value + ':00',
+        occurrences: parseInt(document.getElementById('rb-occurrences').value),
+        policy: document.getElementById('rb-policy').value,
+        attendees: document.getElementById('rb-attendees').value.split(',').map(s => s.trim())
+      };
+
+      try {
+        const res = await fetch('/api/bookings/recurring', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        document.getElementById('rb-json').textContent = JSON.stringify(data, null, 2);
+
+        const summary = document.getElementById('rb-summary');
+        summary.innerHTML = `
+          <strong>Group ID:</strong> <code>${data.recurrenceGroupId}</code> &bull;
+          <strong>Total:</strong> ${data.totalRequested} &bull;
+          <span class="tag tag-ok">Booked: ${data.successfulCount}</span> &bull;
+          <span class="tag tag-conflict">Conflicts: ${data.conflictCount}</span>
+        `;
+        loadBookings();
+      } catch (err) {
+        document.getElementById('rb-json').textContent = 'Error: ' + err.message;
+      }
+    }
+
+    // Quick demo triggers
+    async function demoM2Overlap() {
+      const tomorrow = getTomorrowIso();
+      // First booking
+      await fetch('/api/bookings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          roomId: "ROOM-101",
+          title: "First Booking",
+          organiser: "alice@example.com",
+          startTime: `${tomorrow}T11:00:00`,
+          endTime: `${tomorrow}T12:00:00`,
+          attendees: ["alice@example.com"]
+        })
+      });
+
+      // Conflicting overlapping booking
+      const res = await fetch('/api/bookings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          roomId: "ROOM-101",
+          title: "Overlapping Clash",
+          organiser: "bob@example.com",
+          startTime: `${tomorrow}T11:30:00`,
+          endTime: `${tomorrow}T12:30:00`,
+          attendees: ["bob@example.com"]
+        })
+      });
+      const data = await res.json();
+      alert(`[M2 Overlap Test]\nStatus: ${res.status} Conflict\nResponse:\n${JSON.stringify(data, null, 2)}`);
+      refreshAll();
+    }
+
+    async function demoM2BackToBack() {
+      const tomorrow = getTomorrowIso();
+      // Booking 1: 09:00 - 10:00
+      const res1 = await fetch('/api/bookings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          roomId: "ROOM-102",
+          title: "Back-to-Back 1",
+          organiser: "alice@example.com",
+          startTime: `${tomorrow}T09:00:00`,
+          endTime: `${tomorrow}T10:00:00`,
+          attendees: ["alice@example.com"]
+        })
+      });
+      // Booking 2: 10:00 - 11:00 (back-to-back, should succeed!)
+      const res2 = await fetch('/api/bookings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          roomId: "ROOM-102",
+          title: "Back-to-Back 2",
+          organiser: "bob@example.com",
+          startTime: `${tomorrow}T10:00:00`,
+          endTime: `${tomorrow}T11:00:00`,
+          attendees: ["bob@example.com"]
+        })
+      });
+      const data2 = await res2.json();
+      alert(`[M2 Back-to-Back Test]\nBooking 1 (09:00-10:00): ${res1.status}\nBooking 2 (10:00-11:00): ${res2.status} (Allowed!)\nID: ${data2.id}`);
+      refreshAll();
+    }
+
+    async function demoM3Capacity() {
+      const tomorrow = getTomorrowIso();
+      // ROOM-PHONE-1 capacity is 2, requesting 5 attendees
+      const res = await fetch('/api/bookings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          roomId: "ROOM-PHONE-1",
+          title: "Capacity Test",
+          organiser: "alice@example.com",
+          startTime: `${tomorrow}T15:00:00`,
+          endTime: `${tomorrow}T16:00:00`,
+          attendees: ["u1@ex.com", "u2@ex.com", "u3@ex.com", "u4@ex.com", "u5@ex.com"]
+        })
+      });
+      const data = await res.json();
+      alert(`[M3 Capacity Test]\nStatus: ${res.status} Bad Request\nResponse:\n${JSON.stringify(data, null, 2)}`);
+    }
+
+    async function demoM4FindSlot() {
+      switchTab('find-slot');
+      const date = getTomorrowIso();
+      document.getElementById('fs-date').value = date;
+      document.getElementById('fs-duration').value = 45;
+      document.getElementById('fs-attendees').value = 6;
+      document.getElementById('findSlotForm').dispatchEvent(new Event('submit'));
+    }
+
+    async function demoM5Recurring() {
+      switchTab('recurring');
+      const tomorrow = getTomorrowIso();
+      // Pre-seed an obstacle on week 2
+      const week2Date = new Date();
+      week2Date.setDate(week2Date.getDate() + 8);
+      const week2Str = week2Date.toISOString().split('T')[0];
+
+      await fetch('/api/bookings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          roomId: "ROOM-201",
+          title: "Obstacle Meeting",
+          organiser: "blocker@example.com",
+          startTime: `${week2Str}T14:00:00`,
+          endTime: `${week2Str}T15:00:00`,
+          attendees: ["blocker@example.com"]
+        })
+      });
+
+      // Now request 4 weekly occurrences on ROOM-201 at 14:00
+      document.getElementById('rb-room').value = "ROOM-201";
+      document.getElementById('rb-start').value = `${tomorrow}T14:00`;
+      document.getElementById('rb-end').value = `${tomorrow}T15:00`;
+      document.getElementById('rb-occurrences').value = 4;
+      document.getElementById('recurringForm').dispatchEvent(new Event('submit'));
+    }
+
+    function refreshAll() {
+      loadRooms();
+      loadBookings();
+    }
+
+    window.onload = () => {
+      initDefaults();
+      refreshAll();
+    };
+  </script>
+</body>
+</html>

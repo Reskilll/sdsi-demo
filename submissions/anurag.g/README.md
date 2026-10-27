@@ -56,17 +56,9 @@ python -m scheduler <command> <input> [options]
 ### Examples
 
 ```bash
-# Validate and detect a cycle
 python -m scheduler validate examples/cycle.json
-
-# Schedule with 2 workers
 python -m scheduler schedule examples/sample.json --workers 2
-
-# Simulate failure of job B
 python -m scheduler fail examples/sample.json --failed B
-
-# Full run with failure simulation
-python -m scheduler schedule examples/sample.json --workers 3 --failed B
 ```
 
 ## API (programmatic)
@@ -74,72 +66,48 @@ python -m scheduler schedule examples/sample.json --workers 3 --failed B
 ```python
 from scheduler import load_graph, run
 
-# Load from file, string, or dict
 graph = load_graph("examples/sample.json")
-
-# Run full pipeline
 report = run(graph, workers=2, fail="B")
 
-# Access results
-print(report.pretty())                  # human-readable
-print(report.topo_order)                # ["A", "B", "C", "D"]
-print(report.critical.critical_path)    # ["A", "C", "D"]
-print(report.critical.min_completion_time)  # 8.0
-print(report.failure.skipped_jobs)     # ["D"]
-print(report.to_dict())                 # JSON-serializable dict
+print(report.pretty())
+print(report.topo_order)              # ["A", "B", "C", "D"]
+print(report.critical.critical_path)  # ["A", "C", "D"]
+print(report.failure.skipped_jobs)    # ["D"]
+print(report.to_dict())               # JSON-serializable dict
 ```
 
 ## Milestones
 
 ### M1 — Graph Validation
 - Detects cycles using iterative 3-color DFS with full path reconstruction.
-- Reports all missing dependencies (non-existent ids referenced in `dependsOn`).
-- Aggregates errors — doesn't fail on the first issue.
+- Reports all missing dependencies.
 
 ### M2 — Topological Sort
 - Kahn's algorithm with a min-heap for deterministic, lexicographic output.
-- O(V + E) time complexity.
 
 ### M3 — Parallel Stages
-- Computes each job's *level* = longest-path distance from sources.
-- Jobs at the same level are independent.
-- Within each level, jobs are batched into waves of at most N workers.
-- Worker limit N must be ≥ 1; default is 1 (sequential).
+- Level-based grouping (longest-path distance from sources).
+- Worker batching: within each level, jobs batched into waves of at most N.
 
 ### M4 — Critical Path
-- Longest-path DP over the topological order.
-- `earliest_finish[j] = duration[j] + max(earliest_finish[p] for p in deps[j])`.
+- Longest-path DP over topological order.
 - Reconstructs one critical path via back-pointers.
-- Minimum total completion time = max earliest finish (unlimited-worker bound).
+- Minimum total completion time = max earliest finish.
 
 ### M5 — Failure Simulation
 - BFS from the failed job through outgoing (dependents) edges.
-- Returns the failed job, all skipped downstream jobs, and unaffected jobs.
-- Distinguishes between *skipped* (transitively downstream of failure) and *unaffected* (upstream/independent).
+- Distinguishes skipped (downstream) vs unaffected (upstream/independent).
 
 ## Design decisions
 
-- **No recursive DFS**: all graph traversals use explicit stacks/queues to avoid `RecursionError` on large graphs.
-- **Standard library only**: `pytest` is the sole optional dev dependency.
-- **Deterministic output**: topological sort uses a min-heap so results are stable and reproducible.
-- **Validation-first**: the orchestrator runs M1 before M2–M5 and aborts early on invalid graphs.
-- **Report object**: all results wrapped in a `Report` dataclass with both `pretty()` (human) and `to_dict()` (machine) output.
+- No recursive DFS — all traversals use explicit stacks/queues.
+- Standard library only at runtime; pytest is the sole dev dependency.
+- Deterministic output via min-heap in Kahn's algorithm.
+- Validation-first: M1 runs before M2–M5, aborts early on invalid graphs.
 
 ## Edge cases handled
 
-- Empty graph (0 jobs)
-- Single job with no dependencies
-- Duplicate job ids (error)
-- Zero/negative/non-numeric duration (error)
-- `dependsOn` as string, list, or omitted
-- Self-cycle (A depends on A)
-- Multi-node cycles
-- Missing dependencies + cycles together
-- Worker limit N = 0 or negative (error)
-- Unknown job id for failure simulation (error)
-- Disconnected components
-- Fan-in / fan-out topologies
-- Large graphs (tested on 1000-job chains)
+Empty graph, single job, duplicate ids, self-cycles, multi-node cycles, missing deps + cycles together, dependsOn as string/list/omitted, zero/negative/non-numeric duration, N=0/negative, unknown failed job, disconnected components, fan-in/fan-out, large graphs (1000 jobs).
 
 ## Architecture
 
@@ -155,16 +123,10 @@ scheduler/
   __main__.py        # CLI entrypoint
 ```
 
-Each milestone module is self-contained and can be used independently from the orchestrator.
-
 ## Testing
 
 ```bash
 python -m pytest tests/ -v
 ```
 
-~70 tests covering: each milestone individually, edge cases, integration (full pipeline), CLI, models/parsing, and a 1000-job chain performance test.
-
-## License
-
-MIT
+~70 tests covering each milestone, edge cases, integration, CLI, and a 1000-job performance test.

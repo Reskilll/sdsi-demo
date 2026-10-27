@@ -1,0 +1,7 @@
+[
+  {"id":"r1", "name":"Atlas",       "capacity":4},
+  {"id":"r2", "name":"Boardroom",   "capacity":8},
+  {"id":"r3", "name":"Conference-A","capacity":12},
+  {"id":"r4", "name":"Conference-B","capacity":20},
+  {"id":"r5", "name":"Town Hall",   "capacity":50}
+]

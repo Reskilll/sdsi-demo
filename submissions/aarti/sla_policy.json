@@ -1,0 +1,6 @@
+{
+  "P1": { "target_hours": 4 },
+  "P2": { "target_hours": 8 },
+  "P3": { "target_hours": 24 },
+  "P4": { "target_hours": 72 }
+}

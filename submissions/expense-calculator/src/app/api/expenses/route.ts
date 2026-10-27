@@ -78,7 +78,7 @@ export async function POST(request: NextRequest) {
     }
 
     // --- Process ---
-    const { result, errors } = processExpenses(input as ExpenseInput);
+    const { result, errors } = processExpenses(input as unknown as ExpenseInput);
 
     if (errors.length > 0) {
       return NextResponse.json({ errors }, { status: 400 });

@@ -74,12 +74,35 @@ export function validateExpense(
     });
   }
 
-  // Total must be positive
-  if (typeof expense.total !== 'number' || expense.total <= 0) {
+  // Description validation
+  if (!expense.description || expense.description.trim().length === 0) {
+    errors.push({
+      field: 'description',
+      message: 'Description is required (cannot be empty or whitespace only).',
+    });
+  } else if (expense.description.length > 200) {
+    errors.push({
+      field: 'description',
+      message: `Description must be 200 characters or fewer (currently ${expense.description.length}).`,
+    });
+  }
+
+  // Total must be a positive, finite number
+  if (typeof expense.total !== 'number' || isNaN(expense.total) || !isFinite(expense.total) || expense.total <= 0) {
     errors.push({
       field: 'total',
       message: 'Total must be a positive number.',
     });
+  }
+
+  // Date validation (optional, but if provided must be valid ISO)
+  if (expense.date !== undefined && expense.date !== null) {
+    if (typeof expense.date !== 'string' || isNaN(Date.parse(expense.date))) {
+      errors.push({
+        field: 'date',
+        message: `Date "${String(expense.date)}" is not a valid ISO date string.`,
+      });
+    }
   }
 
   // Split validation
@@ -128,10 +151,10 @@ export function validateExpense(
               message: `Share-holder "${id}" is not a group member.`,
             });
           }
-          if (typeof amount !== 'number' || amount < 0) {
+          if (typeof amount !== 'number' || isNaN(amount) || !isFinite(amount) || amount < 0) {
             errors.push({
               field: 'split.shares',
-              message: `Amount for "${id}" must be >= 0.`,
+              message: `Amount for "${id}" must be a valid number >= 0.`,
             });
           }
         }
@@ -163,10 +186,10 @@ export function validateExpense(
               message: `Share-holder "${id}" is not a group member.`,
             });
           }
-          if (typeof pct !== 'number' || pct < 0) {
+          if (typeof pct !== 'number' || isNaN(pct) || !isFinite(pct) || pct < 0) {
             errors.push({
               field: 'split.shares',
-              message: `Percentage for "${id}" must be >= 0.`,
+              message: `Percentage for "${id}" must be a valid number >= 0.`,
             });
           }
         }
@@ -207,6 +230,12 @@ export function validateBatch(input: ExpenseInput): ValidationError[] {
   for (const m of input.members) {
     if (!m.id || !m.name) {
       errors.push({ field: 'members', message: 'Each member must have an id and name.' });
+    } else if (m.id.trim().length === 0) {
+      errors.push({ field: 'members', message: `Member ID must not be empty.` });
+    } else if (m.name.trim().length === 0) {
+      errors.push({ field: 'members', message: `Member name must not be empty or whitespace only.` });
+    } else if (m.name.length > 100) {
+      errors.push({ field: 'members', message: `Member name "${m.name}" must be 100 characters or fewer (currently ${m.name.length}).` });
     } else if (seenIds.has(m.id)) {
       errors.push({ field: 'members', message: `Duplicate member ID: "${m.id}".` });
     } else {
@@ -247,15 +276,13 @@ function computeShares(expense: Expense, members: Member[]): Map<string, number>
   switch (split.type) {
     case 'equal': {
       const count = split.shareHolderIds.length;
-      const perPerson = round(total / count);
-      let remainder = round(total - perPerson * count);
+      // Truncate (floor) to avoid perPerson * count exceeding total.
+      // The positive remainder is distributed one cent at a time.
+      const perPerson = Math.floor((total / count) * 10 ** DECIMAL_PLACES) / 10 ** DECIMAL_PLACES;
+      const remainderCents = Math.round((total - perPerson * count) * 10 ** DECIMAL_PLACES);
 
       for (let i = 0; i < count; i++) {
-        // Distribute rounding remainder to first few members
-        const share =
-          i < Math.round(remainder * 10 ** DECIMAL_PLACES)
-            ? perPerson + 0.01
-            : perPerson;
+        const share = i < remainderCents ? perPerson + 0.01 : perPerson;
         shares.set(split.shareHolderIds[i], round(share));
       }
       break;

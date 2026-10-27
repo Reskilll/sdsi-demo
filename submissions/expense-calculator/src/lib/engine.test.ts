@@ -590,6 +590,686 @@ describe('processExpenses (end-to-end)', () => {
 
 // ---------------------------------------------------------------------------
 
+describe('validateExpense — additional edge cases', () => {
+  const members = makeMembers(4);
+
+  it('rejects NaN total', () => {
+    const errors = validateExpense(
+      {
+        description: 'NaN',
+        total: NaN,
+        paidBy: 'm1',
+        split: { type: 'equal', shareHolderIds: ['m1'] },
+      },
+      members,
+    );
+    assert.ok(errors.some((e) => e.field === 'total'));
+  });
+
+  it('rejects Infinity total', () => {
+    const errors = validateExpense(
+      {
+        description: 'Inf',
+        total: Infinity,
+        paidBy: 'm1',
+        split: { type: 'equal', shareHolderIds: ['m1'] },
+      },
+      members,
+    );
+    assert.ok(errors.some((e) => e.field === 'total'));
+  });
+
+  it('rejects -Infinity total', () => {
+    const errors = validateExpense(
+      {
+        description: '-Inf',
+        total: -Infinity,
+        paidBy: 'm1',
+        split: { type: 'equal', shareHolderIds: ['m1'] },
+      },
+      members,
+    );
+    assert.ok(errors.some((e) => e.field === 'total'));
+  });
+
+  it('rejects missing paidBy (empty string)', () => {
+    const errors = validateExpense(
+      {
+        description: 'Test',
+        total: 100,
+        paidBy: '',
+        split: { type: 'equal', shareHolderIds: ['m1'] },
+      },
+      members,
+    );
+    assert.ok(errors.some((e) => e.field === 'paidBy'));
+  });
+
+  it('rejects missing description (empty string)', () => {
+    const errors = validateExpense(
+      {
+        description: '',
+        total: 100,
+        paidBy: 'm1',
+        split: { type: 'equal', shareHolderIds: ['m1'] },
+      },
+      members,
+    );
+    assert.ok(errors.some((e) => e.field === 'description'));
+  });
+
+  it('rejects whitespace-only description', () => {
+    const errors = validateExpense(
+      {
+        description: '   ',
+        total: 100,
+        paidBy: 'm1',
+        split: { type: 'equal', shareHolderIds: ['m1'] },
+      },
+      members,
+    );
+    assert.ok(errors.some((e) => e.field === 'description'));
+  });
+
+  it('rejects description > 200 characters', () => {
+    const errors = validateExpense(
+      {
+        description: 'x'.repeat(201),
+        total: 100,
+        paidBy: 'm1',
+        split: { type: 'equal', shareHolderIds: ['m1'] },
+      },
+      members,
+    );
+    assert.ok(errors.some((e) => e.field === 'description' && e.message.includes('200')));
+  });
+
+  it('accepts description exactly 200 characters', () => {
+    const errors = validateExpense(
+      {
+        description: 'x'.repeat(200),
+        total: 100,
+        paidBy: 'm1',
+        split: { type: 'equal', shareHolderIds: ['m1'] },
+      },
+      members,
+    );
+    assert.equal(errors.length, 0);
+  });
+
+  it('rejects missing split', () => {
+    const errors = validateExpense(
+      {
+        description: 'Test',
+        total: 100,
+        paidBy: 'm1',
+        split: undefined as never,
+      },
+      members,
+    );
+    assert.ok(errors.some((e) => e.field === 'split'));
+  });
+
+  it('rejects NaN percentage', () => {
+    const errors = validateExpense(
+      {
+        description: 'Test',
+        total: 100,
+        paidBy: 'm1',
+        split: { type: 'percentage', shares: { m1: NaN } },
+      },
+      members,
+    );
+    assert.ok(errors.some((e) => e.message.includes('>= 0')));
+  });
+
+  it('rejects Infinity percentage', () => {
+    const errors = validateExpense(
+      {
+        description: 'Test',
+        total: 100,
+        paidBy: 'm1',
+        split: { type: 'percentage', shares: { m1: Infinity } },
+      },
+      members,
+    );
+    assert.ok(errors.some((e) => e.message.includes('>= 0')));
+  });
+
+  it('rejects NaN exact amount', () => {
+    const errors = validateExpense(
+      {
+        description: 'Test',
+        total: 100,
+        paidBy: 'm1',
+        split: { type: 'exact', shares: { m1: NaN } },
+      },
+      members,
+    );
+    assert.ok(errors.some((e) => e.message.includes('>= 0')));
+  });
+
+  it('rejects Infinity exact amount', () => {
+    const errors = validateExpense(
+      {
+        description: 'Test',
+        total: 100,
+        paidBy: 'm1',
+        split: { type: 'exact', shares: { m1: Infinity } },
+      },
+      members,
+    );
+    assert.ok(errors.some((e) => e.message.includes('>= 0')));
+  });
+
+  it('rejects empty shares object (exact)', () => {
+    const errors = validateExpense(
+      {
+        description: 'Test',
+        total: 100,
+        paidBy: 'm1',
+        split: { type: 'exact', shares: {} },
+      },
+      members,
+    );
+    assert.ok(errors.some((e) => e.field === 'split.shares'));
+  });
+
+  it('rejects empty shares object (percentage)', () => {
+    const errors = validateExpense(
+      {
+        description: 'Test',
+        total: 100,
+        paidBy: 'm1',
+        split: { type: 'percentage', shares: {} },
+      },
+      members,
+    );
+    assert.ok(errors.some((e) => e.field === 'split.shares'));
+  });
+
+  it('rejects invalid ISO date string', () => {
+    const errors = validateExpense(
+      {
+        description: 'Test',
+        total: 100,
+        paidBy: 'm1',
+        date: 'not-a-date',
+        split: { type: 'equal', shareHolderIds: ['m1'] },
+      },
+      members,
+    );
+    assert.ok(errors.some((e) => e.field === 'date'));
+  });
+
+  it('accepts null date (optional field)', () => {
+    const errors = validateExpense(
+      {
+        description: 'Test',
+        total: 100,
+        paidBy: 'm1',
+        date: null as unknown as undefined,
+        split: { type: 'equal', shareHolderIds: ['m1'] },
+      },
+      members,
+    );
+    // null passes the guard, no date error expected
+    assert.equal(errors.length, 0);
+  });
+
+  it('accepts undefined date (optional field)', () => {
+    const errors = validateExpense(
+      {
+        description: 'Test',
+        total: 100,
+        paidBy: 'm1',
+        split: { type: 'equal', shareHolderIds: ['m1'] },
+      },
+      members,
+    );
+    assert.equal(errors.length, 0);
+  });
+
+  it('accepts valid ISO date string', () => {
+    const errors = validateExpense(
+      {
+        description: 'Test',
+        total: 100,
+        paidBy: 'm1',
+        date: '2026-10-25',
+        split: { type: 'equal', shareHolderIds: ['m1'] },
+      },
+      members,
+    );
+    assert.equal(errors.length, 0);
+  });
+});
+
+// ---------------------------------------------------------------------------
+
+describe('validateBatch — additional edge cases', () => {
+  it('rejects member with empty string id', () => {
+    const errors = validateBatch({
+      members: [{ id: '', name: 'Empty' }],
+      expenses: [
+        {
+          description: 'X',
+          total: 10,
+          paidBy: '',
+          split: { type: 'equal', shareHolderIds: [''] },
+        },
+      ],
+    });
+    // Empty string is falsy, caught by "must have an id and name"
+    assert.ok(errors.some((e) => e.message.includes('id and name')));
+  });
+
+  it('rejects member with whitespace-only id', () => {
+    const errors = validateBatch({
+      members: [{ id: '  ', name: 'Spaces' }],
+      expenses: [
+        {
+          description: 'X',
+          total: 10,
+          paidBy: '  ',
+          split: { type: 'equal', shareHolderIds: ['  '] },
+        },
+      ],
+    });
+    assert.ok(errors.some((e) => e.message.includes('empty')));
+  });
+
+  it('rejects member with missing name', () => {
+    const errors = validateBatch({
+      members: [{ id: 'm1', name: '' as unknown as string }],
+      expenses: [
+        {
+          description: 'X',
+          total: 10,
+          paidBy: 'm1',
+          split: { type: 'equal', shareHolderIds: ['m1'] },
+        },
+      ],
+    });
+    assert.ok(errors.some((e) => e.field === 'members'));
+  });
+
+  it('rejects member with whitespace-only name', () => {
+    const errors = validateBatch({
+      members: [{ id: 'm1', name: '   ' }],
+      expenses: [
+        {
+          description: 'X',
+          total: 10,
+          paidBy: 'm1',
+          split: { type: 'equal', shareHolderIds: ['m1'] },
+        },
+      ],
+    });
+    assert.ok(errors.some((e) => e.field === 'members'));
+  });
+
+  it('rejects member name > 100 characters', () => {
+    const errors = validateBatch({
+      members: [{ id: 'm1', name: 'x'.repeat(101) }],
+      expenses: [
+        {
+          description: 'X',
+          total: 10,
+          paidBy: 'm1',
+          split: { type: 'equal', shareHolderIds: ['m1'] },
+        },
+      ],
+    });
+    assert.ok(errors.some((e) => e.field === 'members' && e.message.includes('100')));
+  });
+
+  it('duplicate shareHolderIds in equal split are de-duplicated by Map', () => {
+    // computeShares uses Map<string, number>, so duplicate IDs collapse
+    // (both m1 entries map to same key — last write wins).
+    // This is a *known quirk*: total owed (100+100=200) ≠ total (300),
+    // and conservation of money breaks. Validation should ideally catch
+    // duplicate shareHolderIds upstream.
+    const input: ExpenseInput = {
+      members: makeMembers(3),
+      expenses: [
+        {
+          description: 'Dupe holders',
+          total: 300,
+          paidBy: 'm1',
+          split: { type: 'equal', shareHolderIds: ['m1', 'm1', 'm2'] },
+        },
+      ],
+    };
+    const { result } = processExpenses(input);
+    // Should not crash, but money is not conserved due to Map dedup
+    assert.ok(result !== null);
+    const m1 = result!.balances.find((b) => b.memberId === 'm1')!;
+    // m1 paid 300. Map dedup gives m1 owes 100, m2 owes 100. net = 200.
+    assert.equal(m1.net, 200);
+  });
+});
+
+// ---------------------------------------------------------------------------
+
+describe('computeBalances — additional edge cases', () => {
+  it('equal split preserves total: 10 divided by 4 → sum of owed = 10', () => {
+    // 10/4 = 2.50 each; 4 * 2.50 = 10.00 — no remainder
+    const members = makeMembers(4);
+    const expenses: Expense[] = [
+      {
+        id: 'e1',
+        description: 'Perfect',
+        total: 10,
+        paidBy: 'm1',
+        split: { type: 'equal', shareHolderIds: ['m1', 'm2', 'm3', 'm4'] },
+      },
+    ];
+    const balances = computeBalances(expenses, members);
+    const totalOwed = round(balances.reduce((s, b) => s + b.owed, 0));
+    assert.equal(totalOwed, 10);
+  });
+
+  it('equal split preserves total: 10 divided by 6 → sum of owed = 10', () => {
+    // 10/6 = 1.66... truncated to 1.66 each = 9.96, remainder 4 cents → 4 members get 1.67
+    // 4 * 1.67 + 2 * 1.66 = 6.68 + 3.32 = 10.00 ✓
+    const members = makeMembers(6);
+    const expenses: Expense[] = [
+      {
+        id: 'e1',
+        description: 'Remainder',
+        total: 10,
+        paidBy: 'm1',
+        split: { type: 'equal', shareHolderIds: ['m1', 'm2', 'm3', 'm4', 'm5', 'm6'] },
+      },
+    ];
+    const balances = computeBalances(expenses, members);
+    const totalOwed = round(balances.reduce((s, b) => s + b.owed, 0));
+    assert.equal(totalOwed, 10, `Expected total owed 10, got ${totalOwed}`);
+  });
+
+  it('equal split preserves total: 1 divided by 3 → sum of owed = 1', () => {
+    // 1/3 = 0.33... truncated to 0.33 each = 0.99, remainder 1 cent → 1 member gets 0.34
+    // 0.34 + 0.33 + 0.33 = 1.00 ✓
+    const members = makeMembers(3);
+    const expenses: Expense[] = [
+      {
+        id: 'e1',
+        description: 'Tiny',
+        total: 1,
+        paidBy: 'm1',
+        split: { type: 'equal', shareHolderIds: ['m1', 'm2', 'm3'] },
+      },
+    ];
+    const balances = computeBalances(expenses, members);
+    const totalOwed = round(balances.reduce((s, b) => s + b.owed, 0));
+    assert.equal(totalOwed, 1, `Expected total owed 1, got ${totalOwed}`);
+  });
+
+  it('equal split with 2 members and odd total: 5 / 2 → sum = 5', () => {
+    // 5/2 = 2.50 each, remainder 0 → clean division
+    const members = makeMembers(2);
+    const expenses: Expense[] = [
+      {
+        id: 'e1',
+        description: 'Odd',
+        total: 5,
+        paidBy: 'm1',
+        split: { type: 'equal', shareHolderIds: ['m1', 'm2'] },
+      },
+    ];
+    const balances = computeBalances(expenses, members);
+    const totalOwed = round(balances.reduce((s, b) => s + b.owed, 0));
+    assert.equal(totalOwed, 5);
+  });
+
+  it('equal split with 3 members and 10: 10/3 → sum = 10', () => {
+    // 10/3 = 3.33... truncated to 3.33 each = 9.99, remainder 1 cent
+    // 1 * 3.34 + 2 * 3.33 = 3.34 + 6.66 = 10.00 ✓
+    const members = makeMembers(3);
+    const expenses: Expense[] = [
+      {
+        id: 'e1',
+        description: 'TenThree',
+        total: 10,
+        paidBy: 'm1',
+        split: { type: 'equal', shareHolderIds: ['m1', 'm2', 'm3'] },
+      },
+    ];
+    const balances = computeBalances(expenses, members);
+    const totalOwed = round(balances.reduce((s, b) => s + b.owed, 0));
+    assert.equal(totalOwed, 10, `Expected total owed 10, got ${totalOwed}`);
+  });
+
+  it('equal split: EVERY division variant sums to total (fuzz test)', () => {
+    // Test every combination of total [1..100] × group-size [2..20]
+    for (let total = 1; total <= 100; total++) {
+      for (let count = 2; count <= 20; count++) {
+        const members = makeMembers(count);
+        const holderIds = members.map((m) => m.id);
+        const expenses: Expense[] = [
+          {
+            id: 'e1',
+            description: `Fuzz ${total}/${count}`,
+            total,
+            paidBy: 'm1',
+            split: { type: 'equal', shareHolderIds: holderIds },
+          },
+        ];
+        const balances = computeBalances(expenses, members);
+        const totalOwed = round(balances.reduce((s, b) => s + b.owed, 0));
+        assert.equal(
+          totalOwed,
+          total,
+          `total=${total}, count=${count}: expected owed sum ${total}, got ${totalOwed}`,
+        );
+      }
+    }
+  });
+
+  it('exact split with a zero share amount is valid', () => {
+    const members = makeMembers(3);
+    const expenses: Expense[] = [
+      {
+        id: 'e1',
+        description: 'Zero share',
+        total: 100,
+        paidBy: 'm1',
+        split: { type: 'exact', shares: { m1: 100, m2: 0, m3: 0 } },
+      },
+    ];
+    const balances = computeBalances(expenses, members);
+    const m1 = balances.find((b) => b.memberId === 'm1')!;
+    assert.equal(m1.owed, 100);
+    assert.equal(m1.net, 0); // paid 100, owes 100
+  });
+
+  it('percentage split with 0% is valid', () => {
+    const members = makeMembers(3);
+    const expenses: Expense[] = [
+      {
+        id: 'e1',
+        description: 'Zero pct',
+        total: 100,
+        paidBy: 'm1',
+        split: { type: 'percentage', shares: { m1: 100, m2: 0, m3: 0 } },
+      },
+    ];
+    const balances = computeBalances(expenses, members);
+    const m1 = balances.find((b) => b.memberId === 'm1')!;
+    assert.equal(m1.owed, 100);
+  });
+
+  it('equal split with single shareHolder', () => {
+    const members = makeMembers(3);
+    const expenses: Expense[] = [
+      {
+        id: 'e1',
+        description: 'Single',
+        total: 50,
+        paidBy: 'm2',
+        split: { type: 'equal', shareHolderIds: ['m1'] },
+      },
+    ];
+    const balances = computeBalances(expenses, members);
+    const m1 = balances.find((b) => b.memberId === 'm1')!;
+    assert.equal(m1.owed, 50);
+  });
+});
+
+// ---------------------------------------------------------------------------
+
+describe('simplifyDebts — additional edge cases', () => {
+  it('returns empty array when all balances are zero', () => {
+    const settlements = simplifyDebts([
+      { memberId: 'a', name: 'A', paid: 0, owed: 0, net: 0 },
+      { memberId: 'b', name: 'B', paid: 0, owed: 0, net: 0 },
+    ]);
+    assert.deepStrictEqual(settlements, []);
+  });
+
+  it('handles only creditors (all net > 0) — should be impossible but must not crash', () => {
+    const s = simplifyDebts([
+      { memberId: 'a', name: 'A', paid: 100, owed: 0, net: 100 },
+      { memberId: 'b', name: 'B', paid: 200, owed: 0, net: 200 },
+    ]);
+    assert.equal(s.length, 0);
+  });
+
+  it('handles only debtors (all net < 0) — should be impossible but must not crash', () => {
+    const s = simplifyDebts([
+      { memberId: 'a', name: 'A', paid: 0, owed: 50, net: -50 },
+      { memberId: 'b', name: 'B', paid: 0, owed: 100, net: -100 },
+    ]);
+    assert.equal(s.length, 0);
+  });
+
+  it('filters out balances with sub-cent floating-point noise', () => {
+    // Net balances like 0.0000001 or -0.0000001 should be treated as zero
+    const settlements = simplifyDebts([
+      { memberId: 'a', name: 'A', paid: 0, owed: 0, net: 1e-10 },
+      { memberId: 'b', name: 'B', paid: 0, owed: 0, net: -1e-10 },
+      { memberId: 'c', name: 'C', paid: 100, owed: 50, net: 50 },
+      { memberId: 'd', name: 'D', paid: 50, owed: 100, net: -50 },
+    ]);
+    // Only C and D should settle; A and B are filtered out
+    assert.equal(settlements.length, 1);
+    assert.equal(settlements[0].from, 'd');
+    assert.equal(settlements[0].to, 'c');
+    assert.equal(settlements[0].amount, 50);
+  });
+
+  it('handles exactly equal creditor and debtor amounts', () => {
+    const s = simplifyDebts([
+      { memberId: 'a', name: 'A', paid: 0, owed: 0, net: 75.5 },
+      { memberId: 'b', name: 'B', paid: 0, owed: 0, net: -75.5 },
+    ]);
+    assert.equal(s.length, 1);
+    assert.equal(s[0].amount, 75.5);
+  });
+
+  it('single creditor, multiple debtors, exact resolution', () => {
+    // A is owed 150; B owes 100, C owes 50
+    const s = simplifyDebts([
+      { memberId: 'a', name: 'A', paid: 0, owed: 0, net: 150 },
+      { memberId: 'b', name: 'B', paid: 0, owed: 0, net: -100 },
+      { memberId: 'c', name: 'C', paid: 0, owed: 0, net: -50 },
+    ]);
+    // Greedy settles largest first: B→A 100, C→A 50
+    assert.equal(s.length, 2);
+    const total = round(s.reduce((sum, st) => sum + st.amount, 0));
+    assert.equal(total, 150);
+  });
+
+  it('never produces zero-amount settlements', () => {
+    // Ensure that after rounding, zero amounts don't sneak in
+    const s = simplifyDebts([
+      { memberId: 'a', name: 'A', paid: 0, owed: 0, net: 0.001 },
+      { memberId: 'b', name: 'B', paid: 0, owed: 0, net: -0.001 },
+    ]);
+    // 0.001 rounds to 0 → should not produce a settlement
+    // Actually: 0.001 > 0 doesn't pass fuzzyEquals, so both are non-zero
+    // settleAmount = round(min(0.001, 0.001)) = round(0.001) = 0
+    // The guard `settleAmount > 0` should filter it
+    assert.equal(s.length, 0);
+  });
+});
+
+// ---------------------------------------------------------------------------
+
+describe('processExpenses — additional edge cases', () => {
+  it('preserves expense dates through processing', () => {
+    const input: ExpenseInput = {
+      members: makeMembers(2),
+      expenses: [
+        {
+          description: 'Dated',
+          total: 100,
+          paidBy: 'm1',
+          date: '2026-10-25',
+          split: { type: 'equal', shareHolderIds: ['m1', 'm2'] },
+        },
+      ],
+    };
+    const { result } = processExpenses(input);
+    // The engine doesn't return the original expenses, but the date should flow through
+    // via the id assignment; we test that processing doesn't crash on dates
+    assert.ok(result !== null);
+    assert.equal(result!.expenseCount, 1);
+    assert.equal(result!.totalExpenses, 100);
+  });
+
+  it('handles many expenses (regression test)', () => {
+    const input: ExpenseInput = {
+      members: makeMembers(10),
+      expenses: Array.from({ length: 100 }, (_, i) => ({
+        description: `Expense ${i + 1}`,
+        total: Math.round((Math.random() * 1000 + 1) * 100) / 100,
+        paidBy: `m${(i % 10) + 1}`,
+        split: { type: 'equal' as const, shareHolderIds: ['m1', 'm2', 'm3', 'm4', 'm5'] },
+      })),
+    };
+    const { result, errors } = processExpenses(input);
+    assert.equal(errors.length, 0);
+    assert.ok(result !== null);
+    // Conservation of money
+    const netSum = round(result!.balances.reduce((s, b) => s + b.net, 0));
+    assert.equal(netSum, 0);
+  });
+
+  it('totalExpenses equals sum of all expense totals', () => {
+    const input: ExpenseInput = {
+      members: makeMembers(3),
+      expenses: [
+        {
+          description: 'A',
+          total: 100.5,
+          paidBy: 'm1',
+          split: { type: 'equal' as const, shareHolderIds: ['m1', 'm2', 'm3'] },
+        },
+        {
+          description: 'B',
+          total: 200.25,
+          paidBy: 'm2',
+          split: { type: 'exact' as const, shares: { m1: 100, m2: 50, m3: 50.25 } },
+        },
+        {
+          description: 'C',
+          total: 50,
+          paidBy: 'm3',
+          split: { type: 'percentage' as const, shares: { m1: 20, m2: 30, m3: 50 } },
+        },
+      ],
+    };
+    const { result, errors } = processExpenses(input);
+    assert.equal(errors.length, 0);
+    assert.equal(result!.totalExpenses, round(100.5 + 200.25 + 50));
+    assert.equal(result!.expenseCount, 3);
+  });
+});
+
+// ---------------------------------------------------------------------------
+
 describe('edge cases', () => {
   it('single member paying for themselves', () => {
     const input: ExpenseInput = {

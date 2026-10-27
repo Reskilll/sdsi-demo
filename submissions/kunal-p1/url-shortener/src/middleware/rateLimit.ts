@@ -13,8 +13,7 @@
 import rateLimit, { type RateLimitRequestHandler } from 'express-rate-limit';
 import type { Request, Response } from 'express';
 
-import { AppError } from '../domain/errors.js';
-import { ERROR_CODES } from '../domain/errors.js';
+import { AppError, ERROR_CODES } from '../domain/errors.js';
 
 const WINDOW_MS = 60_000;
 

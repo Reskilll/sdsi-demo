@@ -19,12 +19,14 @@ interface HttpishError extends Error {
   expose?: boolean;
 }
 
-function mapFrameworkError(error: HttpishError): AppError | null {
-  const status = error.status ?? error.statusCode;
+function mapFrameworkError(error: unknown): AppError | null {
+  if (typeof error !== 'object' || error === null) return null;
+  const candidate = error as HttpishError;
+  const status = candidate.status ?? candidate.statusCode;
   switch (status) {
     case 400:
       return new AppError('VALIDATION_ERROR', 'Request could not be parsed', {
-        reason: error.type ?? 'bad_request',
+        reason: candidate.type ?? 'bad_request',
       });
     case 413:
       return new AppError('PAYLOAD_TOO_LARGE', 'Request body is too large');
@@ -53,9 +55,7 @@ export function createErrorHandler(options: ErrorHandlerOptions) {
     }
 
     const requestId = (res.locals.requestId as string | undefined) ?? undefined;
-    const mapped = isAppError(error)
-      ? error
-      : mapFrameworkError(error as HttpishError) ?? null;
+    const mapped = isAppError(error) ? error : mapFrameworkError(error);
     const appError =
       mapped ??
       new AppError(
@@ -63,7 +63,7 @@ export function createErrorHandler(options: ErrorHandlerOptions) {
         options.exposeInternals && error instanceof Error ? error.message : 'Internal server error',
       );
 
-    const log = req.log ?? console;
+    const log = req.log;
     const logPayload = {
       err: error,
       requestId,
@@ -75,9 +75,11 @@ export function createErrorHandler(options: ErrorHandlerOptions) {
     };
 
     if (appError.status >= 500) {
-      log.error(logPayload, 'request failed');
+      if (log) log.error(logPayload, 'request failed');
+      else console.error('request failed', logPayload);
     } else if (appError.status !== 404) {
-      log.warn(logPayload, 'request rejected');
+      if (log) log.warn(logPayload, 'request rejected');
+      else console.warn('request rejected', logPayload);
     }
 
     // The rate limiter writes its own body; do not double-send.

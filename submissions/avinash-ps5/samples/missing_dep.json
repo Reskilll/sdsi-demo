@@ -1,0 +1,8 @@
+{
+  "workerLimit": 3,
+  "jobs": [
+    {"name": "P", "duration": 2, "dependsOn": []},
+    {"name": "Q", "duration": 3, "dependsOn": ["ghost_job"]},
+    {"name": "R", "duration": 1, "dependsOn": ["P"]}
+  ]
+}

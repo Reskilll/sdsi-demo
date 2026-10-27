@@ -1,0 +1,6 @@
+{
+  "workerLimit": 3,
+  "jobs": [
+    {"name": "only_job", "duration": 5, "dependsOn": []}
+  ]
+}

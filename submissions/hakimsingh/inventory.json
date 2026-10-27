@@ -1,0 +1,31 @@
+{
+  "products": [
+    {
+      "sku": "TSHIRT-BLK",
+      "name": "Black T-Shirt",
+      "total": 100,
+      "per_user_limit": 3,
+      "ttl_seconds": 120
+    },
+    {
+      "sku": "TSHIRT-WHT",
+      "name": "White T-Shirt",
+      "total": 50,
+      "per_user_limit": 2,
+      "ttl_seconds": 60
+    },
+    {
+      "sku": "MUG-CRM",
+      "name": "Ceramic Mug",
+      "total": 25,
+      "per_user_limit": 5
+    },
+    {
+      "sku": "STKR-SET",
+      "name": "Sticker Set",
+      "total": 200,
+      "per_user_limit": 10,
+      "ttl_seconds": 300
+    }
+  ]
+}

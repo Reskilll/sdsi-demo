@@ -1,0 +1,67 @@
+{
+  "members": [
+    {"id": "alice", "name": "Alice"},
+    {"id": "bob", "name": "Bob"},
+    {"id": "charlie", "name": "Charlie"},
+    {"id": "diana", "name": "Diana"},
+    {"id": "eve", "name": "Eve"}
+  ],
+  "expenses": [
+    {
+      "expense_id": "exp1",
+      "description": "Dinner at Taj",
+      "amount": 1000.00,
+      "currency": "INR",
+      "payer": "alice",
+      "participants": ["alice", "bob", "charlie"],
+      "split_type": "equal"
+    },
+    {
+      "expense_id": "exp2",
+      "description": "Movie tickets",
+      "amount": 600.00,
+      "currency": "INR",
+      "payer": "bob",
+      "participants": ["alice", "bob", "diana"],
+      "split_type": "exact",
+      "split_details": [
+        {"member_id": "alice", "value": 150.00},
+        {"member_id": "bob", "value": 200.00},
+        {"member_id": "diana", "value": 250.00}
+      ]
+    },
+    {
+      "expense_id": "exp3",
+      "description": "Groceries",
+      "amount": 800.00,
+      "currency": "INR",
+      "payer": "charlie",
+      "participants": ["alice", "bob", "charlie", "diana"],
+      "split_type": "percentage",
+      "split_details": [
+        {"member_id": "alice", "value": 20},
+        {"member_id": "bob", "value": 30},
+        {"member_id": "charlie", "value": 50},
+        {"member_id": "diana", "value": 0}
+      ]
+    },
+    {
+      "expense_id": "exp4",
+      "description": "Cab ride",
+      "amount": 300.00,
+      "currency": "INR",
+      "payer": "diana",
+      "participants": ["alice", "charlie"],
+      "split_type": "equal"
+    },
+    {
+      "expense_id": "exp5",
+      "description": "Diana pays for Eve's lunch",
+      "amount": 450.50,
+      "currency": "INR",
+      "payer": "diana",
+      "participants": ["eve"],
+      "split_type": "equal"
+    }
+  ]
+}

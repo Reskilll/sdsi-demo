@@ -1,0 +1,24 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Local data (SQLite databases are generated at runtime, never committed)
+*.db
+*.db-wal
+*.db-shm
+data/
+
+# GeoIP database (optional, user-supplied — see submissions/gurnish-singh/README.md)
+*.mmdb
+
+# Editors / OS
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db

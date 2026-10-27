@@ -283,7 +283,7 @@ def assert_no_overlaps(
                         occurrence_date=occ_date,
                         reason=(
                             f"overlap with booking {ex.id} in room {occ.room_id} "
-                            f"({occ.start_time.isoformat()}–{occ.end_time.isoformat()})"
+                            f"({occ.start_time.isoformat()} to {occ.end_time.isoformat()})"
                         ),
                     )
                 )

@@ -1,0 +1,25 @@
+[
+  {
+    "title": "Team Lunch",
+    "total_amount": 2400,
+    "paid_by": "Alice",
+    "split_type": "equal",
+    "members": ["Alice", "Bob", "Charlie"]
+  },
+  {
+    "title": "Taxi",
+    "total_amount": 900,
+    "paid_by": "Bob",
+    "split_type": "exact",
+    "shares": {"Alice": 300, "Bob": 300, "Charlie": 300},
+    "members": ["Alice", "Bob", "Charlie"]
+  },
+  {
+    "title": "Snacks",
+    "total_amount": 500,
+    "paid_by": "Charlie",
+    "split_type": "percentage",
+    "shares": {"Alice": 40, "Bob": 30, "Charlie": 30},
+    "members": ["Alice", "Bob", "Charlie"]
+  }
+]

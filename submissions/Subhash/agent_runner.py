@@ -1,47 +1,121 @@
 import time
-from agent import run
+import json
+import threading
+import logging
+from agent import run, sys_engine
 
-# Simulating Sample Input Data Profile (M1)
-sample_inventory = """{
-    "action": "load",
-    "payload": {
-        "data": [
-            {"sku": "IPHONE15", "stock": 5},
-            {"sku": "PLAYSTATION5", "stock": 2}
+# Configure logging for clear tracking
+logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
+logger = logging.getLogger("TestRunner")
+
+def setup_mock_inventory_file():
+    """Dynamically creates inventory.json to guarantee clean testing environments."""
+    mock_data = {
+        "inventory": [
+            {"sku": "FLASH_ITEM", "stock": 10},
+            {"sku": "LIMITED_ITEM", "stock": 5}
         ]
     }
-}"""
+    with open("inventory.json", "w") as f:
+        json.dump(mock_data, f)
+    logger.info("Created clean local inventory.json file.")
 
-print("--- Step 1: Loading Stock Matrix ---")
-print(run(sample_inventory))
+def execute_concurrent_reservations(sku: str, qty: int, threads_count: int):
+    """Fires simultaneous reservation hits across threads to test thread-safety."""
+    def worker(user_index: int):
+        task = json.dumps({
+            "action": "reserve",
+            "payload": {
+                "user_id": f"concurrent_user_{user_index}",
+                "sku": sku,
+                "qty": qty
+            }
+        })
+        run(task)
 
-print("\n--- Step 2: Reserving Valid Stock (User A) ---")
-res_user_a = """{"action": "reserve", "payload": {"user_id": "user_A", "sku": "IPHONE15", "qty": 2}}"""
-print(run(res_user_a))
+    threads = []
+    for i in range(threads_count):
+        t = threading.Thread(target=worker, args=(i,))
+        threads.append(t)
+        t.start()
 
-print("\n--- Step 3: Checking Metrics State (M5) ---")
-report_sku = """{"action": "report", "payload": {"sku": "IPHONE15"}}"""
-print(run(report_sku))
+    for t in threads:
+        t.join()
 
-print("\n--- Step 4: Enforcing Purchase Limits (User A requesting 2 more, Limit is 2) (M4) ---")
-res_user_a_exploit = """{"action": "reserve", "payload": {"user_id": "user_A", "sku": "IPHONE15", "qty": 2}}"""
-print(run(res_user_a_exploit))
+def run_test_suite():
+    setup_mock_inventory_file()
 
-print("\n--- Step 5: Confirming Stock Purchase (M3) ---")
-confirm_user_a = """{"action": "confirm", "payload": {"user_id": "user_A", "sku": "IPHONE15"}}"""
-print(run(confirm_user_a))
+    print("\n==================================================")
+    print("🔥 RUNNING MILESTONE M1: LOCAL FILE INGESTION TEST")
+    print("==================================================")
+    m1_task = json.dumps({"action": "load_file", "payload": {"filepath": "inventory.json"}})
+    m1_res = run(m1_task)
+    print(f"File ingest result: {m1_res}")
+    assert m1_res["status"] == "success", "M1 Failed: File loading dropped!"
 
-print("\n--- Step 6: Verifying Updated Inventory Report Profile ---")
-print(run(report_sku))
+    print("\n==================================================")
+    print("🔥 RUNNING MILESTONE M2 & M4: RESERVATION & LIMITS")
+    print("==================================================")
+    # User A books 1 unit safely
+    task_res1 = json.dumps({"action": "reserve", "payload": {"user_id": "user_A", "sku": "FLASH_ITEM", "qty": 1}})
+    print(f"User A First Reservation (1 Unit): {run(task_res1)}")
+    
+    # User A tries to reserve 2 more units (Total 3, passes the per-user limit of 2)
+    task_res2 = json.dumps({"action": "reserve", "payload": {"user_id": "user_A", "sku": "FLASH_ITEM", "qty": 2}})
+    print(f"User A Second Reservation (Exploit Attempt 2 Units): {run(task_res2)}")
 
-print("\n--- Step 7: Testing TTL Reservation Hold Expiry Edge Case (Holding for 1 sec) (M2) ---")
-res_ttl_expiry = """{"action": "reserve", "payload": {"user_id": "user_B", "sku": "PLAYSTATION5", "qty": 1, "ttl": 1}}"""
-print(run(res_ttl_expiry))
-print("Stock metrics during hold:")
-print(run("""{"action": "report", "payload": {"sku": "PLAYSTATION5"}}"""))
+    print("\n==================================================")
+    print("🔥 RUNNING MILESTONE M5: TELEMETRY AND REPORTING")
+    print("==================================================")
+    m5_task = json.dumps({"action": "report", "payload": {"sku": "FLASH_ITEM"}})
+    m5_res = run(m5_task)
+    print(f"Current Metrics Profile: {m5_res}")
+    # Available should be 9 (10 total - 1 validly reserved by user A)
+    assert m5_res["metrics"]["reserved"] == 1, "M5 Metric mismatch on reserved holds!"
 
-print("Sleeping 1.5 seconds to pass TTL...")
-time.sleep(1.5)
+    print("\n==================================================")
+    print("🔥 RUNNING MILESTONE M3: CONFIRM, CANCEL & TTL DRIVEN PURGES")
+    print("==================================================")
+    # Confirm User A's held piece
+    task_confirm = json.dumps({"action": "confirm", "payload": {"user_id": "user_A", "sku": "FLASH_ITEM"}})
+    print(f"Confirm Permanent Purchase User A: {run(task_confirm)}")
+    
+    # Verify reservation converted to solid sale
+    print(f"Post-Purchase Report: {run(m5_task)}")
 
-print("Stock metrics after TTL expiration:")
-print(run("""{"action": "report", "payload": {"sku": "PLAYSTATION5"}}"""))
+    # Test explicit user cancellation pathing
+    print("\nTesting Explicit Cancel Lifecycle...")
+    run(json.dumps({"action": "reserve", "payload": {"user_id": "user_B", "sku": "FLASH_ITEM", "qty": 1}}))
+    print(f"Pre-Cancellation Status: {run(m5_task)}")
+    run(json.dumps({"action": "cancel", "payload": {"user_id": "user_B", "sku": "FLASH_ITEM"}}))
+    print(f"Post-Cancellation Status: {run(m5_task)}")
+
+    # Test Short TTL Expiry Sweep edge cases
+    print("\nTesting Lazy TTL Expiry Engine (Using micro-hold)...")
+    run(json.dumps({"action": "reserve", "payload": {"user_id": "user_C", "sku": "FLASH_ITEM", "qty": 1, "ttl": 0.5}}))
+    print(f"Immediately after holding: {run(m5_task)}")
+    print("Sleeping for 0.7 seconds to let hold expire...")
+    time.sleep(0.7)
+    print(f"After TTL expiration sweep window: {run(m5_task)}")
+
+    print("\n==================================================")
+    print("🔥 RUNNING EDGE CASE STRESSING: CONCURRENCY RACE TEST")
+    print("==================================================")
+    # LIMITED_ITEM starts with exactly 5 items.
+    # We will launch 12 separate concurrent thread consumers matching 1 item each.
+    # Total sold + reserved must never cross 5. Overselling protection must lock perfectly.
+    print("Launching 12 threads chasing 5 total units simultaneously...")
+    execute_concurrent_reservations(sku="LIMITED_ITEM", qty=1, threads_count=12)
+
+    final_report_task = json.dumps({"action": "report", "payload": {"sku": "LIMITED_ITEM"}})
+    final_state = run(final_report_task)
+    print(f"\nFinal Concurrency Stress State Metrics: {final_state}")
+    
+    total_allocated = final_state["metrics"]["reserved"] + final_state["metrics"]["sold"]
+    print(f"Total Allocated Units: {total_allocated} (Stock Ceiling Cap: 5)")
+    
+    assert total_allocated <= 5, "CRITICAL CONCURRENCY BUG DETECTED: OVERSELLING OCCURRED!"
+    print("\n🎉 ALL TRACE Lifecycle tests successfully cleared! Zero overselling anomalies.")
+
+if __name__ == "__main__":
+    run_test_suite()

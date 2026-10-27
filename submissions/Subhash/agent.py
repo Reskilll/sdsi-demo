@@ -1,8 +1,9 @@
 import json
 import time
 import logging
+import os
 from threading import Lock
-from typing import Dict, Any, List
+from typing import Dict, Any
 
 # Configure structured logging for the AI Evaluator
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
@@ -13,17 +14,31 @@ class InventorySystem:
         self.lock = Lock()
         # Schema: { sku: { "total": int, "sold": int, "reserved": { user_id: { "qty": int, "expires_at": float } } } }
         self.inventory: Dict[str, Dict[str, Any]] = {}
-        # Schema: { user_id: { sku: cumulative_purchased_and_active_reserved_qty } }
+        # Schema: { user_id: { sku: cumulative_qty } }
         self.user_purchase_limits: Dict[str, Dict[str, int]] = {}
         self.default_ttl = 120.0
-        self.per_user_sku_limit = 2  # Configurable per-user SKU purchase limit
+        self.per_user_sku_limit = 2  # Configurable upper cap
 
-    def load_inventory_from_json(self, json_str: str) -> None:
-        """M1: Load products and stock from a JSON input source."""
+    def load_inventory_file(self, filepath: str) -> bool:
+        """M1: Explicitly load products and stock from a physical JSON file."""
+        if not os.path.exists(filepath):
+            logger.error(f"M1 Error: Target inventory file path not found: {filepath}")
+            return False
+        try:
+            with open(filepath, 'r') as f:
+                file_content = f.read()
+            return self.load_inventory_from_json(file_content)
+        except Exception as e:
+            logger.error(f"M1 Error: Failed reading file structural format: {str(e)}")
+            return False
+
+    def load_inventory_from_json(self, json_str: str) -> bool:
+        """M1 Internal Processor: Ingest structured JSON string configurations safely."""
         with self.lock:
             try:
                 data = json.loads(json_str)
-                for item in data.get("inventory", []):
+                items = data.get("inventory", [])
+                for item in items:
                     sku = item["sku"]
                     stock = int(item["stock"])
                     self.inventory[sku] = {
@@ -31,10 +46,11 @@ class InventorySystem:
                         "sold": 0,
                         "reserved": {}
                     }
-                logger.info(f"Successfully loaded inventory for {len(self.inventory)} SKUs.")
+                logger.info(f"M1 Complete: Successfully initialized {len(items)} items from JSON schema source.")
+                return True
             except Exception as e:
-                logger.error(f"Failed to load inventory: {str(e)}")
-                raise
+                logger.error(f"M1 Processing Error: Corrupted or structurally invalid JSON formatting payload: {str(e)}")
+                return False
 
     def _cleanup_expired_reservations(self, sku: str, now: float) -> None:
         """Helper executing inside a lock to release expired TTL holds (M3)."""
@@ -50,9 +66,7 @@ class InventorySystem:
                 
         for user_id in expired_users:
             qty = sku_data["reserved"][user_id]["qty"]
-            # Release stock hold
             del sku_data["reserved"][user_id]
-            # Deduct from user limits check
             if user_id in self.user_purchase_limits and sku in self.user_purchase_limits[user_id]:
                 self.user_purchase_limits[user_id][sku] -= qty
             logger.info(f"TTL Expired: Released hold of {qty} units for SKU {sku} from User {user_id}")
@@ -67,12 +81,9 @@ class InventorySystem:
                 logger.warning(f"Reservation failed: SKU {sku} does not exist.")
                 return False
             
-            # Housekeeping
             self._cleanup_expired_reservations(sku, now)
-            
             sku_data = self.inventory[sku]
             
-            # Calculate current true available stock
             currently_reserved = sum(res["qty"] for res in sku_data["reserved"].values())
             available_stock = sku_data["total"] - sku_data["sold"] - currently_reserved
             
@@ -80,7 +91,6 @@ class InventorySystem:
                 logger.warning(f"Reservation rejected: Insufficient stock for SKU {sku}. Requested: {qty}, Available: {available_stock}")
                 return False
 
-            # M4: Check/Enforce per-user purchase limits
             user_limits = self.user_purchase_limits.setdefault(user_id, {})
             current_user_holdings = user_limits.get(sku, 0)
             
@@ -88,9 +98,7 @@ class InventorySystem:
                 logger.warning(f"Reservation rejected: User {user_id} exceeds limit for SKU {sku}. Active/Bought: {current_user_holdings}, Requested: {qty}")
                 return False
                 
-            # Execute Reservation Hold
             if user_id in sku_data["reserved"]:
-                # Extend reservation if already exists
                 sku_data["reserved"][user_id]["qty"] += qty
                 sku_data["reserved"][user_id]["expires_at"] = now + hold_time
             else:
@@ -118,8 +126,6 @@ class InventorySystem:
                 return False
                 
             reserved_qty = sku_data["reserved"][user_id]["qty"]
-            
-            # Convert reservation hold to a permanent sale
             sku_data["sold"] += reserved_qty
             del sku_data["reserved"][user_id]
             
@@ -165,22 +171,19 @@ class InventorySystem:
                 "sold": sku_data["sold"]
             }
 
-# --- Agent System Entrypoint ---
+# Singleton operational instance
 sys_engine = InventorySystem()
 
 def run(task: str) -> dict:
-    """
-    Main dispatching loop parsing task criteria down to atomic inventory operations.
-    Accepts task formatting strings matching JSON actions.
-    """
+    """Agent pipeline orchestration portal."""
     try:
         command = json.loads(task)
         action = command.get("action")
         payload = command.get("payload", {})
         
-        if action == "load":
-            sys_engine.load_inventory_from_json(json.dumps({"inventory": payload.get("data", [])}))
-            return {"status": "success", "message": "Inventory base loaded"}
+        if action == "load_file":
+            success = sys_engine.load_inventory_file(payload.get("filepath", "inventory.json"))
+            return {"status": "success" if success else "failed", "escalated": not success}
             
         elif action == "reserve":
             success = sys_engine.reserve_stock(
@@ -204,7 +207,7 @@ def run(task: str) -> dict:
             return {"status": "success", "metrics": metrics, "escalated": False}
             
         else:
-            return {"status": "error", "message": "Unknown action directives", "escalated": True}
+            return {"status": "error", "message": "Unknown action target directive.", "escalated": True}
             
     except Exception as e:
         return {"status": "error", "message": str(e), "escalated": True}

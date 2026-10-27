@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "dag-scheduler"
+version = "1.0.0"
+description = "DAG Job Scheduler with dependency resolution, parallel scheduling, critical-path analysis, and failure simulation"
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+# Intentionally zero runtime dependencies — pure standard library.
+
+[project.scripts]
+dag-scheduler = "dag_scheduler.main:main"
+
+[tool.setuptools.packages.find]
+include = ["dag_scheduler*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]

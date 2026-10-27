@@ -1,0 +1,13 @@
+{
+  "workerLimit": 2,
+  "jobs": [
+    {"name": "A", "duration": 3, "dependsOn": []},
+    {"name": "B", "duration": 2, "dependsOn": ["A"]},
+    {"name": "C", "duration": 4, "dependsOn": ["A"]},
+    {"name": "D", "duration": 1, "dependsOn": ["B", "C"]},
+    {"name": "E", "duration": 2, "dependsOn": ["D"]},
+    {"name": "F", "duration": 3, "dependsOn": ["D"]},
+    {"name": "G", "duration": 1, "dependsOn": ["E", "F"]},
+    {"name": "H", "duration": 2, "dependsOn": ["G"]}
+  ]
+}

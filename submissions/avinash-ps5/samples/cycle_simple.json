@@ -1,0 +1,8 @@
+{
+  "workerLimit": 2,
+  "jobs": [
+    {"name": "X", "duration": 1, "dependsOn": ["Y"]},
+    {"name": "Y", "duration": 1, "dependsOn": ["Z"]},
+    {"name": "Z", "duration": 1, "dependsOn": ["X"]}
+  ]
+}

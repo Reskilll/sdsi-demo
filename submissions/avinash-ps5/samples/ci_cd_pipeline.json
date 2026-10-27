@@ -1,0 +1,14 @@
+{
+  "workerLimit": 5,
+  "jobs": [
+    {"name": "build_backend",   "duration": 6, "dependsOn": []},
+    {"name": "build_frontend",  "duration": 4, "dependsOn": []},
+    {"name": "build_mobile",    "duration": 3, "dependsOn": []},
+    {"name": "integration_test","duration": 5, "dependsOn": ["build_backend", "build_frontend"]},
+    {"name": "e2e_test",        "duration": 3, "dependsOn": ["integration_test", "build_mobile"]},
+    {"name": "security_scan",   "duration": 2, "dependsOn": ["build_backend"]},
+    {"name": "deploy_staging",  "duration": 2, "dependsOn": ["e2e_test", "security_scan"]},
+    {"name": "smoke_test",      "duration": 1, "dependsOn": ["deploy_staging"]},
+    {"name": "deploy_prod",     "duration": 2, "dependsOn": ["smoke_test"]}
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "workerLimit": 4,
+  "jobs": [
+    {"name": "fetch_data",     "duration": 2, "dependsOn": []},
+    {"name": "clean_data",     "duration": 3, "dependsOn": ["fetch_data"]},
+    {"name": "validate",       "duration": 1, "dependsOn": ["fetch_data"]},
+    {"name": "train_model",    "duration": 5, "dependsOn": ["clean_data", "validate"]},
+    {"name": "evaluate",       "duration": 2, "dependsOn": ["train_model"]},
+    {"name": "deploy",         "duration": 1, "dependsOn": ["evaluate"]}
+  ]
+}

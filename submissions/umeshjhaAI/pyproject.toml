@@ -1,0 +1,18 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "sdsi-job-scheduler"
+version = "1.0.0"
+description = "Mini job scheduler with DAG dependency resolution"
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+keywords = ["scheduler", "dag", "etl", "topological-sort", "critical-path"]
+
+[project.scripts]
+jobsched = "scheduler.cli:main"
+
+[tool.setuptools]
+packages = ["scheduler"]

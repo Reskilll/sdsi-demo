@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Job Scheduler — Test Harness</title>
+<style>
+/* ==================================================================
+   CSS custom properties — reference palette (dataviz skill)
+   ================================================================== */
+:root {
+  --surface-1:      #fcfcfb;
+  --page-plane:     #f9f9f7;
+  --text-primary:   #0b0b0b;
+  --text-secondary: #52514e;
+  --text-muted:     #898781;
+  --gridline:       #e1e0d9;
+  --baseline:       #c3c2b7;
+  --border:         rgba(11,11,11,0.10);
+
+  /* sequential (blue) — reference palette steps */
+  --seq-100: #cde2fb;
+  --seq-200: #9ec5f4;
+  --seq-250: #86b6ef;
+  --seq-300: #6da7ec;
+  --seq-400: #3987e5;
+  --seq-450: #2a78d6;
+  --seq-500: #256abf;
+  --seq-550: #1c5cab;
+  --seq-600: #184f95;
+
+  /* categorical accents */
+  --cat-orange: #eb6834;
+  --cat-aqua:   #1baf7a;
+
+  /* status */
+  --status-good:  #0ca30c;
+  --status-warn:  #fab219;
+  --status-error: #d03b3b;
+
+  --label-on-fill: #ffffff;
+
+  --radius-sm: 4px;
+  --radius-md: 8px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:where(:not([data-theme="light"])) {
+    --surface-1:      #1a1a19;
+    --page-plane:     #0d0d0d;
+    --text-primary:   #f0efec;
+    --text-secondary: #c3c2b7;
+    --text-muted:     #898781;
+    --gridline:       #2c2c2a;
+    --baseline:       #383835;
+    --border:         rgba(255,255,255,0.10);
+    --label-on-fill:  #ffffff;
+
+    --seq-100: #0d366b;
+    --seq-200: #104281;
+    --seq-250: #184f95;
+    --seq-300: #1c5cab;
+    --seq-400: #2a78d6;
+    --seq-450: #3987e5;
+    --seq-500: #5598e7;
+    --seq-550: #6da7ec;
+    --seq-600: #86b6ef;
+  }
+}
+:root[data-theme="dark"] {
+  --surface-1:      #1a1a19;
+  --page-plane:     #0d0d0d;
+  --text-primary:   #f0efec;
+  --text-secondary: #c3c2b7;
+  --text-muted:     #898781;
+  --gridline:       #2c2c2a;
+  --baseline:       #383835;
+  --border:         rgba(255,255,255,0.10);
+  --label-on-fill:  #ffffff;
+
+  --seq-100: #0d366b;
+  --seq-200: #104281;
+  --seq-250: #184f95;
+  --seq-300: #1c5cab;
+  --seq-400: #2a78d6;
+  --seq-450: #3987e5;
+  --seq-500: #5598e7;
+  --seq-550: #6da7ec;
+  --seq-600: #86b6ef;
+}
+
+/* ==================================================================
+   Reset & base
+   ================================================================== */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  background: var(--page-plane);
+  color: var(--text-primary);
+  line-height: 1.5;
+  min-height: 100vh;
+}
+
+/* ==================================================================
+   Layout
+   ================================================================== */
+.container { max-width: 1200px; margin: 0 auto; padding: 24px; }
+header {
+  display: flex; justify-content: space-between; align-items: center;
+  padding-bottom: 16px; border-bottom: 1px solid var(--gridline); margin-bottom: 24px;
+}
+h1 { font-size: 1.5rem; font-weight: 600; color: var(--text-primary); }
+
+/* ==================================================================
+   Input panel
+   ================================================================== */
+.panel {
+  background: var(--surface-1);
+  border: 1px solid var(--gridline);
+  border-radius: var(--radius-md);
+  padding: 20px;
+  margin-bottom: 24px;
+}
+.panel-label {
+  font-size: 0.75rem; font-weight: 600; text-transform: uppercase;
+  letter-spacing: 0.05em; color: var(--text-muted); margin-bottom: 8px;
+}
+textarea {
+  width: 100%; min-height: 180px; font-family: "Cascadia Code", "Fira Code", monospace;
+  font-size: 0.85rem; padding: 12px; border: 1px solid var(--baseline);
+  border-radius: var(--radius-sm); background: var(--surface-1);
+  color: var(--text-primary); resize: vertical; tab-size: 2;
+}
+textarea:focus { outline: none; border-color: var(--seq-400); }
+
+.row { display: flex; gap: 12px; align-items: center; margin-top: 12px; flex-wrap: wrap; }
+.row label { font-size: 0.8rem; color: var(--text-secondary); white-space: nowrap; }
+.row input {
+  width: 80px; padding: 6px 8px; font-size: 0.85rem;
+  border: 1px solid var(--baseline); border-radius: var(--radius-sm);
+  background: var(--surface-1); color: var(--text-primary);
+}
+.row input:focus { outline: none; border-color: var(--seq-400); }
+button {
+  padding: 8px 20px; font-size: 0.85rem; font-weight: 600;
+  background: var(--seq-450); color: var(--label-on-fill);
+  border: none; border-radius: var(--radius-sm); cursor: pointer;
+  position: relative;
+  transition: background 0.15s, opacity 0.15s, transform 0.05s;
+}
+button:hover { background: var(--seq-500); }
+button:active { background: var(--seq-550); transform: scale(0.97); }
+button:disabled { opacity: 0.6; cursor: wait; transform: none; }
+.btn-secondary {
+  background: transparent; color: var(--text-secondary);
+  border: 1px solid var(--baseline);
+}
+.btn-secondary:hover { background: var(--gridline); }
+.btn-secondary:active { background: var(--baseline); }
+.btn-secondary:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* inline button spinner */
+.btn-spinner {
+  display: none; width: 14px; height: 14px; margin-right: 8px;
+  border: 2px solid currentColor; border-top-color: transparent;
+  border-radius: 50%; vertical-align: -2px;
+  animation: spin 0.7s linear infinite;
+}
+button.loading .btn-spinner { display: inline-block; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ==================================================================
+   Loader overlay
+   ================================================================== */
+.loader-overlay {
+  position: fixed; inset: 0; z-index: 200;
+  background: var(--page-plane); opacity: 0;
+  display: flex; flex-direction: column; gap: 16px;
+  align-items: center; justify-content: center;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+.loader-overlay.active {
+  opacity: 1; pointer-events: all;
+}
+.loader-overlay .spinner {
+  width: 44px; height: 44px; border: 3px solid var(--seq-200);
+  border-top-color: var(--seq-450); border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+.loader-overlay .spinner-label {
+  font-size: 0.85rem; color: var(--text-secondary);
+  letter-spacing: 0.02em;
+}
+
+/* ==================================================================
+   Alerts (toasts)
+   ================================================================== */
+.toast-stack {
+  position: fixed; top: 16px; right: 16px; z-index: 300;
+  display: flex; flex-direction: column; gap: 8px; max-width: 320px;
+}
+.toast {
+  background: var(--surface-1); border: 1px solid var(--baseline);
+  border-left: 4px solid var(--seq-450); border-radius: var(--radius-sm);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+  padding: 10px 14px; font-size: 0.85rem; color: var(--text-primary);
+  display: flex; align-items: flex-start; gap: 8px;
+  opacity: 0; transform: translateX(20px);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+.toast.show { opacity: 1; transform: translateX(0); }
+.toast.success { border-left-color: var(--status-good); }
+.toast.error   { border-left-color: var(--status-error); }
+.toast.info    { border-left-color: var(--seq-450); }
+.toast-icon { flex-shrink: 0; font-weight: 700; line-height: 1.3; }
+.toast.success .toast-icon { color: var(--status-good); }
+.toast.error   .toast-icon { color: var(--status-error); }
+.toast.info    .toast-icon { color: var(--seq-450); }
+.toast-msg { line-height: 1.4; }
+
+/* alerts flash on the notification bell/badge-less; keep accessible */
+.toast [role="status"] { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+
+.error-box {
+  background: #fef2f2; border: 1px solid var(--status-error);
+  border-radius: var(--radius-sm); padding: 12px;
+  margin-bottom: 16px; display: none;
+  color: var(--text-primary);
+}
+.error-box.visible { display: block; }
+.error-box li { font-size: 0.85rem; margin-left: 18px; }
+
+/* ==================================================================
+   KPI row — stat tiles
+   ================================================================== */
+.kpi-row { display: flex; gap: 16px; margin-bottom: 24px; flex-wrap: wrap; }
+.stat {
+  background: var(--surface-1); border: 1px solid var(--gridline);
+  border-radius: var(--radius-md); padding: 16px 20px; flex: 1; min-width: 160px;
+}
+.stat-label { font-size: 0.75rem; font-weight: 600; text-transform: uppercase;
+  letter-spacing: 0.05em; color: var(--text-muted); margin-bottom: 4px; }
+.stat-value { font-size: 2rem; font-weight: 600; color: var(--text-primary);
+  font-variant-numeric: tabular-nums; }
+.stat-delta { font-size: 0.8rem; font-weight: 500; margin-top: 2px; }
+
+/* ==================================================================
+   Stage bars
+   ================================================================== */
+.section-title {
+  font-size: 0.85rem; font-weight: 600; text-transform: uppercase;
+  letter-spacing: 0.05em; color: var(--text-muted); margin-bottom: 12px; margin-top: 20px;
+}
+.stage-chart { margin-bottom: 24px; }
+.stage-row {
+  display: flex; align-items: center; margin-bottom: 4px;
+  min-height: 36px;
+}
+.stage-label {
+  width: 70px; text-align: right; padding-right: 10px;
+  font-size: 0.75rem; font-weight: 500; color: var(--text-secondary);
+  flex-shrink: 0;
+}
+.stage-bar-wrap { flex: 1; position: relative; }
+.stage-bar {
+  height: 28px; border-radius: var(--radius-sm);
+  display: flex; align-items: center; gap: 6px;
+  padding: 0 10px; min-width: 40px; cursor: pointer;
+  position: relative; transition: opacity 0.15s;
+}
+.stage-bar:hover { opacity: 0.88; }
+.stage-bar-label {
+  font-size: 0.75rem; font-weight: 500; color: var(--label-on-fill);
+  /* text inside fill — white per palette rule */
+}
+.stage-dur {
+  margin-left: auto; font-size: 0.75rem;
+  font-weight: 600; color: var(--label-on-fill);
+}
+.stage-bar-jobs {
+  font-size: 0.7rem; color: var(--label-on-fill);
+  opacity: 0.85; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+
+/* bar tooltip */
+.tooltip {
+  position: fixed; pointer-events: none; opacity: 0;
+  background: var(--surface-1); border: 1px solid var(--baseline);
+  border-radius: var(--radius-sm); padding: 8px 12px;
+  font-size: 0.8rem; color: var(--text-primary); box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+  z-index: 100; max-width: 280px; transition: opacity 0.1s;
+}
+.tooltip.visible { opacity: 1; }
+.tooltip strong { display: block; font-size: 0.85rem; }
+.tooltip em { color: var(--text-secondary); font-style: normal; }
+
+/* ==================================================================
+   Critical path annotation list
+   ================================================================== */
+.cp-list { list-style: none; margin-bottom: 20px; }
+.cp-item {
+  display: flex; gap: 10px; align-items: flex-start;
+  padding: 8px 0; border-bottom: 1px solid var(--gridline);
+}
+.cp-dot {
+  width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0;
+  margin-top: 4px; background: var(--cat-orange);
+}
+.cp-text { font-size: 0.85rem; color: var(--text-primary); }
+.cp-job-id { font-weight: 600; }
+
+/* ==================================================================
+   Table
+   ================================================================== */
+table {
+  width: 100%; border-collapse: collapse; font-size: 0.85rem;
+  margin-bottom: 24px;
+}
+th {
+  text-align: left; padding: 8px 12px; font-weight: 600;
+  color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase;
+  letter-spacing: 0.05em; border-bottom: 1px solid var(--baseline);
+}
+td {
+  padding: 8px 12px; border-bottom: 1px solid var(--gridline);
+  font-variant-numeric: tabular-nums; color: var(--text-primary);
+}
+tr.cp-row { background: rgba(235,104,52,0.06); }
+tr.cp-row td:first-child { font-weight: 600; }
+.cp-badge {
+  display: inline-block; width: 8px; height: 8px; border-radius: 50%;
+  background: var(--cat-orange); margin-right: 6px; vertical-align: middle;
+}
+
+/* ==================================================================
+   Topological order
+   ================================================================== */
+.topo-line {
+  font-family: "Cascadia Code", "Fira Code", monospace;
+  font-size: 0.8rem; color: var(--text-secondary);
+  padding: 8px 0; word-break: break-all;
+}
+
+/* ==================================================================
+   Responsive
+   ================================================================== */
+@media (max-width: 600px) {
+  .container { padding: 12px; }
+  .stat-value { font-size: 1.5rem; }
+  .kpi-row { gap: 8px; }
+  .stat { padding: 10px 14px; min-width: 120px; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>Job Scheduler — Test Harness</h1>
+    <div style="display:flex;gap:8px;">
+      <button class="btn-secondary" id="btn-theme" title="Toggle dark mode">☀</button>
+    </div>
+  </header>
+
+  <!-- ============================================================== -->
+  <!-- Input panel                                                      -->
+  <!-- ============================================================== -->
+  <div class="panel">
+    <div class="panel-label">Job description (JSON)</div>
+    <textarea id="input-json" spellcheck="false">{
+  "jobs": [
+    {"id": "extract",   "duration": 3, "dependsOn": []},
+    {"id": "validate",  "duration": 2, "dependsOn": ["extract"]},
+    {"id": "transform", "duration": 4, "dependsOn": ["extract"]},
+    {"id": "load",      "duration": 2, "dependsOn": ["validate", "transform"]}
+  ],
+  "workers": 2
+}</textarea>
+    <div class="row">
+      <label for="inp-workers">Workers:</label>
+      <input type="number" id="inp-workers" value="2" min="1" step="1" placeholder="override">
+      <label for="inp-failed">Failed job:</label>
+      <input type="text" id="inp-failed" value="" placeholder="e.g. transform" style="width:140px;">
+      <button id="btn-run"><span class="btn-spinner"></span>Run</button>
+      <button class="btn-secondary" id="btn-reset">Reset</button>
+    </div>
+  </div>
+
+  <div class="error-box" id="error-box"><ul id="error-list"></ul></div>
+
+  <!-- ============================================================== -->
+  <!-- Results (hidden until populated)                                -->
+  <!-- ============================================================== -->
+  <div id="results" style="display:none;">
+    <!-- KPI row -->
+    <div class="kpi-row">
+      <div class="stat">
+        <div class="stat-label">Total completion time</div>
+        <div class="stat-value" id="kpi-total">—</div>
+        <div class="stat-delta" id="kpi-total-delta"></div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">Critical path duration</div>
+        <div class="stat-value" id="kpi-cp">—</div>
+        <div class="stat-delta">unlimited workers</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">Workers</div>
+        <div class="stat-value" id="kpi-workers">—</div>
+        <div class="stat-delta" id="kpi-stages-delta"></div>
+      </div>
+      <div class="stat" id="kpi-skipped-stat" style="display:none;">
+        <div class="stat-label">Skipped jobs</div>
+        <div class="stat-value" id="kpi-skipped">0</div>
+        <div class="stat-delta">downstream of failure</div>
+      </div>
+    </div>
+
+    <!-- Topological order -->
+    <div class="section-title">Topological order</div>
+    <div class="topo-line" id="topo-line"></div>
+
+    <!-- Stage bars -->
+    <div class="section-title">Execution stages (barrier model)</div>
+    <div class="stage-chart" id="stage-chart"></div>
+
+    <!-- Critical path -->
+    <div class="section-title">Critical path</div>
+    <div class="topo-line" id="cp-path-line" style="margin-bottom:8px;"></div>
+    <ul class="cp-list" id="cp-reasons"></ul>
+
+    <!-- Per-job timings table -->
+    <div class="section-title">Per-job timings</div>
+    <table>
+      <thead>
+        <tr><th>Job</th><th>Earliest start</th><th>Earliest finish</th><th>Duration</th></tr>
+      </thead>
+      <tbody id="table-body"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- tooltip (singleton) -->
+<div class="tooltip" id="tooltip"></div>
+
+<!-- loader overlay -->
+<div class="loader-overlay" id="loader">
+  <div class="spinner"></div>
+  <div class="spinner-label" id="loader-label">Scheduling…</div>
+</div>
+
+<!-- toast stack -->
+<div class="toast-stack" id="toast-stack" role="status" aria-live="polite"></div>
+
+<script>
+/* ==================================================================
+   Constants & state
+   ================================================================== */
+const seqSteps = [
+  'var(--seq-600)', 'var(--seq-500)', 'var(--seq-450)',
+  'var(--seq-400)', 'var(--seq-300)', 'var(--seq-250)',
+  'var(--seq-200)', 'var(--seq-100)',
+];
+
+const $ = (s) => document.querySelector(s);
+const tooltip = $('#tooltip');
+
+/* ==================================================================
+   Loader
+   ================================================================== */
+const loader = $('#loader');
+const loaderLabel = $('#loader-label');
+let loadTimer = null;
+
+function showLoader(label = 'Scheduling…') {
+  loaderLabel.textContent = label;
+  loader.classList.add('active');
+}
+function hideLoader() {
+  loader.classList.remove('active');
+}
+
+/* ==================================================================
+   Toasts (alerts on click)
+   ================================================================== */
+const toastStack = $('#toast-stack');
+const TOAST_ICONS = { success: '✓', error: '✕', info: 'ℹ' };
+
+function toast(message, type = 'info', timeout = 3200) {
+  const el = document.createElement('div');
+  el.className = 'toast ' + type;
+  el.innerHTML = `<span class="toast-icon">${TOAST_ICONS[type] || 'ℹ'}</span><span class="toast-msg">${escHtml(message)}</span>`;
+  toastStack.appendChild(el);
+  // force reflow so the transition fires
+  requestAnimationFrame(() => el.classList.add('show'));
+  setTimeout(() => {
+    el.classList.remove('show');
+    el.addEventListener('transitionend', () => el.remove(), { once: true });
+    // fallback removal if transitionend never fires
+    setTimeout(() => el.remove(), 400);
+  }, timeout);
+}
+
+/* ==================================================================
+   Theme toggle
+   ================================================================== */
+let theme = localStorage.getItem('theme') || 'auto';
+function applyTheme() {
+  if (theme === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+  else document.documentElement.removeAttribute('data-theme');
+  $('#btn-theme').textContent = theme === 'dark' ? '☼' : '☀';
+}
+applyTheme();
+$('#btn-theme').onclick = () => {
+  theme = theme === 'dark' ? 'light' : 'dark';
+  localStorage.setItem('theme', theme);
+  applyTheme();
+  toast(theme === 'dark' ? 'Dark mode enabled' : 'Light mode enabled', 'info', 2200);
+};
+
+/* ==================================================================
+   Run scheduler
+   ================================================================== */
+const MIN_DELAY_MS = 450;
+
+const delay = (ms) => new Promise((r) => setTimeout(r, ms));
+
+$('#btn-run').onclick = async () => {
+  const runBtn = $('#btn-run');
+  const raw = $('#input-json').value.trim();
+  const workersVal = $('#inp-workers').value.trim();
+  const failedVal = $('#inp-failed').value.trim();
+
+  // pre-flight JSON parse (no network yet)
+  let payload;
+  try { payload = JSON.parse(raw); } catch (e) {
+    showErrors(['malformed JSON: ' + e.message]);
+    toast('Invalid JSON — check the job description', 'error');
+    return;
+  }
+  if (typeof payload !== 'object' || payload === null || Array.isArray(payload)) {
+    showErrors(['JSON must be an object, got ' + (Array.isArray(payload) ? 'array' : typeof payload)]);
+    toast('Input must be a JSON object', 'error');
+    return;
+  }
+  if (workersVal) {
+    const w = parseInt(workersVal, 10);
+    if (isNaN(w) || w < 1) {
+      showErrors(['workers must be an integer >= 1']);
+      toast('Workers must be a positive integer', 'error');
+      return;
+    }
+    payload._workers = w;
+  }
+  if (failedVal) payload._failed_job = failedVal;
+
+  // enter loading state: disable the button + inline spinner + overlay
+  runBtn.disabled = true;
+  runBtn.classList.add('loading');
+  showLoader('Scheduling jobs…');
+
+  const started = Date.now();
+  try {
+    const resp = await fetch('/api/schedule', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    const data = await resp.json();
+
+    // enforce a minimum delay so the loader never flashes
+    const elapsed = Date.now() - started;
+    if (elapsed < MIN_DELAY_MS) await delay(MIN_DELAY_MS - elapsed);
+
+    if (data.errors) {
+      showErrors(data.errors);
+      toast('Validation failed — see errors below', 'error');
+    } else {
+      hideErrors();
+      render(data);
+      const n = data.topological_order.length;
+      toast(`Schedule ready — ${n} job${n === 1 ? '' : 's'} analyzed`, 'success');
+    }
+  } catch (e) {
+    showErrors(['request failed: ' + e.message]);
+    toast('Request failed — is the server running?', 'error');
+  } finally {
+    runBtn.disabled = false;
+    runBtn.classList.remove('loading');
+    hideLoader();
+  }
+};
+
+$('#btn-reset').onclick = () => {
+  $('#results').style.display = 'none';
+  hideErrors();
+  toast('Results cleared', 'info', 2000);
+};
+
+/* ==================================================================
+   Render
+   ================================================================== */
+function render(d) {
+  $('#results').style.display = 'block';
+
+  // KPI tiles
+  $('#kpi-total').textContent = fmtNum(d.total_completion_time);
+  const gap = d.total_completion_time - d.critical_path_duration;
+  if (gap > 0.001) {
+    $('#kpi-total-delta').textContent = '+' + fmtNum(gap) + ' vs critical path';
+  } else {
+    $('#kpi-total-delta').textContent = 'matches critical path';
+  }
+
+  $('#kpi-cp').textContent = fmtNum(d.critical_path_duration);
+  $('#kpi-workers').textContent = d.workers;
+
+  const nStages = d.stages.length;
+  $('#kpi-stages-delta').textContent = nStages + ' stage' + (nStages === 1 ? '' : 's');
+
+  if (d.skipped_jobs && d.skipped_jobs.length > 0) {
+    $('#kpi-skipped-stat').style.display = '';
+    $('#kpi-skipped').textContent = d.skipped_jobs.length;
+  } else {
+    $('#kpi-skipped-stat').style.display = 'none';
+  }
+
+  // Topological order
+  $('#topo-line').textContent = d.topological_order.length
+    ? d.topological_order.join('  →  ')
+    : '(empty graph)';
+
+  // Stage bars
+  renderStages(d.stages, d.total_completion_time, d.critical_path);
+  // Critical path
+  renderCriticalPath(d);
+  // Table
+  renderTable(d);
+}
+
+/* ==================================================================
+   Stage bar chart
+   ================================================================== */
+function renderStages(stages, totalTime, cpPath) {
+  const chart = $('#stage-chart');
+  chart.innerHTML = '';
+
+  if (stages.length === 0) {
+    chart.innerHTML = '<div style="color:var(--text-muted);font-size:0.8rem;">(none)</div>';
+    return;
+  }
+
+  const maxDur = totalTime || 1;
+  const cpSet = new Set(cpPath);
+
+  stages.forEach((stage, i) => {
+    const row = document.createElement('div');
+    row.className = 'stage-row';
+
+    const label = document.createElement('div');
+    label.className = 'stage-label';
+    label.textContent = `Stage ${i + 1}`;
+    row.appendChild(label);
+
+    const wrap = document.createElement('div');
+    wrap.className = 'stage-bar-wrap';
+
+    const bar = document.createElement('div');
+    bar.className = 'stage-bar';
+    const pct = Math.max((stage.duration / maxDur) * 100, 5);
+    bar.style.width = pct + '%';
+    bar.style.background = seqSteps[Math.min(i, seqSteps.length - 1)];
+
+    // label inside the bar
+    const lbl = document.createElement('span');
+    lbl.className = 'stage-bar-label';
+    lbl.textContent = stage.job_ids.join(', ');
+    bar.appendChild(lbl);
+
+    const dur = document.createElement('span');
+    dur.className = 'stage-dur';
+    dur.textContent = fmtNum(stage.duration);
+    bar.appendChild(dur);
+
+    // hover tooltip
+    bar.addEventListener('pointerenter', (e) => {
+      tooltip.innerHTML = `<strong>Stage ${i + 1}</strong>
+Jobs: <em>${stage.job_ids.join(', ')}</em><br>
+Duration: <em>${fmtNum(stage.duration)}</em>`;
+      tooltip.classList.add('visible');
+    });
+    bar.addEventListener('pointermove', (e) => {
+      tooltip.style.left = (e.clientX + 14) + 'px';
+      tooltip.style.top = (e.clientY + 14) + 'px';
+    });
+    bar.addEventListener('pointerleave', () => {
+      tooltip.classList.remove('visible');
+    });
+
+    wrap.appendChild(bar);
+    row.appendChild(wrap);
+    chart.appendChild(row);
+  });
+}
+
+/* ==================================================================
+   Critical path
+   ================================================================== */
+function renderCriticalPath(d) {
+  $('#cp-path-line').textContent = d.critical_path.length
+    ? d.critical_path.join('  →  ')
+    : '(empty graph)';
+
+  const list = $('#cp-reasons');
+  list.innerHTML = '';
+  (d.critical_path_reasons || []).forEach(r => {
+    const li = document.createElement('li');
+    li.className = 'cp-item';
+    li.innerHTML = `<span class="cp-dot"></span><span class="cp-text"><span class="cp-job-id">${escHtml(r.job_id)}</span> <span style="color:var(--text-muted);">(${fmtNum(r.duration)})</span> — ${escHtml(r.reason)}</span>`;
+    list.appendChild(li);
+  });
+}
+
+/* ==================================================================
+   Per-job table
+   ================================================================== */
+function renderTable(d) {
+  const cpSet = new Set(d.critical_path);
+  const body = $('#table-body');
+  body.innerHTML = '';
+
+  // sorted by id
+  const ids = Object.keys(d.job_timings).sort();
+  ids.forEach(jid => {
+    const t = d.job_timings[jid];
+    const tr = document.createElement('tr');
+    if (cpSet.has(jid)) tr.className = 'cp-row';
+
+    const durStr = fmtNum(t.earliest_finish - t.earliest_start);
+    tr.innerHTML = `<td>${cpSet.has(jid) ? '<span class="cp-badge"></span>' : ''}${escHtml(jid)}</td>
+<td>${fmtNum(t.earliest_start)}</td>
+<td>${fmtNum(t.earliest_finish)}</td>
+<td>${durStr}</td>`;
+    body.appendChild(tr);
+  });
+}
+
+/* ==================================================================
+   Helpers
+   ================================================================== */
+function showErrors(errs) {
+  const el = $('#error-box');
+  el.classList.add('visible');
+  const ul = $('#error-list');
+  ul.innerHTML = errs.map(e => `<li>${escHtml(e)}</li>`).join('');
+  $('#results').style.display = 'none';
+}
+function hideErrors() {
+  $('#error-box').classList.remove('visible');
+}
+function escHtml(s) {
+  const d = document.createElement('div');
+  d.textContent = s;
+  return d.innerHTML;
+}
+function fmtNum(v) {
+  if (typeof v !== 'number' || !isFinite(v)) return String(v);
+  const s = v.toFixed(2);
+  // strip trailing zeros after decimal
+  return s.includes('.') ? s.replace(/\.?0+$/, '') : s;
+}
+
+// run on load
+$('#btn-run').click();
+</script>
+</body>
+</html>

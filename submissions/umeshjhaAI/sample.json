@@ -1,0 +1,9 @@
+{
+  "jobs": [
+    {"id": "extract", "duration": 3, "dependsOn": []},
+    {"id": "validate", "duration": 2, "dependsOn": ["extract"]},
+    {"id": "transform", "duration": 4, "dependsOn": ["extract"]},
+    {"id": "load", "duration": 2, "dependsOn": ["validate", "transform"]}
+  ],
+  "workers": 2
+}

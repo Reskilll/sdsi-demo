@@ -1,0 +1,9 @@
+{
+  "products": [
+    { "sku": "PHONE-X1",   "name": "Galaxy X1 Smartphone",   "stock": 100, "perUserLimit": 2 },
+    { "sku": "WATCH-S5",   "name": "Smart Watch S5",         "stock": 50,  "perUserLimit": 1 },
+    { "sku": "BUDS-PRO",   "name": "Wireless Buds Pro",      "stock": 200, "perUserLimit": 3 },
+    { "sku": "TAB-S9",     "name": "Tablet S9",              "stock": 10,  "perUserLimit": 1 },
+    { "sku": "CHARGER-25", "name": "25W Fast Charger",       "stock": 0,   "perUserLimit": 5 }
+  ]
+}

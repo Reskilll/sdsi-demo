@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Expense Splitter — Team Outing Settler</title>
+<style>
+:root {
+  --bg: #f5f5f5;
+  --card: #fff;
+  --text: #222;
+  --muted: #666;
+  --accent: #2563eb;
+  --accent-h: #1d4ed8;
+  --danger: #dc2626;
+  --border: #e5e5e5;
+  --green: #16a34a;
+  --orange: #d97706;
+  --radius: 10px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); line-height: 1.5; }
+.container { max-width: 800px; margin: 0 auto; padding: 20px; }
+
+h1 { font-size: 1.6rem; margin-bottom: 6px; }
+.subtitle { color: var(--muted); font-size: 0.9rem; margin-bottom: 24px; }
+
+.card { background: var(--card); border-radius: var(--radius); padding: 20px; margin-bottom: 16px; border: 1px solid var(--border); }
+.card h2 { font-size: 1.1rem; margin-bottom: 14px; }
+
+.row { display: flex; gap: 10px; flex-wrap: wrap; }
+.field { display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 120px; }
+.field label { font-size: 0.8rem; font-weight: 600; color: var(--muted); }
+.field input, .field select { padding: 8px 10px; border: 1px solid var(--border); border-radius: 6px; font-size: 0.9rem; background: var(--card); }
+.field input:focus, .field select:focus { outline: 2px solid var(--accent); outline-offset: -1px; }
+
+.split-row { display: flex; gap: 8px; align-items: flex-end; flex-wrap: wrap; padding: 8px 0; border-bottom: 1px solid var(--border); }
+.split-row:last-child { border-bottom: none; }
+.split-row .field { min-width: 90px; }
+
+.member-tag { display: inline-flex; align-items: center; gap: 4px; background: #eef2ff; color: var(--accent); padding: 3px 10px; border-radius: 20px; font-size: 0.8rem; margin: 2px; }
+
+.btn { padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer; font-size: 0.85rem; font-weight: 600; transition: opacity 0.15s; }
+.btn:hover { opacity: 0.85; }
+.btn-primary { background: var(--accent); color: #fff; }
+.btn-danger { background: var(--danger); color: #fff; }
+.btn-outline { background: none; border: 1px solid var(--border); }
+.btn-sm { padding: 4px 10px; font-size: 0.75rem; }
+
+.balance { display: flex; align-items: center; gap: 8px; margin: 6px 0; }
+.balance .name { font-weight: 600; min-width: 100px; }
+.balance .amount { font-weight: 700; }
+.pos { color: var(--green); }
+.neg { color: var(--danger); }
+
+.settlement { padding: 8px 12px; background: #fefce8; border-radius: 6px; margin: 4px 0; border: 1px solid #fde68a; }
+.settlement .arrow { color: var(--accent); font-weight: 700; }
+
+.error { color: var(--danger); font-size: 0.8rem; margin-top: 2px; }
+.file-area { border: 2px dashed var(--border); border-radius: var(--radius); padding: 30px; text-align: center; cursor: pointer; color: var(--muted); }
+.file-area:hover { border-color: var(--accent); color: var(--accent); }
+
+.tabs { display: flex; gap: 0; margin-bottom: 16px; }
+.tab { padding: 8px 20px; border: 1px solid var(--border); background: var(--card); cursor: pointer; font-size: 0.85rem; font-weight: 600; }
+.tab:first-child { border-radius: var(--radius) 0 0 var(--radius); }
+.tab:last-child { border-radius: 0 var(--radius) var(--radius) 0; }
+.tab.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+.storage-bar { display: flex; gap: 8px; margin-top: 10px; }
+.toast { position: fixed; bottom: 20px; right: 20px; padding: 10px 18px; background: #333; color: #fff; border-radius: 8px; font-size: 0.85rem; opacity: 0; transition: opacity 0.3s; z-index: 999; }
+.toast.show { opacity: 1; }
+
+@media (max-width: 500px) { .row { flex-direction: column; } }
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>Expense Splitter</h1>
+<p class="subtitle">Team-outing settler with simplified debt settlement</p>
+
+<!-- MEMBERS -->
+<div class="card">
+  <h2>Group Members</h2>
+  <div class="row" style="margin-bottom:10px">
+    <div class="field"><input id="newMember" placeholder="Member name" onkeydown="if(event.key==='Enter')addMember()"></div>
+    <button class="btn btn-primary" onclick="addMember()">Add</button>
+  </div>
+  <div id="memberList"></div>
+  <p class="error" id="memberError"></p>
+</div>
+
+<!-- EXPENSE FORM -->
+<div class="card">
+  <h2>Add Expense</h2>
+  <div class="row">
+    <div class="field"><label>Description</label><input id="expDesc" placeholder="e.g. Dinner"></div>
+    <div class="field"><label>Amount (₹)</label><input id="expAmt" type="number" step="0.01" placeholder="0.00"></div>
+    <div class="field"><label>Paid By</label><select id="expPayer"></select></div>
+    <div class="field"><label>Split Type</label><select id="expSplit" onchange="onSplitChange()">
+      <option value="equal">Equal</option>
+      <option value="exact">Exact Amounts</option>
+      <option value="percent">Percentage</option>
+    </select></div>
+  </div>
+  <div id="splitDetails" style="margin-top:12px"></div>
+  <p class="error" id="expError"></p>
+  <button class="btn btn-primary" style="margin-top:10px" onclick="addExpense()">Add Expense</button>
+</div>
+
+<!-- FILE IMPORT / EXPORT -->
+<div class="card">
+  <h2>Import / Export</h2>
+  <div class="file-area" onclick="document.getElementById('fileInput').click()">
+    Click to select a <code>expenses.json</code> file
+    <br><small>or paste JSON below (single object or array)</small>
+  </div>
+  <input type="file" id="fileInput" accept=".json" style="display:none" onchange="handleFile(event)">
+  <textarea id="jsonPaste" rows="4" style="width:100%;margin-top:10px;padding:8px;border:1px solid var(--border);border-radius:6px;font-family:monospace;font-size:0.8rem" placeholder='Paste JSON here — single expense or array'></textarea>
+  <p class="error" id="importError"></p>
+  <div class="storage-bar">
+    <button class="btn btn-primary" onclick="importJSON()">Import</button>
+    <button class="btn btn-outline" onclick="exportJSON()">Export .json</button>
+    <button class="btn btn-danger btn-sm" onclick="resetAll()">Reset All</button>
+  </div>
+  <p style="font-size:0.75rem;color:var(--muted);margin-top:8px">Data auto-saves to browser localStorage. Export to get a portable .json file.</p>
+</div>
+
+<!-- EXPENSES LIST -->
+<div class="card">
+  <h2>Expenses (<span id="expCount">0</span>)</h2>
+  <div id="expenseList"><p style="color:var(--muted);font-size:0.9rem">No expenses yet.</p></div>
+</div>
+
+<!-- BALANCES & SETTLEMENTS -->
+<div class="card">
+  <div class="tabs">
+    <div class="tab active" onclick="switchTab('balances',this)">Net Balances</div>
+    <div class="tab" onclick="switchTab('settlements',this)">Settlements</div>
+  </div>
+  <div id="tabBalances"></div>
+  <div id="tabSettlements" style="display:none"></div>
+</div>
+
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+// ── state ──────────────────────────────────────────
+var members = [];
+var expenses = [];
+
+// ── persistence (localStorage) ─────────────────────
+var STORAGE_KEY = 'expense_splitter_data';
+var EPSILON = 0.01;  // tolerance for floating-point comparisons
+
+function saveToStorage() {
+  try {
+    var data = { members: members, expenses: expenses };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  } catch (e) { /* quota exceeded, ignore */ }
+}
+
+function loadFromStorage() {
+  try {
+    var raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return false;
+    var data = JSON.parse(raw);
+    if (data.members && Array.isArray(data.members)) members = data.members;
+    if (data.expenses && Array.isArray(data.expenses)) expenses = data.expenses;
+    return true;
+  } catch (e) { return false; }
+}
+
+// ── export ─────────────────────────────────────────
+function exportJSON() {
+  // Build a portable JSON. For percent splits we use the saved raw percentages;
+  // for exact we use the amounts; equal has no shares field.
+  var exportData = expenses.map(function(e) {
+    var entry = { description: e.description, amount: e.amount, paidBy: e.paidBy, split: e.split };
+    if (e.split === 'exact') {
+      entry.shares = e.shares;
+    } else if (e.split === 'percent') {
+      if (e._rawPct) {
+        entry.shares = e._rawPct; // original percentages, lossless round-trip
+      } else {
+        // Fallback: reconstruct percentages from resolved amounts (older data)
+        var pct = {};
+        var keys = Object.keys(e.shares);
+        for (var j = 0; j < keys.length; j++) {
+          pct[keys[j]] = Math.round((e.shares[keys[j]] / e.amount) * 100);
+        }
+        entry.shares = pct;
+      }
+    }
+    // equal: no shares field
+    return entry;
+  });
+
+  var json = JSON.stringify({ members: members, expenses: exportData }, null, 2);
+  var blob = new Blob([json], { type: 'application/json' });
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url;
+  a.download = 'expenses.json';
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('Exported expenses.json');
+}
+
+// ── reset ──────────────────────────────────────────
+function resetAll() {
+  if (!confirm('Clear all members and expenses?')) return;
+  members = [];
+  expenses = [];
+  localStorage.removeItem(STORAGE_KEY);
+  renderAll();
+  showToast('Cleared');
+}
+
+// ── toast ──────────────────────────────────────────
+function showToast(msg) {
+  var t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(t._timeout);
+  t._timeout = setTimeout(function() { t.classList.remove('show'); }, 1800);
+}
+
+// ── M5: input validation ───────────────────────────
+// `rawShares` format depends on split:
+//   equal:   not used (or placeholder amounts)
+//   exact:   { Alice: 300, Bob: 600 }          — amounts, must sum to amt
+//   percent: { Alice: 50, Bob: 30, Charlie: 20 } — raw %, must sum to 100
+function validateExpense(desc, amt, payer, split, rawShares, memberSet) {
+  var ctx = memberSet || members;
+  if (!desc || !desc.trim()) return 'Please enter a description.';
+  if (!amt || amt <= 0) return 'Amount must be > 0.';
+  if (!payer) return 'Select who paid.';
+  if (!ctx.includes(payer)) return '"' + payer + '" is not a group member.';
+
+  if (split === 'exact') {
+    var provided = Object.keys(rawShares).filter(function(k) { return rawShares[k] > 0; });
+    if (provided.length === 0) return 'At least one member must have a share > 0.';
+    var total = 0;
+    for (var i = 0; i < provided.length; i++) { total += rawShares[provided[i]]; }
+    if (Math.abs(total - amt) > EPSILON)
+      return 'Exact shares (₹' + total.toFixed(2) + ') must sum to ₹' + amt.toFixed(2) + '.';
+    for (var j = 0; j < provided.length; j++) {
+      if (!ctx.includes(provided[j])) return '"' + provided[j] + '" is not a group member.';
+    }
+  }
+
+  if (split === 'percent') {
+    var keys = Object.keys(rawShares);
+    var pctEntries = [];
+    for (var p = 0; p < keys.length; p++) {
+      if (rawShares[keys[p]] > 0) pctEntries.push({ name: keys[p], pct: rawShares[keys[p]] });
+    }
+    if (pctEntries.length === 0) return 'At least one member must have a percentage > 0.';
+    var sumPct = 0;
+    for (var q = 0; q < pctEntries.length; q++) { sumPct += pctEntries[q].pct; }
+    if (Math.abs(sumPct - 100) > EPSILON)
+      return 'Percentages sum to ' + sumPct + '%, must be 100%.';
+    for (var r = 0; r < pctEntries.length; r++) {
+      if (!ctx.includes(pctEntries[r].name)) return '"' + pctEntries[r].name + '" is not a group member.';
+    }
+  }
+
+  // equal: validated implicitly
+  return null;
+}
+
+// Build a resolved expense object.
+//   percent rawShares: { Alice: 50, Bob: 30, Charlie: 20 } → we convert to ₹ in shares
+//   exact   rawShares: { Alice: 300, Bob: 600 } → kept as-is
+//   equal   rawShares: unused, we compute from all members
+//
+// For percent splits, we ALSO store the original raw percentages on the object
+// so export can reproduce them exactly (no round-trip rounding).
+function buildExpense(desc, amt, payer, split, rawShares, memberSet) {
+  var ctx = memberSet || members;
+  var resolved = {};
+
+  if (split === 'equal') {
+    for (var i = 0; i < ctx.length; i++) {
+      resolved[ctx[i]] = amt / ctx.length;
+    }
+  } else if (split === 'exact') {
+    var keys = Object.keys(rawShares);
+    for (var j = 0; j < keys.length; j++) {
+      if (rawShares[keys[j]] > 0) resolved[keys[j]] = rawShares[keys[j]];
+    }
+  } else if (split === 'percent') {
+    var pkeys = Object.keys(rawShares);
+    for (var k = 0; k < pkeys.length; k++) {
+      if (rawShares[pkeys[k]] > 0) resolved[pkeys[k]] = (rawShares[pkeys[k]] / 100) * amt;
+    }
+  }
+
+  var exp = { description: desc.trim(), amount: amt, paidBy: payer, split: split, shares: resolved };
+  // Preserve original raw percentages for lossless export
+  if (split === 'percent') exp._rawPct = rawShares;
+  return exp;
+}
+
+// ── M1: add expense with split types ───────────────
+function addExpense() {
+  var desc = document.getElementById('expDesc').value;
+  var amt = parseFloat(document.getElementById('expAmt').value);
+  var payer = document.getElementById('expPayer').value;
+  var split = document.getElementById('expSplit').value;
+  var errEl = document.getElementById('expError');
+
+  var rawShares = {};
+  if (split === 'percent') {
+    document.querySelectorAll('#splitDetails input.pct-val').forEach(function(inp) {
+      var v = parseFloat(inp.value) || 0;
+      if (v > 0) rawShares[inp.dataset.member] = v;
+    });
+  } else if (split === 'exact') {
+    document.querySelectorAll('#splitDetails input.exact-val').forEach(function(inp) {
+      var v = parseFloat(inp.value) || 0;
+      if (v > 0) rawShares[inp.dataset.member] = v;
+    });
+  }
+  // equal: rawShares stays empty — validated by buildExpense
+
+  var err = validateExpense(desc, amt, payer, split, rawShares);
+  if (err) { errEl.textContent = err; return; }
+  errEl.textContent = '';
+
+  var exp = buildExpense(desc, amt, payer, split, rawShares);
+  expenses.push(exp);
+  clearExpenseForm();
+  saveToStorage();
+  renderAll();
+}
+
+function onSplitChange() {
+  renderSplitDetails(document.getElementById('expSplit').value);
+}
+
+function renderSplitDetails(split) {
+  var container = document.getElementById('splitDetails');
+  if (split === 'equal') {
+    container.innerHTML = '<p style="font-size:0.85rem;color:var(--muted)">All ' + members.length + ' members split equally.</p>';
+  } else if (split === 'exact') {
+    var h = '';
+    for (var i = 0; i < members.length; i++) {
+      h += '<div class="field"><label>' + escHtml(members[i]) + ' (₹)</label><input type="number" step="0.01" class="exact-val" data-member="' + escAttr(members[i]) + '" placeholder="0.00"></div>';
+    }
+    container.innerHTML = h;
+  } else if (split === 'percent') {
+    var h2 = '';
+    for (var j = 0; j < members.length; j++) {
+      h2 += '<div class="field"><label>' + escHtml(members[j]) + ' (%)</label><input type="number" step="0.01" class="pct-val" data-member="' + escAttr(members[j]) + '" placeholder="0"></div>';
+    }
+    container.innerHTML = h2;
+  }
+}
+
+function clearExpenseForm() {
+  document.getElementById('expDesc').value = '';
+  document.getElementById('expAmt').value = '';
+  document.getElementById('expError').textContent = '';
+}
+
+// ── members ────────────────────────────────────────
+function addMember() {
+  var inp = document.getElementById('newMember');
+  var name = inp.value.trim();
+  var errEl = document.getElementById('memberError');
+  if (!name) { errEl.textContent = 'Enter a name.'; return; }
+  if (members.includes(name)) { errEl.textContent = '"' + name + '" already added.'; return; }
+  members.push(name);
+  inp.value = '';
+  errEl.textContent = '';
+  saveToStorage();
+  renderAll();
+}
+
+function removeMember(name) {
+  members = members.filter(function(m) { return m !== name; });
+
+  // Clean expenses: drop ones whose payer is removed; remove member from shares
+  var kept = [];
+  for (var i = 0; i < expenses.length; i++) {
+    var e = expenses[i];
+    if (e.paidBy === name) continue; // drop this expense
+    if (e.shares && e.shares[name]) delete e.shares[name];
+    if (e.split === 'equal') {
+      e.shares = {};
+      for (var j = 0; j < members.length; j++) {
+        e.shares[members[j]] = e.amount / members.length;
+      }
+    }
+    if (Object.keys(e.shares || {}).length > 0) kept.push(e);
+  }
+  expenses = kept;
+
+  saveToStorage();
+  renderAll();
+}
+
+// ── M2: net balances ───────────────────────────────
+function computeBalances() {
+  var bal = {};
+  for (var i = 0; i < members.length; i++) { bal[members[i]] = 0; }
+  for (var j = 0; j < expenses.length; j++) {
+    var e = expenses[j];
+    bal[e.paidBy] = (bal[e.paidBy] || 0) + e.amount;
+    var shareKeys = Object.keys(e.shares || {});
+    for (var k = 0; k < shareKeys.length; k++) {
+      var m = shareKeys[k];
+      bal[m] = (bal[m] || 0) - e.shares[m];
+    }
+  }
+  return bal;
+}
+
+// ── M3: debt simplification (greedy) ───────────────
+function simplifyDebts(balances) {
+  var creditors = [], debtors = [];
+  for (var i = 0; i < members.length; i++) {
+    var m = members[i];
+    var b = balances[m] || 0;
+    if (b > EPSILON) creditors.push({ name: m, amount: b });
+    else if (b < -EPSILON) debtors.push({ name: m, amount: -b });
+  }
+
+  creditors.sort(function(a, b) { return b.amount - a.amount; });
+  debtors.sort(function(a, b) { return b.amount - a.amount; });
+
+  var settlements = [];
+  var ci = 0, di = 0;
+  while (ci < creditors.length && di < debtors.length) {
+    var pay = Math.min(creditors[ci].amount, debtors[di].amount);
+    if (pay > EPSILON) {
+      settlements.push({ from: debtors[di].name, to: creditors[ci].name, amount: pay });
+    }
+    creditors[ci].amount -= pay;
+    debtors[di].amount -= pay;
+    if (creditors[ci].amount < EPSILON) ci++;
+    if (debtors[di].amount < EPSILON) di++;
+  }
+  return settlements;
+}
+
+// ── M4: import JSON — single object or array ───────
+function handleFile(event) {
+  var file = event.target.files[0];
+  if (!file) return;
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    document.getElementById('jsonPaste').value = e.target.result;
+  };
+  reader.readAsText(file);
+}
+
+function importJSON() {
+  var errEl = document.getElementById('importError');
+  errEl.textContent = '';
+  var raw = document.getElementById('jsonPaste').value.trim();
+  if (!raw) { errEl.textContent = 'Paste JSON or select a file.'; return; }
+
+  var parsed;
+  try { parsed = JSON.parse(raw); } catch (e) { errEl.textContent = 'Invalid JSON: ' + e.message; return; }
+
+  // Accept single object or array
+  var formatHasMembers = false;
+  var data;
+  if (Array.isArray(parsed)) {
+    data = parsed;
+  } else if (typeof parsed === 'object' && parsed !== null) {
+    // Top-level { members: [...], expenses: [...] } format (from export)
+    if (parsed.expenses && Array.isArray(parsed.expenses)) {
+      data = parsed.expenses;
+      formatHasMembers = true;
+    } else {
+      data = [parsed];
+    }
+  } else {
+    errEl.textContent = 'Expected a JSON object or array of objects.';
+    return;
+  }
+
+  // First pass: discover all members (snapshot only — do NOT mutate global yet)
+  var snapshot = members.slice();
+  if (formatHasMembers && parsed.members && Array.isArray(parsed.members)) {
+    for (var mi = 0; mi < parsed.members.length; mi++) {
+      if (!snapshot.includes(parsed.members[mi])) snapshot.push(parsed.members[mi]);
+    }
+  }
+  for (var d = 0; d < data.length; d++) {
+    var e = data[d];
+    if (!e.description) e.description = 'Expense ' + (d + 1);
+    if (!e.split) e.split = 'equal';
+    if (!e.shares) e.shares = {};
+    if (e.paidBy && !snapshot.includes(e.paidBy)) snapshot.push(e.paidBy);
+    var mk = Object.keys(e.shares);
+    for (var ms = 0; ms < mk.length; ms++) {
+      if (!snapshot.includes(mk[ms])) snapshot.push(mk[ms]);
+    }
+  }
+
+  // Second pass: validate raw data against the union member set,
+  // but using raw shares (percentages stay as percentages)
+  for (var i = 0; i < data.length; i++) {
+    var entry = data[i];
+    if (!entry.paidBy) { errEl.textContent = 'Import #' + (i + 1) + ': missing "paidBy".'; return; }
+    if (!entry.amount || entry.amount <= 0) {
+      errEl.textContent = 'Import #' + (i + 1) + ': invalid amount.';
+      return;
+    }
+    // Validate using snapshot members and RAW shares (percent not converted yet)
+    var err = validateExpense(entry.description, entry.amount, entry.paidBy, entry.split, entry.shares, snapshot);
+    if (err) { errEl.textContent = 'Import #' + (i + 1) + ': ' + err; return; }
+  }
+
+  // Third pass: build resolved expenses
+  var newExpenses = [];
+  for (var j = 0; j < data.length; j++) {
+    var src = data[j];
+    var exp = buildExpense(src.description, src.amount, src.paidBy, src.split, src.shares, snapshot);
+    newExpenses.push(exp);
+  }
+
+  // Commit
+  members = snapshot;
+  for (var k = 0; k < newExpenses.length; k++) { expenses.push(newExpenses[k]); }
+
+  document.getElementById('jsonPaste').value = '';
+  document.getElementById('fileInput').value = '';
+  saveToStorage();
+  renderAll();
+  showToast('Imported ' + newExpenses.length + ' expense' + (newExpenses.length > 1 ? 's' : ''));
+}
+
+// ── render ─────────────────────────────────────────
+function renderAll() {
+  renderMembers();
+  renderExpenseForm();
+  renderExpenseList();
+  renderBalances();
+  renderSettlements();
+}
+
+function escAttr(s) { return s.replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/'/g,'&#39;').replace(/</g,'&lt;'); }
+function escHtml(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+function renderMembers() {
+  var el = document.getElementById('memberList');
+  if (!members.length) {
+    el.innerHTML = '<span style="color:var(--muted);font-size:0.85rem">No members added.</span>';
+    return;
+  }
+  var h = '';
+  for (var i = 0; i < members.length; i++) {
+    h += '<span class="member-tag">' + escHtml(members[i]) + ' <span style="cursor:pointer" onclick="__rm(\'' + escAttr(members[i]) + '\')" title="Remove">✕</span></span>';
+  }
+  el.innerHTML = h;
+}
+
+// Bridge function so onclick doesn't need ' in the attribute
+function __rm(name) { removeMember(name); }
+
+function renderExpenseForm() {
+  var sel = document.getElementById('expPayer');
+  if (!members.length) {
+    sel.innerHTML = '<option value="">— Add members first —</option>';
+  } else {
+    var h = '';
+    for (var i = 0; i < members.length; i++) {
+      h += '<option value="' + escAttr(members[i]) + '">' + escHtml(members[i]) + '</option>';
+    }
+    sel.innerHTML = h;
+  }
+  renderSplitDetails(document.getElementById('expSplit').value);
+}
+
+function renderExpenseList() {
+  var el = document.getElementById('expenseList');
+  document.getElementById('expCount').textContent = expenses.length;
+  if (!expenses.length) {
+    el.innerHTML = '<p style="color:var(--muted);font-size:0.9rem">No expenses yet.</p>';
+    return;
+  }
+  var h = '';
+  for (var i = 0; i < expenses.length; i++) {
+    var e = expenses[i];
+    var parts = [];
+    var shareKeys = Object.keys(e.shares || {});
+    for (var j = 0; j < shareKeys.length; j++) {
+      var m = shareKeys[j];
+      if (e.shares[m] > EPSILON) parts.push(escHtml(m) + ': ₹' + e.shares[m].toFixed(2));
+    }
+    var shareStr = parts.join(', ');
+    h += '<div class="split-row" style="justify-content:space-between">'
+      + '<div><strong>' + escHtml(e.description) + '</strong> — ₹' + e.amount.toFixed(2) + ' paid by <em>' + escHtml(e.paidBy) + '</em>'
+      + '<br><small style="color:var(--muted)">' + escHtml(e.split) + ' → ' + shareStr + '</small></div>'
+      + '<button class="btn btn-danger btn-sm" onclick="removeExpense(' + i + ')">✕</button></div>';
+  }
+  el.innerHTML = h;
+}
+
+function removeExpense(i) {
+  expenses.splice(i, 1);
+  saveToStorage();
+  renderAll();
+}
+
+function renderBalances() {
+  var bal = computeBalances();
+  var el = document.getElementById('tabBalances');
+  if (!members.length) {
+    el.innerHTML = '<p style="color:var(--muted);font-size:0.9rem">Add members and expenses to see balances.</p>';
+    return;
+  }
+  var h = '';
+  for (var i = 0; i < members.length; i++) {
+    var m = members[i];
+    var b = bal[m] || 0;
+    var cls = b > EPSILON ? 'pos' : (b < -EPSILON ? 'neg' : '');
+    var text;
+    if (b > EPSILON) text = 'gets back ₹' + b.toFixed(2);
+    else if (b < -EPSILON) text = 'owes ₹' + (-b).toFixed(2);
+    else text = '₹0.00';
+    h += '<div class="balance"><span class="name">' + escHtml(m) + '</span><span class="amount ' + cls + '">' + text + '</span></div>';
+  }
+  el.innerHTML = h;
+}
+
+function renderSettlements() {
+  var bal = computeBalances();
+  var settlements = simplifyDebts(bal);
+  var el = document.getElementById('tabSettlements');
+  if (!settlements.length) {
+    el.innerHTML = '<p style="color:var(--muted);font-size:0.9rem">All settled up!</p>';
+  } else {
+    var h = '';
+    for (var i = 0; i < settlements.length; i++) {
+      var s = settlements[i];
+      h += '<div class="settlement"><strong>' + escHtml(s.from) + '</strong> <span class="arrow">pays</span> <strong>' + escHtml(s.to) + '</strong> <span class="arrow">₹' + s.amount.toFixed(2) + '</span></div>';
+    }
+    el.innerHTML = h;
+  }
+}
+
+function switchTab(tab, btn) {
+  var tabs = document.querySelectorAll('.tab');
+  for (var i = 0; i < tabs.length; i++) { tabs[i].classList.remove('active'); }
+  btn.classList.add('active');
+  document.getElementById('tabBalances').style.display = tab === 'balances' ? 'block' : 'none';
+  document.getElementById('tabSettlements').style.display = tab === 'settlements' ? 'block' : 'none';
+}
+
+// ── init ───────────────────────────────────────────
+if (loadFromStorage()) {
+  // data restored from localStorage
+} else {
+  // first run — no saved data
+}
+renderAll();
+</script>
+
+</body>
+</html>

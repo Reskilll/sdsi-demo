@@ -1,0 +1,7 @@
+[
+  { "description": "Dinner at Punjabi Dhaba", "amount": 2400, "paidBy": "Alice", "split": "equal" },
+  { "description": "Petrol for road trip", "amount": 900, "paidBy": "Bob", "split": "exact", "shares": { "Alice": 300, "Charlie": 600 } },
+  { "description": "Movie tickets", "amount": 1200, "paidBy": "Charlie", "split": "percent", "shares": { "Alice": 50, "Bob": 30, "Charlie": 20 } },
+  { "description": "Snacks & drinks", "amount": 400, "paidBy": "Alice", "split": "equal" },
+  { "description": "Parking", "amount": 200, "paidBy": "Bob", "split": "exact", "shares": { "Alice": 100, "Bob": 50, "Charlie": 50 } }
+]

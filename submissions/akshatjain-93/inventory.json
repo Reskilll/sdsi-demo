@@ -1,0 +1,37 @@
+[
+  {
+    "sku": "IPHONE-15-PRO",
+    "name": "iPhone 15 Pro 128GB Titanium",
+    "stock": 10,
+    "price": 999.00,
+    "per_user_limit": 2
+  },
+  {
+    "sku": "PS5-SLIM",
+    "name": "PlayStation 5 Slim Edition",
+    "stock": 15,
+    "price": 499.99,
+    "per_user_limit": 1
+  },
+  {
+    "sku": "MACBOOK-AIR-M3",
+    "name": "MacBook Air 13-inch M3 Chip",
+    "stock": 5,
+    "price": 1099.00,
+    "per_user_limit": 1
+  },
+  {
+    "sku": "SONY-WH1000XM5",
+    "name": "Sony WH-1000XM5 Wireless Headphones",
+    "stock": 25,
+    "price": 349.99,
+    "per_user_limit": 3
+  },
+  {
+    "sku": "SWITCH-OLED",
+    "name": "Nintendo Switch OLED Model",
+    "stock": 20,
+    "price": 349.99,
+    "per_user_limit": 2
+  }
+]

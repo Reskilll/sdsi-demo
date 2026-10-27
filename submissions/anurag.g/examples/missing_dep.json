@@ -1,0 +1,6 @@
+{
+  "jobs": [
+    { "id": "A", "duration": 1, "dependsOn": [] },
+    { "id": "B", "duration": 1, "dependsOn": ["X"] }
+  ]
+}

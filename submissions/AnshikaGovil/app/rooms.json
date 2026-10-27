@@ -1,0 +1,6 @@
+[
+  { "id": "r1", "name": "Focus Pod", "capacity": 2 },
+  { "id": "r2", "name": "Huddle", "capacity": 4 },
+  { "id": "r3", "name": "Boardroom", "capacity": 8 },
+  { "id": "r4", "name": "Conference Hall", "capacity": 20 }
+]

@@ -18,12 +18,12 @@ async function build(opts = {}) {
   // Rate limit on the write-heavy shorten endpoint (lightweight, in-memory).
   const rateLimit = makeRateLimit({ windowMs: 60_000, max: 100 });
   app.addHook('onRequest', (request, reply, done) => {
-    if (request.raw.url.startsWith('/api/shorten') && request.raw.method === 'POST') {
+    if (request.raw.url.startsWith('/api/shorten') && request.method === 'POST') {
       const key = request.ip;
       const status = rateLimit.check(key);
       if (!status.ok) {
         reply.code(429).send({ error: 'Too Many Requests', message: 'Slow down' });
-        return done(new Error('rate limited'));
+        return;
       }
     }
     done();

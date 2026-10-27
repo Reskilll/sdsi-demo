@@ -12,7 +12,7 @@ test('base62 alphabet is 62 unique chars', () => {
 test('encode(0) is "0" and encode round-trips are reversible', () => {
   assert.strictEqual(encode(0), '0');
   assert.strictEqual(encode(1), '1');
-  assert.strictEqual(encode(61), 'Z');
+  assert.strictEqual(encode(61), 'z');
 
   // Verify reversibility for a spread of values.
   for (const n of [0, 1, 61, 62, 1000, 999999, MIN_VALUE, MIN_VALUE + 5]) {

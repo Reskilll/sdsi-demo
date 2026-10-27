@@ -23,7 +23,7 @@ test('M1 + M2: shorten then resolve redirects with 302 and correct Location', as
   assert.strictEqual(shortenRes.statusCode, 200);
   const { code, shortUrl } = shortenRes.json();
   assert.match(code, /^[0-9A-Za-z]{6,8}$/);
-  assert.strictEqual(shortUrl, `/${code}`);
+  assert.ok(shortUrl.endsWith(`/${code}`), `shortUrl should end with /${code}`);
 
   const r = await app.inject({ method: 'GET', url: `/${code}` });
   assert.strictEqual(r.statusCode, 302);

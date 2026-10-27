@@ -1,8 +1,8 @@
 'use strict';
 
-const { encode } = require('./lib/base62');
-const { canonicalize, hashUrl } = require('./lib/url');
-const { ValidationError, ConflictError } = require('./lib/errors');
+const { encode } = require('../lib/base62');
+const { canonicalize, hashUrl } = require('../lib/url');
+const { ValidationError, ConflictError } = require('../lib/errors');
 
 const ALIAS_RE = /^[A-Za-z0-9_-]{1,32}$/;
 const RESERVED = new Set([
@@ -43,13 +43,15 @@ function shorten(db, input) {
 
   const expiresAt = ttl === undefined ? null : normalizeTtl(ttl);
 
-  const created = db.transaction(() => {
-    // Re-check inside the transaction to close the concurrent-create race.
+  // node:sqlite has no .transaction() helper; wrap in an explicit transaction.
+  db.exec('BEGIN');
+  try {
     const again = db
       .prepare('SELECT * FROM links WHERE url_hash = ? AND custom = 0')
       .get(urlHash);
     if (again) {
-      return again;
+      db.exec('COMMIT');
+      return buildResult(again);
     }
     const counter = db.prepare('SELECT value FROM counter WHERE id = 1').get();
     const code = encode(counter.value);
@@ -58,10 +60,12 @@ function shorten(db, input) {
     const info = db
       .prepare('INSERT INTO links (url, url_hash, code, custom, expires_at, created_at) VALUES (?, ?, ?, 0, ?, ?)')
       .run(canonical, urlHash, code, expiresAt, now);
-    return db.prepare('SELECT * FROM links WHERE id = ?').get(info.lastInsertRowid);
-  })();
-
-  return buildResult(created);
+    db.exec('COMMIT');
+    return buildResult(db.prepare('SELECT * FROM links WHERE id = ?').get(info.lastInsertRowid));
+  } catch (err) {
+    db.exec('ROLLBACK');
+    throw err;
+  }
 }
 
 function validateAlias(alias) {

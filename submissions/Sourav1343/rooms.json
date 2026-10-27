@@ -1,0 +1,7 @@
+[
+  {"id": "r1", "name": "Alpha",   "capacity": 4},
+  {"id": "r2", "name": "Beta",    "capacity": 8},
+  {"id": "r3", "name": "Gamma",   "capacity": 12},
+  {"id": "r4", "name": "Delta",   "capacity": 2},
+  {"id": "r5", "name": "Epsilon", "capacity": 20}
+]

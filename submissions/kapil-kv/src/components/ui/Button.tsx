@@ -6,6 +6,23 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   loading?: boolean;
 }
 
+const variantClasses: Record<string, string> = {
+  primary:
+    "bg-indigo-600 text-white shadow-sm hover:bg-indigo-700 active:bg-indigo-800",
+  secondary:
+    "border border-slate-300 bg-white text-slate-700 hover:bg-slate-50 active:bg-slate-100",
+  danger:
+    "bg-red-600 text-white shadow-sm hover:bg-red-700 active:bg-red-800",
+  ghost:
+    "text-slate-600 hover:bg-slate-100 hover:text-slate-900",
+};
+
+const sizeClasses: Record<string, string> = {
+  sm: "px-3 py-1.5 text-xs rounded-lg",
+  md: "px-4 py-2 text-sm rounded-lg",
+  lg: "px-6 py-2.5 text-sm rounded-lg",
+};
+
 export function Button({
   variant = "primary",
   size = "md",
@@ -15,29 +32,12 @@ export function Button({
   className,
   ...props
 }: ButtonProps) {
-  const variants = {
-    primary:
-      "bg-[var(--primary)] text-[var(--primary-foreground)] hover:opacity-90",
-    secondary:
-      "border border-[var(--border)] bg-[var(--muted)] text-[var(--foreground)] hover:bg-opacity-80",
-    danger:
-      "bg-[var(--danger)] text-white hover:opacity-90",
-    ghost:
-      "text-[var(--foreground)] hover:bg-[var(--muted)]",
-  };
-
-  const sizes = {
-    sm: "px-3 py-1.5 text-sm",
-    md: "px-4 py-2 text-sm",
-    lg: "px-6 py-2.5 text-base",
-  };
-
   return (
     <button
       className={cn(
-        "inline-flex items-center justify-center gap-2 rounded-md font-medium transition-all focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed",
-        variants[variant],
-        sizes[size],
+        "inline-flex items-center justify-center gap-2 font-semibold transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 disabled:cursor-not-allowed disabled:opacity-50",
+        variantClasses[variant],
+        sizeClasses[size],
         className,
       )}
       disabled={disabled || loading}
@@ -46,11 +46,7 @@ export function Button({
       {loading && (
         <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none">
           <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" className="opacity-25" />
-          <path
-            fill="currentColor"
-            className="opacity-75"
-            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
-          />
+          <path fill="currentColor" className="opacity-75" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
         </svg>
       )}
       {children}

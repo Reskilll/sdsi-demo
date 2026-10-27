@@ -43,6 +43,60 @@ interface TicketDetail {
   };
 }
 
+function IconBack() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <line x1="19" y1="12" x2="5" y2="12" />
+      <polyline points="12 19 5 12 12 5" />
+    </svg>
+  );
+}
+
+function IconEdit() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+      <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+    </svg>
+  );
+}
+
+function IconRefresh() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <polyline points="23 4 23 10 17 10" />
+      <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" />
+    </svg>
+  );
+}
+
+function IconClock() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="12" r="10" />
+      <polyline points="12 6 12 12 16 14" />
+    </svg>
+  );
+}
+
+function IconFile() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+      <polyline points="14 2 14 8 20 8" />
+    </svg>
+  );
+}
+
+function IconTimeline() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <line x1="12" y1="2" x2="12" y2="22" />
+      <polyline points="4 10 12 16 20 10" />
+    </svg>
+  );
+}
+
 export default function TicketDetailPage() {
   const params = useParams();
   const router = useRouter();
@@ -75,7 +129,6 @@ export default function TicketDetailPage() {
       const json = await res.json();
 
       if (json.success) {
-        // Also fetch SLA calculation via reports
         const slaRes = await fetch(`/api/reports/sla`);
         const slaJson = await slaRes.json();
         const slaTicket = slaJson.success
@@ -154,17 +207,26 @@ export default function TicketDetailPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-20">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-[var(--border)] border-t-[var(--primary)]" />
+      <div className="flex flex-col items-center justify-center py-20">
+        <div className="h-10 w-10 animate-spin rounded-full border-4 border-[var(--border)] border-t-[var(--primary)]" />
+        <p className="mt-3 text-sm text-[var(--muted-foreground)]">Loading ticket...</p>
       </div>
     );
   }
 
   if (error && !ticket) {
     return (
-      <div className="text-center py-20">
-        <p className="text-[var(--danger)]">{error}</p>
-        <Button variant="secondary" onClick={() => router.push("/tickets")} className="mt-4">
+      <div className="flex flex-col items-center justify-center py-20">
+        <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-[var(--danger-light)]">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--danger)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="12" cy="12" r="10" />
+            <line x1="12" y1="8" x2="12" y2="12" />
+            <line x1="12" y1="16" x2="12.01" y2="16" />
+          </svg>
+        </div>
+        <p className="text-sm font-medium text-[var(--danger-foreground)]">{error}</p>
+        <Button variant="secondary" onClick={() => router.push("/tickets")} className="mt-4 gap-1.5">
+          <IconBack />
           Back to Tickets
         </Button>
       </div>
@@ -178,16 +240,17 @@ export default function TicketDetailPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-start justify-between">
+      <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <button
             onClick={() => router.push("/tickets")}
-            className="mb-2 text-sm text-[var(--primary)] hover:underline"
+            className="mb-3 inline-flex items-center gap-1.5 text-sm text-[var(--muted-foreground)] hover:text-[var(--primary)] transition-colors"
           >
-            ← Back to Tickets
+            <IconBack />
+            Back to Tickets
           </button>
-          <h1 className="text-xl font-bold">{ticket.title}</h1>
-          <p className="mt-1 font-mono text-sm text-[var(--muted-foreground)]">
+          <h1 className="text-xl font-bold tracking-tight text-[var(--foreground)]">{ticket.title}</h1>
+          <p className="mt-1.5 inline-flex items-center gap-2 font-mono text-xs font-medium text-[var(--primary)] bg-indigo-50 px-2.5 py-1 rounded-md">
             {ticket.ticketNumber}
           </p>
         </div>
@@ -201,7 +264,9 @@ export default function TicketDetailPage() {
               setEditGroup(ticket.assigneeGroup?._id || "");
               setEditModal(true);
             }}
+            className="gap-1.5"
           >
+            <IconEdit />
             Edit
           </Button>
           {ticket.status !== "RESOLVED" && (
@@ -213,7 +278,9 @@ export default function TicketDetailPage() {
                 setStatusError("");
                 setStatusModal(true);
               }}
+              className="gap-1.5"
             >
+              <IconRefresh />
               Change Status
             </Button>
           )}
@@ -221,34 +288,28 @@ export default function TicketDetailPage() {
       </div>
 
       {/* Info Grid */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <div className="rounded-lg border border-[var(--border)] p-3">
-          <p className="text-xs text-[var(--muted-foreground)]">Priority</p>
-          <Badge className={priorityColor(ticket.priority)} size="md">
-            {ticket.priority}
-          </Badge>
-        </div>
-        <div className="rounded-lg border border-[var(--border)] p-3">
-          <p className="text-xs text-[var(--muted-foreground)]">Status</p>
-          <Badge className={statusColor(ticket.status)} size="md">
-            {ticket.status.replace("_", " ")}
-          </Badge>
-        </div>
-        <div className="rounded-lg border border-[var(--border)] p-3">
-          <p className="text-xs text-[var(--muted-foreground)]">Assignee Group</p>
-          <p className="mt-1 font-medium">{ticket.assigneeGroup?.name || "Unassigned"}</p>
-        </div>
-        <div className="rounded-lg border border-[var(--border)] p-3">
-          <p className="text-xs text-[var(--muted-foreground)]">Created</p>
-          <p className="mt-1 font-medium">{formatDate(ticket.createdAt)}</p>
-        </div>
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {[
+          { label: "Priority", content: <Badge className={priorityColor(ticket.priority)} size="md">{ticket.priority}</Badge> },
+          { label: "Status", content: <Badge className={statusColor(ticket.status)} size="md">{ticket.status.replace("_", " ")}</Badge> },
+          { label: "Assignee Group", content: <p className="font-medium text-sm">{ticket.assigneeGroup?.name || "Unassigned"}</p> },
+          { label: "Created", content: <p className="font-medium text-sm">{formatDate(ticket.createdAt)}</p> },
+        ].map((item) => (
+          <div key={item.label} className="rounded-xl border border-[var(--border)] bg-white p-4 shadow-[var(--shadow-sm)]">
+            <p className="text-xs font-medium uppercase tracking-wide text-[var(--muted-foreground)] mb-1.5">{item.label}</p>
+            {item.content}
+          </div>
+        ))}
       </div>
 
       {/* Description */}
       {ticket.description && (
-        <div className="rounded-lg border border-[var(--border)] p-4">
-          <h3 className="mb-2 text-sm font-medium">Description</h3>
-          <p className="text-sm text-[var(--muted-foreground)] whitespace-pre-wrap">
+        <div className="rounded-xl border border-[var(--border)] bg-white p-5 shadow-[var(--shadow-sm)]">
+          <div className="mb-3 flex items-center gap-2">
+            <span className="text-[var(--muted-foreground)]"><IconFile /></span>
+            <h3 className="text-sm font-semibold uppercase tracking-wide text-[var(--foreground)]">Description</h3>
+          </div>
+          <p className="text-sm text-[var(--muted-foreground)] whitespace-pre-wrap leading-relaxed">
             {ticket.description}
           </p>
         </div>
@@ -256,50 +317,53 @@ export default function TicketDetailPage() {
 
       {/* SLA Details */}
       {sla && (
-        <div className="rounded-lg border border-[var(--border)] p-4">
-          <h3 className="mb-3 text-sm font-medium">
-            SLA Information
+        <div className="rounded-xl border border-[var(--border)] bg-white p-5 shadow-[var(--shadow-sm)]">
+          <div className="mb-4 flex items-center gap-2">
+            <span className="text-[var(--muted-foreground)]"><IconClock /></span>
+            <h3 className="text-sm font-semibold uppercase tracking-wide text-[var(--foreground)]">
+              SLA Information
+            </h3>
             {sla.isProvisional && (
-              <span className="ml-2 text-xs text-[var(--warning)]">(Provisional — ticket on hold)</span>
+              <span className="ml-auto rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-medium text-amber-700">
+                Provisional — ticket on hold
+              </span>
             )}
-          </h3>
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-            <div>
-              <p className="text-xs text-[var(--muted-foreground)]">SLA Status</p>
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="rounded-lg bg-[var(--muted)] p-3">
+              <p className="text-xs text-[var(--muted-foreground)] mb-1">SLA Status</p>
               <Badge className={slaStatusColor(sla.slaStatus)} size="md">
                 {sla.slaStatus}
               </Badge>
             </div>
-            <div>
-              <p className="text-xs text-[var(--muted-foreground)]">Elapsed (Business)</p>
-              <p className="font-medium">{formatDuration(sla.elapsedBusinessMinutes)}</p>
+            <div className="rounded-lg bg-[var(--muted)] p-3">
+              <p className="text-xs text-[var(--muted-foreground)] mb-1">Elapsed (Business)</p>
+              <p className="font-semibold text-[var(--foreground)]">{formatDuration(sla.elapsedBusinessMinutes)}</p>
             </div>
-            <div>
-              <p className="text-xs text-[var(--muted-foreground)]">SLA Target</p>
-              <p className="font-medium">{formatDuration(sla.slaTargetMinutes)}</p>
+            <div className="rounded-lg bg-[var(--muted)] p-3">
+              <p className="text-xs text-[var(--muted-foreground)] mb-1">SLA Target</p>
+              <p className="font-semibold text-[var(--foreground)]">{formatDuration(sla.slaTargetMinutes)}</p>
             </div>
-            <div>
-              <p className="text-xs text-[var(--muted-foreground)]">Due By</p>
-              <p className="font-medium">{formatDate(sla.dueBy)}</p>
+            <div className="rounded-lg bg-[var(--muted)] p-3">
+              <p className="text-xs text-[var(--muted-foreground)] mb-1">Due By</p>
+              <p className="font-semibold text-[var(--foreground)]">{formatDate(sla.dueBy)}</p>
             </div>
             {sla.isBreached && (
-              <div>
-                <p className="text-xs text-[var(--muted-foreground)]">Breach Duration</p>
-                <p className="font-medium text-[var(--danger)]">
-                  {formatDuration(sla.breachMinutes)}
-                </p>
+              <div className="rounded-lg bg-[var(--danger-light)] p-3">
+                <p className="text-xs text-[var(--danger-foreground)] mb-1">Breach Duration</p>
+                <p className="font-semibold text-[var(--danger)]">{formatDuration(sla.breachMinutes)}</p>
               </div>
             )}
             {sla.remainingBusinessMinutes > 0 && ticket.status !== "RESOLVED" && (
-              <div>
-                <p className="text-xs text-[var(--muted-foreground)]">Remaining</p>
-                <p className="font-medium">{formatDuration(sla.remainingBusinessMinutes)}</p>
+              <div className="rounded-lg bg-[var(--success-light)] p-3">
+                <p className="text-xs text-[var(--success-foreground)] mb-1">Remaining</p>
+                <p className="font-semibold text-[var(--success)]">{formatDuration(sla.remainingBusinessMinutes)}</p>
               </div>
             )}
             {ticket.resolvedAt && (
-              <div>
-                <p className="text-xs text-[var(--muted-foreground)]">Resolved At</p>
-                <p className="font-medium">{formatDate(ticket.resolvedAt)}</p>
+              <div className="rounded-lg bg-[var(--muted)] p-3">
+                <p className="text-xs text-[var(--muted-foreground)] mb-1">Resolved At</p>
+                <p className="font-semibold text-[var(--foreground)]">{formatDate(ticket.resolvedAt)}</p>
               </div>
             )}
           </div>
@@ -307,21 +371,28 @@ export default function TicketDetailPage() {
       )}
 
       {/* Status History */}
-      <div className="rounded-lg border border-[var(--border)] p-4">
-        <h3 className="mb-3 text-sm font-medium">Status Timeline</h3>
-        <div className="space-y-3">
+      <div className="rounded-xl border border-[var(--border)] bg-white p-5 shadow-[var(--shadow-sm)]">
+        <div className="mb-4 flex items-center gap-2">
+          <span className="text-[var(--muted-foreground)]"><IconTimeline /></span>
+          <h3 className="text-sm font-semibold uppercase tracking-wide text-[var(--foreground)]">Status Timeline</h3>
+        </div>
+        <div className="space-y-0">
           {[...ticket.statusHistory].reverse().map((event, i) => (
-            <div key={i} className="flex items-start gap-3">
-              <div className="mt-1.5 h-2 w-2 rounded-full bg-[var(--primary)]" />
-              <div className="flex-1">
-                <div className="flex items-center gap-2">
+            <div key={i} className="relative flex gap-4 pb-5 last:pb-0">
+              {/* Timeline line */}
+              {i < ticket.statusHistory.length - 1 && (
+                <div className="absolute left-[7px] top-4 bottom-0 w-px bg-[var(--border)]" />
+              )}
+              <div className="relative mt-1.5 h-3.5 w-3.5 flex-shrink-0 rounded-full border-2 border-[var(--primary)] bg-white" />
+              <div className="flex-1 min-w-0">
+                <div className="flex flex-wrap items-center gap-2">
                   <Badge className={statusColor(event.status)}>{event.status.replace("_", " ")}</Badge>
                   <span className="text-xs text-[var(--muted-foreground)]">
                     {formatDate(event.timestamp)}
                   </span>
                 </div>
                 {event.reason && (
-                  <p className="mt-1 text-sm text-[var(--muted-foreground)]">{event.reason}</p>
+                  <p className="mt-1.5 text-sm text-[var(--muted-foreground)] leading-relaxed">{event.reason}</p>
                 )}
               </div>
             </div>
@@ -357,7 +428,7 @@ export default function TicketDetailPage() {
             onChange={(e) => setStatusReason(e.target.value)}
           />
           {statusError && (
-            <p className="text-sm text-[var(--danger)]">{statusError}</p>
+            <div className="rounded-lg bg-[var(--danger-light)] px-3 py-2 text-sm text-[var(--danger-foreground)]">{statusError}</div>
           )}
           <div className="flex justify-end gap-2">
             <Button variant="secondary" onClick={() => setStatusModal(false)}>
@@ -385,10 +456,10 @@ export default function TicketDetailPage() {
           <Select
             label="Priority"
             options={[
-              { value: "P1", label: "P1 — Critical" },
-              { value: "P2", label: "P2 — High" },
-              { value: "P3", label: "P3 — Medium" },
-              { value: "P4", label: "P4 — Low" },
+              { value: "P1", label: "P1 — Critical (4h)" },
+              { value: "P2", label: "P2 — High (8h)" },
+              { value: "P3", label: "P3 — Medium (24h)" },
+              { value: "P4", label: "P4 — Low (72h)" },
             ]}
             value={editPriority}
             onChange={(e) => setEditPriority(e.target.value)}

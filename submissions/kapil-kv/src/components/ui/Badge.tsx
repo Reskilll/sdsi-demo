@@ -7,27 +7,27 @@ interface BadgeProps {
   className?: string;
 }
 
+const variantClasses: Record<string, string> = {
+  default: "bg-indigo-50 text-indigo-700",
+  success: "bg-emerald-50 text-emerald-700",
+  warning: "bg-amber-50 text-amber-700",
+  danger: "bg-red-50 text-red-700",
+  info: "bg-sky-50 text-sky-700",
+  neutral: "bg-slate-100 text-slate-600",
+};
+
+const sizeClasses: Record<string, string> = {
+  sm: "px-2 py-0.5 text-[11px]",
+  md: "px-2.5 py-0.5 text-xs",
+};
+
 export function Badge({ children, variant = "default", size = "sm", className }: BadgeProps) {
-  const variants = {
-    default: "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200",
-    success: "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200",
-    warning: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200",
-    danger: "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200",
-    info: "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200",
-    neutral: "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200",
-  };
-
-  const sizes = {
-    sm: "px-2 py-0.5 text-xs",
-    md: "px-3 py-1 text-sm",
-  };
-
   return (
     <span
       className={cn(
-        "inline-flex items-center rounded-full font-medium",
-        variants[variant],
-        sizes[size],
+        "inline-flex items-center rounded-full font-semibold tracking-wide",
+        variantClasses[variant] ?? variantClasses.default,
+        sizeClasses[size],
         className,
       )}
     >

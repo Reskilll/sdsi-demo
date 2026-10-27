@@ -1,0 +1,50 @@
+[
+  {
+    "id": "kepler",
+    "name": "Kepler",
+    "capacity": 2,
+    "floor": 1,
+    "location": "North Wing",
+    "amenities": ["whiteboard", "tv"]
+  },
+  {
+    "id": "atlas",
+    "name": "Atlas",
+    "capacity": 4,
+    "floor": 1,
+    "location": "North Wing",
+    "amenities": ["whiteboard", "tv", "video"]
+  },
+  {
+    "id": "orion",
+    "name": "Orion",
+    "capacity": 8,
+    "floor": 2,
+    "location": "East Wing",
+    "amenities": ["whiteboard", "projector", "video"]
+  },
+  {
+    "id": "vega",
+    "name": "Vega",
+    "capacity": 12,
+    "floor": 2,
+    "location": "East Wing",
+    "amenities": ["whiteboard", "projector", "video", "speakerphone"]
+  },
+  {
+    "id": "helios",
+    "name": "Helios Boardroom",
+    "capacity": 16,
+    "floor": 3,
+    "location": "West Wing",
+    "amenities": ["whiteboard", "projector", "video", "speakerphone", "tv"]
+  },
+  {
+    "id": "lumen",
+    "name": "Lumen",
+    "capacity": 24,
+    "floor": 3,
+    "location": "West Wing",
+    "amenities": ["whiteboard", "projector", "video", "speakerphone", "tv", "accessibility"]
+  }
+]

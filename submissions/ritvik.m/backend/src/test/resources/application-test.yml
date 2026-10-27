@@ -1,0 +1,22 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:booking-test;DB_CLOSE_DELAY=-1;LOCK_TIMEOUT=10000
+    username: sa
+    password: ""
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+
+app:
+  security:
+    enabled: true
+    username: test
+    password: test-password
+    roles: ADMIN
+
+logging:
+  level:
+    com.sdsi.booking: WARN
+    org.hibernate: WARN
+    org.springframework: WARN

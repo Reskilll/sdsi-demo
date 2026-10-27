@@ -1,0 +1,14 @@
+# FAISS index — rebuilt on first run
+faiss_index/
+
+# Logs — runtime output
+logs/*.log
+logs/*.log.*
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+*.egg-info/
+dist/

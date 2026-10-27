@@ -1,0 +1,1164 @@
+[
+  {
+    "ticket_id": "TKT-0001",
+    "priority": "P4",
+    "assignee_group": "Network Ops",
+    "transitions": [
+      {
+        "timestamp": "2026-10-18T01:20:09.153123+00:00",
+        "status": "CREATED"
+      },
+      {
+        "timestamp": "2026-10-18T01:21:09.153123+00:00",
+        "status": "ON_HOLD"
+      },
+      {
+        "timestamp": "2026-10-18T19:08:34.617841+00:00",
+        "status": "IN_PROGRESS"
+      },
+      {
+        "timestamp": "2026-10-18T20:01:34.617841+00:00",
+        "status": "RESOLVED"
+      }
+    ]
+  },
+  {
+    "ticket_id": "TKT-0002",
+    "priority": "P4",
+    "assignee_group": "DB Admin",
+    "transitions": [
+      {
+        "timestamp": "2026-10-02T23:59:24.848201+00:00",
+        "status": "CREATED"
+      },
+      {
+        "timestamp": "2026-10-03T00:07:24.848201+00:00",
+        "status": "IN_PROGRESS"
+      },
+      {
+        "timestamp": "2026-10-03T02:36:24.848201+00:00",
+        "status": "ON_HOLD"
+      },
+      {
+        "timestamp": "2026-10-04T03:06:40.602467+00:00",
+        "status": "IN_PROGRESS"
+      },
+      {
+        "timestamp": "2026-10-04T06:46:56.376625+00:00",
+        "status": "RESOLVED"
+      }
+    ]
+  },
+  {
+    "ticket_id": "TKT-0003",
+    "priority": "P2",
+    "assignee_group": "Unassigned",
+    "transitions": [
+      {
+        "timestamp": "2026-10-17T03:07:52.987519+00:00",
+        "status": "CREATED"
+      },
+      {
+        "timestamp": "2026-10-17T04:09:52.987519+00:00",
+        "status": "IN_PROGRESS"
+      },
+      {
+        "timestamp": "2026-10-21T05:23:29.969982+00:00",
+        "status": "RESOLVED"
+      }
+    ]
+  },
+  {
+    "ticket_id": "TKT-0004",
+    "priority": "P1",
+    "assignee_group": "Infrastructure",
+    "transitions": [
+      {
+        "timestamp": "2026-10-17T01:22:22.605721+00:00",
+        "status": "CREATED"
+      },
+      {
+        "timestamp": "2026-10-17T01:46:22.605721+00:00",
+        "status": "IN_PROGRESS"
+      },
+      {
+        "timestamp": "2026-10-17T08:46:22.605721+00:00",
+        "status": "ON_HOLD"
+      },
+      {
+        "timestamp": "2026-10-18T01:15:40.272935+00:00",
+        "status": "IN_PROGRESS"
+      },
+      {
+        "timestamp": "2026-10-18T12:50:39.534757+00:00",
+        "status": "RESOLVED"
+      }
+    ]
+  },
+  {
+    "ticket_id": "TKT-0005",
+    "priority": "P1",
+    "assignee_group": "Security Team",
+    "transitions": [
+      {
+        "timestamp": "2026-10-14T21:15:24.369532+00:00",
+        "status": "CREATED"
+      },
+      {
+        "timestamp": "2026-10-14T22:53:24.369532+00:00",
+        "status": "IN_PROGRESS"
+      },
+      {
+        "timestamp": "2026-10-15T14:18:24.584791+00:00",
+        "status": "RESOLVED"
+      }
+    ]
+  },
+  {
+    "ticket_id": "TKT-0006",
+    "priority": "P4",
+    "assignee_group": "Network Ops",
+    "transitions": [
+      {
+        "timestamp": "2026-10-13T16:43:35.142466+00:00",
+        "status": "CREATED"
+      },
+      {
+        "timestamp": "2026-10-13T18:07:35.142466+00:00",
+        "status": "IN_PROGRESS"
+      },
+      {
+        "timestamp": "2026-10-15T13:50:30.530723+00:00",
+        "status": "RESOLVED"
+      }
+    ]
+  },
+  {
+    "ticket_id": "TKT-0007",
+    "priority": "P2",
+    "assignee_group": "Network Ops",
+    "transitions": [
+      {
+        "timestamp": "2026-10-02T01:17:42.215201+00:00",
+        "status": "CREATED"
+      },
+      {
+        "timestamp": "2026-10-02T01:45:42.215201+00:00",
+        "status": "ON_HOLD"
+      },
+      {
+        "timestamp": "2026-10-02T01:53:42.215201+00:00",
+        "status": "IN_PROGRESS"
+      },
+      {
+        "timestamp": "2026-10-02T02:21:42.215201+00:00",
+        "status": "ON_HOLD"
+      },
+      {
+        "timestamp": "2026-10-02T05:14:06.936129+00:00",
+        "status": "IN_PROGRESS"
+      },
+      {
+        "timestamp": "2026-10-02T05:41:06.936129+00:00",
+        "status": "RESOLVED"
+      }
+    ]
+  },
+  {
+    "ticket_id": "TKT-0008",
+    "priority": "P3",
+    "assignee_group": "Security Team",
+    "transitions": [
+      {
+        "timestamp": "2026-10-04T17:47:06.221869+00:00",
+        "status": "CREATED"
+      },
+      {
+        "timestamp": "2026-10-04T19:17:06.221869+00:00",
+        "status": "IN_PROGRESS"
+      },
+      {
+        "timestamp": "2026-10-05T01:36:06.221869+00:00",
+        "status": "ON_HOLD"
+      },
+      {
+        "timestamp": "2026-10-06T08:53:00.272746+00:00",
+        "status": "IN_PROGRESS"
+      },
+      {
+        "timestamp": "2026-10-09T10:10:28.431384+00:00",
+        "status": "RESOLVED"
+      }
+    ]
+  },
+  {
+    "ticket_id": "TKT-0009",
+    "priority": "P2",
+    "assignee_group": "Unassigned",
+    "transitions": [
+      {
+        "timestamp": "2026-10-06T15:08:08.270461+00:00",
+        "status": "CREATED"
+      },
+      {
+        "timestamp": "2026-10-06T15:47:08.270461+00:00",
+        "status": "IN_PROGRESS"
+      },
+      {
+        "timestamp": "2026-10-09T20:45:56.167150+00:00",
+        "status": "RESOLVED"
+      }
+    ]
+  },
+  {
+    "ticket_id": "TKT-0010",
+    "priority": "P3",
+    "assignee_group": "Unassigned",
+    "transitions": [
+      {
+        "timestamp": "2026-10-08T11:00:14.649830+00:00",
+        "status": "CREATED"
+      },
+      {
+        "timestamp": "2026-10-08T11:12:14.649830+00:00",
+        "status": "IN_PROGRESS"
+      },
+      {
+        "timestamp": "2026-10-08T11:58:14.649830+00:00",
+        "status": "ON_HOLD"
+      },
+      {
+        "timestamp": "2026-10-10T02:42:37.481762+00:00",
+        "status": "IN_PROGRESS"
+      },
+      {
+        "timestamp": "2026-10-12T03:08:58.573139+00:00",
+        "status": "RESOLVED"
+      }
+    ]
+  },
+  {
+    "ticket_id": "TKT-0011",
+    "priority": "P1",
+    "assignee_group": "DB Admin",
+    "transitions": [
+      {
+        "timestamp": "2026-10-21T03:45:17.747326+00:00",
+        "status": "CREATED"
+      },
+      {
+        "timestamp": "2026-10-21T05:13:17.747326+00:00",
+        "status": "IN_PROGRESS"
+      },
+      {
+        "timestamp": "2026-10-25T15:26:28.440128+00:00",
+        "status": "RESOLVED"
+      }
+    ]
+  },
+  {
+    "ticket_id": "TKT-0012",
+    "priority": "P4",
+    "assignee_group": "Infrastructure",
+    "transitions": [
+      {
+        "timestamp": "2026-10-07T02:12:49.866865+00:00",
+        "status": "CREATED"
+      },
+      {
+        "timestamp": "2026-10-07T03:25:49.866865+00:00",
+        "status": "IN_PROGRESS"
+      },
+      {
+        "timestamp": "2026-10-07T08:54:49.866865+00:00",
+        "status": "ON_HOLD"
+      },
+      {
+        "timestamp": "2026-10-08T05:45:52.051332+00:00",
+        "status": "IN_PROGRESS"
+      },
+      {
+        "timestamp": "2026-10-11T03:59:47.915644+00:00",
+        "status": "RESOLVED"
+      }
+    ]
+  },
+  {
+    "ticket_id": "TKT-0013",
+    "priority": "P3",
+    "assignee_group": "Infrastructure",
+    "transitions": [
+      {
+        "timestamp": "2026-10-12T21:15:30.650794+00:00",
+        "status": "CREATED"
+      },
+      {
+        "timestamp": "2026-10-12T17:39:30.650794+00:00",
+        "status": "IN_PROGRESS"
+      },
+      {
+        "timestamp": "2026-10-16T16:48:43.193343+00:00",
+        "status": "RESOLVED"
+      }
+    ]
+  },
+  {
+    "ticket_id": "TKT-0014",
+    "priority": "P3",
+    "assignee_group": "Network Ops",
+    "transitions": [
+      {
+        "timestamp": "2026-10-09T20:23:29.601760+00:00",
+        "status": "CREATED"
+      },
+      {
+        "timestamp": "2026-10-09T21:27:29.601760+00:00",
+        "status": "IN_PROGRESS"
+      },
+      {
+        "timestamp": "2026-10-14T18:00:07.519809+00:00",
+        "status": "RESOLVED"
+      }
+    ]
+  },
+  {
+    "ticket_id": "TKT-0015",
+    "priority": "P4",
+    "assignee_group": "Network Ops",
+    "transitions": [
+      {
+        "timestamp": "2026-10-16T15:30:59.192862+00:00",
+        "status": "CREATED"
+      },
+      {
+        "timestamp": "2026-10-16T17:11:59.192862+00:00",
+        "status": "IN_PROGRESS"
+      },
+      {
+        "timestamp": "2026-10-16T23:09:59.192862+00:00",
+        "status": "ON_HOLD"
+      },
+      {
+        "timestamp": "2026-10-17T15:49:29.198750+00:00",
+        "status": "IN_PROGRESS"
+      },
+      {
+        "timestamp": "2026-10-19T03:23:52.954094+00:00",
+        "status": "RESOLVED"
+      }
+    ]
+  },
+  {
+    "ticket_id": "TKT-0016",
+    "priority": "P2",
+    "assignee_group": "Network Ops",
+    "transitions": [
+      {
+        "timestamp": "2026-10-22T22:30:23.011170+00:00",
+        "status": "CREATED"
+      },
+      {
+        "timestamp": "2026-10-22T23:08:23.011170+00:00",
+        "status": "IN_PROGRESS"
+      },
+      {
+        "timestamp": "2026-10-26T18:41:39.149202+00:00",
+        "status": "RESOLVED"
+      }
+    ]
+  },
+  {
+    "ticket_id": "TKT-0017",
+    "priority": "P3",
+    "assignee_group": "Network Ops",
+    "transitions": [
+      {
+        "timestamp": "2026-10-21T00:31:34.501980+00:00",
+        "status": "CREATED"
+      },
+      {
+        "timestamp": "2026-10-21T01:53:34.501980+00:00",
+        "status": "IN_PROGRESS"
+      },
+      {
+        "timestamp": "2026-10-21T05:34:34.501980+00:00",
+        "status": "ON_HOLD"
+      },
+      {
+        "timestamp": "2026-10-22T18:17:43.848793+00:00",
+        "status": "IN_PROGRESS"
+      },
+      {
+        "timestamp": "2026-10-25T11:15:04.707550+00:00",
+        "status": "RESOLVED"
+      }
+    ]
+  },
+  {
+    "ticket_id": "TKT-0018",
+    "priority": "P4",
+    "assignee_group": "DB Admin",
+    "transitions": [
+      {
+        "timestamp": "2026-10-22T03:00:30.272063+00:00",
+        "status": "CREATED"
+      },
+      {
+        "timestamp": "2026-10-22T04:07:30.272063+00:00",
+        "status": "IN_PROGRESS"
+      },
+      {
+        "timestamp": "2026-10-22T07:42:30.272063+00:00",
+        "status": "ON_HOLD"
+      },
+      {
+        "timestamp": "2026-10-24T01:56:51.713171+00:00",
+        "status": "IN_PROGRESS"
+      },
+      {
+        "timestamp": "2026-10-28T05:49:54.223902+00:00",
+        "status": "RESOLVED"
+      }
+    ]
+  },
+  {
+    "ticket_id": "TKT-0019",
+    "priority": "P3",
+    "assignee_group": "Network Ops",
+    "transitions": [
+      {
+        "timestamp": "2026-10-06T12:57:40.028511+00:00",
+        "status": "CREATED"
+      },
+      {
+        "timestamp": "2026-10-06T13:12:40.028511+00:00",
+        "status": "IN_PROGRESS"
+      },
+      {
+        "timestamp": "2026-10-06T17:50:40.028511+00:00",
+        "status": "ON_HOLD"
+      },
+      {
+        "timestamp": "2026-10-08T09:06:20.004846+00:00",
+        "status": "IN_PROGRESS"
+      },
+      {
+        "timestamp": "2026-10-13T06:28:28.934026+00:00",
+        "status": "RESOLVED"
+      }
+    ]
+  },
+  {
+    "ticket_id": "TKT-0020",
+    "priority": "P3",
+    "assignee_group": "Infrastructure",
+    "transitions": [
+      {
+        "timestamp": "2026-10-03T22:52:19.518254+00:00",
+        "status": "CREATED"
+      },
+      {
+        "timestamp": "2026-10-04T00:07:19.518254+00:00",
+        "status": "IN_PROGRESS"
+      },
+      {
+        "timestamp": "2026-10-04T05:07:19.518254+00:00",
+        "status": "ON_HOLD"
+      },
+      {
+        "timestamp": "2026-10-05T23:03:45.568280+00:00",
+        "status": "IN_PROGRESS"
+      },
+      {
+        "timestamp": "2026-10-08T02:07:39.510154+00:00",
+        "status": "RESOLVED"
+      }
+    ]
+  },
+  {
+    "ticket_id": "TKT-0021",
+    "priority": "P2",
+    "assignee_group": "DB Admin",
+    "transitions": [
+      {
+        "timestamp": "2026-10-18T08:54:22.998755+00:00",
+        "status": "CREATED"
+      },
+      {
+        "timestamp": "2026-10-18T10:30:22.998755+00:00",
+        "status": "IN_PROGRESS"
+      },
+      {
+        "timestamp": "2026-10-23T09:55:36.251991+00:00",
+        "status": "RESOLVED"
+      }
+    ]
+  },
+  {
+    "ticket_id": "TKT-0022",
+    "priority": "P4",
+    "assignee_group": "App Support",
+    "transitions": [
+      {
+        "timestamp": "2026-10-21T16:35:13.109002+00:00",
+        "status": "CREATED"
+      },
+      {
+        "timestamp": "2026-10-21T17:11:13.109002+00:00",
+        "status": "IN_PROGRESS"
+      },
+      {
+        "timestamp": "2026-10-21T20:34:13.109002+00:00",
+        "status": "ON_HOLD"
+      },
+      {
+        "timestamp": "2026-10-21T22:04:09.967463+00:00",
+        "status": "IN_PROGRESS"
+      },
+      {
+        "timestamp": "2026-10-24T16:45:47.006410+00:00",
+        "status": "RESOLVED"
+      }
+    ]
+  },
+  {
+    "ticket_id": "TKT-0023",
+    "priority": "P3",
+    "assignee_group": "Network Ops",
+    "transitions": [
+      {
+        "timestamp": "2026-10-02T15:11:17.460517+00:00",
+        "status": "CREATED"
+      },
+      {
+        "timestamp": "2026-10-02T15:45:17.460517+00:00",
+        "status": "IN_PROGRESS"
+      },
+      {
+        "timestamp": "2026-10-02T16:31:17.460517+00:00",
+        "status": "ON_HOLD"
+      },
+      {
+        "timestamp": "2026-10-04T09:51:15.113960+00:00",
+        "status": "IN_PROGRESS"
+      },
+      {
+        "timestamp": "2026-10-04T18:49:17.945882+00:00",
+        "status": "RESOLVED"
+      }
+    ]
+  },
+  {
+    "ticket_id": "TKT-0024",
+    "priority": "P2",
+    "assignee_group": "Unassigned",
+    "transitions": [
+      {
+        "timestamp": "2026-10-12T03:56:55.692712+00:00",
+        "status": "CREATED"
+      },
+      {
+        "timestamp": "2026-10-12T05:33:55.692712+00:00",
+        "status": "IN_PROGRESS"
+      },
+      {
+        "timestamp": "2026-10-15T02:18:18.431461+00:00",
+        "status": "RESOLVED"
+      }
+    ]
+  },
+  {
+    "ticket_id": "TKT-0025",
+    "priority": "P3",
+    "assignee_group": "App Support",
+    "transitions": [
+      {
+        "timestamp": "2026-10-19T05:44:18.033962+00:00",
+        "status": "CREATED"
+      },
+      {
+        "timestamp": "2026-10-19T14:44:18.033962+00:00",
+        "status": "IN_PROGRESS"
+      },
+      {
+        "timestamp": "2026-10-21T16:21:54.233119+00:00",
+        "status": "RESOLVED"
+      }
+    ]
+  },
+  {
+    "ticket_id": "TKT-0026",
+    "priority": "P4",
+    "assignee_group": "Network Ops",
+    "transitions": [
+      {
+        "timestamp": "2026-10-16T11:41:50.028381+00:00",
+        "status": "CREATED"
+      },
+      {
+        "timestamp": "2026-10-16T11:58:50.028381+00:00",
+        "status": "IN_PROGRESS"
+      },
+      {
+        "timestamp": "2026-10-16T18:40:50.028381+00:00",
+        "status": "ON_HOLD"
+      },
+      {
+        "timestamp": "2026-10-17T11:17:50.773904+00:00",
+        "status": "IN_PROGRESS"
+      },
+      {
+        "timestamp": "2026-10-21T18:46:02.299043+00:00",
+        "status": "RESOLVED"
+      }
+    ]
+  },
+  {
+    "ticket_id": "TKT-0027",
+    "priority": "P2",
+    "assignee_group": "Infrastructure",
+    "transitions": [
+      {
+        "timestamp": "2026-10-13T08:01:47.050171+00:00",
+        "status": "CREATED"
+      },
+      {
+        "timestamp": "2026-10-13T08:02:47.050171+00:00",
+        "status": "ON_HOLD"
+      },
+      {
+        "timestamp": "2026-10-13T15:04:31.969410+00:00",
+        "status": "IN_PROGRESS"
+      },
+      {
+        "timestamp": "2026-10-13T15:29:31.969410+00:00",
+        "status": "RESOLVED"
+      }
+    ]
+  },
+  {
+    "ticket_id": "TKT-0028",
+    "priority": "P4",
+    "assignee_group": "Network Ops",
+    "transitions": [
+      {
+        "timestamp": "2026-10-11T04:36:29.416570+00:00",
+        "status": "CREATED"
+      },
+      {
+        "timestamp": "2026-10-11T05:51:29.416570+00:00",
+        "status": "IN_PROGRESS"
+      },
+      {
+        "timestamp": "2026-10-11T11:54:29.416570+00:00",
+        "status": "ON_HOLD"
+      },
+      {
+        "timestamp": "2026-10-13T11:52:26.718669+00:00",
+        "status": "IN_PROGRESS"
+      },
+      {
+        "timestamp": "2026-10-17T16:16:45.785770+00:00",
+        "status": "RESOLVED"
+      }
+    ]
+  },
+  {
+    "ticket_id": "TKT-0029",
+    "priority": "P4",
+    "assignee_group": "Infrastructure",
+    "transitions": [
+      {
+        "timestamp": "2026-10-04T19:48:13.438992+00:00",
+        "status": "CREATED"
+      },
+      {
+        "timestamp": "2026-10-04T20:20:13.438992+00:00",
+        "status": "IN_PROGRESS"
+      },
+      {
+        "timestamp": "2026-10-09T08:40:44.359735+00:00",
+        "status": "RESOLVED"
+      }
+    ]
+  },
+  {
+    "ticket_id": "TKT-0030",
+    "priority": "P2",
+    "assignee_group": "Network Ops",
+    "transitions": [
+      {
+        "timestamp": "2026-10-23T15:53:25.734359+00:00",
+        "status": "CREATED"
+      },
+      {
+        "timestamp": "2026-10-23T17:00:25.734359+00:00",
+        "status": "ON_HOLD"
+      },
+      {
+        "timestamp": "2026-10-26T17:00:25.734359+00:00",
+        "status": "IN_PROGRESS"
+      },
+      {
+        "timestamp": "2026-10-27T03:37:59.399208+00:00",
+        "status": "RESOLVED"
+      }
+    ]
+  },
+  {
+    "ticket_id": "TKT-0031",
+    "priority": "P4",
+    "assignee_group": "DB Admin",
+    "transitions": [
+      {
+        "timestamp": "2026-10-16T05:21:10.671109+00:00",
+        "status": "CREATED"
+      },
+      {
+        "timestamp": "2026-10-16T05:50:10.671109+00:00",
+        "status": "IN_PROGRESS"
+      },
+      {
+        "timestamp": "2026-10-16T06:49:10.671109+00:00",
+        "status": "ON_HOLD"
+      },
+      {
+        "timestamp": "2026-10-17T10:49:50.500839+00:00",
+        "status": "IN_PROGRESS"
+      },
+      {
+        "timestamp": "2026-10-20T04:07:22.876470+00:00",
+        "status": "RESOLVED"
+      }
+    ]
+  },
+  {
+    "ticket_id": "TKT-0032",
+    "priority": "P4",
+    "assignee_group": "Network Ops",
+    "transitions": [
+      {
+        "timestamp": "2026-10-02T03:40:42.852611+00:00",
+        "status": "CREATED"
+      },
+      {
+        "timestamp": "2026-10-02T05:34:42.852611+00:00",
+        "status": "IN_PROGRESS"
+      },
+      {
+        "timestamp": "2026-10-02T12:52:32.447810+00:00",
+        "status": "RESOLVED"
+      }
+    ]
+  },
+  {
+    "ticket_id": "TKT-0033",
+    "priority": "P3",
+    "assignee_group": "Infrastructure",
+    "transitions": [
+      {
+        "timestamp": "2026-10-02T13:49:25.592349+00:00",
+        "status": "CREATED"
+      },
+      {
+        "timestamp": "2026-10-02T13:50:25.592349+00:00",
+        "status": "ON_HOLD"
+      },
+      {
+        "timestamp": "2026-10-02T23:48:45.003991+00:00",
+        "status": "IN_PROGRESS"
+      },
+      {
+        "timestamp": "2026-10-03T00:34:45.003991+00:00",
+        "status": "RESOLVED"
+      }
+    ]
+  },
+  {
+    "ticket_id": "TKT-0034",
+    "priority": "P2",
+    "assignee_group": "DB Admin",
+    "transitions": [
+      {
+        "timestamp": "2026-10-01T21:56:14.631301+00:00",
+        "status": "CREATED"
+      },
+      {
+        "timestamp": "2026-10-01T23:13:14.631301+00:00",
+        "status": "IN_PROGRESS"
+      },
+      {
+        "timestamp": "2026-10-06T15:25:05.263379+00:00",
+        "status": "RESOLVED"
+      }
+    ]
+  },
+  {
+    "ticket_id": "TKT-0035",
+    "priority": "P2",
+    "assignee_group": "Unassigned",
+    "transitions": [
+      {
+        "timestamp": "2026-10-08T05:25:46.172147+00:00",
+        "status": "CREATED"
+      },
+      {
+        "timestamp": "2026-10-08T05:26:46.172147+00:00",
+        "status": "ON_HOLD"
+      },
+      {
+        "timestamp": "2026-10-08T21:42:51.165009+00:00",
+        "status": "IN_PROGRESS"
+      },
+      {
+        "timestamp": "2026-10-08T22:11:51.165009+00:00",
+        "status": "RESOLVED"
+      }
+    ]
+  },
+  {
+    "ticket_id": "TKT-0036",
+    "priority": "P3",
+    "assignee_group": "Network Ops",
+    "transitions": [
+      {
+        "timestamp": "2026-10-01T05:08:31.675920+00:00",
+        "status": "CREATED"
+      },
+      {
+        "timestamp": "2026-10-01T06:25:31.675920+00:00",
+        "status": "IN_PROGRESS"
+      },
+      {
+        "timestamp": "2026-10-01T15:40:48.438137+00:00",
+        "status": "RESOLVED"
+      }
+    ]
+  },
+  {
+    "ticket_id": "TKT-0037",
+    "priority": "P2",
+    "assignee_group": "Security Team",
+    "transitions": [
+      {
+        "timestamp": "2026-10-04T01:06:57.696632+00:00",
+        "status": "CREATED"
+      },
+      {
+        "timestamp": "2026-10-04T01:19:57.696632+00:00",
+        "status": "IN_PROGRESS"
+      },
+      {
+        "timestamp": "2026-10-05T21:59:28.250207+00:00",
+        "status": "RESOLVED"
+      }
+    ]
+  },
+  {
+    "ticket_id": "TKT-0038",
+    "priority": "P2",
+    "assignee_group": "DB Admin",
+    "transitions": [
+      {
+        "timestamp": "2026-10-17T04:21:14.539134+00:00",
+        "status": "CREATED"
+      },
+      {
+        "timestamp": "2026-10-17T06:09:14.539134+00:00",
+        "status": "IN_PROGRESS"
+      },
+      {
+        "timestamp": "2026-10-17T07:35:20.039831+00:00",
+        "status": "RESOLVED"
+      }
+    ]
+  },
+  {
+    "ticket_id": "TKT-0039",
+    "priority": "P4",
+    "assignee_group": "Security Team",
+    "transitions": [
+      {
+        "timestamp": "2026-10-22T10:19:45.601567+00:00",
+        "status": "CREATED"
+      },
+      {
+        "timestamp": "2026-10-22T10:20:45.601567+00:00",
+        "status": "ON_HOLD"
+      },
+      {
+        "timestamp": "2026-10-22T17:02:39.418525+00:00",
+        "status": "IN_PROGRESS"
+      },
+      {
+        "timestamp": "2026-10-22T17:18:39.418525+00:00",
+        "status": "RESOLVED"
+      }
+    ]
+  },
+  {
+    "ticket_id": "TKT-0040",
+    "priority": "P4",
+    "assignee_group": "Infrastructure",
+    "transitions": [
+      {
+        "timestamp": "2026-10-07T06:20:10.367512+00:00",
+        "status": "CREATED"
+      },
+      {
+        "timestamp": "2026-10-07T07:56:10.367512+00:00",
+        "status": "IN_PROGRESS"
+      },
+      {
+        "timestamp": "2026-10-10T18:35:31.632322+00:00",
+        "status": "RESOLVED"
+      }
+    ]
+  },
+  {
+    "ticket_id": "TKT-0041",
+    "priority": "P4",
+    "assignee_group": "DB Admin",
+    "transitions": [
+      {
+        "timestamp": "2026-10-12T05:40:10.496591+00:00",
+        "status": "CREATED"
+      },
+      {
+        "timestamp": "2026-10-12T07:33:10.496591+00:00",
+        "status": "IN_PROGRESS"
+      },
+      {
+        "timestamp": "2026-10-12T13:27:10.496591+00:00",
+        "status": "ON_HOLD"
+      },
+      {
+        "timestamp": "2026-10-13T10:04:21.953699+00:00",
+        "status": "IN_PROGRESS"
+      },
+      {
+        "timestamp": "2026-10-14T19:38:09.786052+00:00",
+        "status": "RESOLVED"
+      }
+    ]
+  },
+  {
+    "ticket_id": "TKT-0042",
+    "priority": "P1",
+    "assignee_group": "Infrastructure",
+    "transitions": [
+      {
+        "timestamp": "2026-10-15T15:41:11.703373+00:00",
+        "status": "CREATED"
+      },
+      {
+        "timestamp": "2026-10-15T16:56:11.703373+00:00",
+        "status": "IN_PROGRESS"
+      },
+      {
+        "timestamp": "2026-10-18T12:27:53.836599+00:00",
+        "status": "RESOLVED"
+      }
+    ]
+  },
+  {
+    "ticket_id": "TKT-0043",
+    "priority": "P2",
+    "assignee_group": "Unassigned",
+    "transitions": [
+      {
+        "timestamp": "2026-10-21T18:58:06.857404+00:00",
+        "status": "CREATED"
+      },
+      {
+        "timestamp": "2026-10-21T20:49:06.857404+00:00",
+        "status": "IN_PROGRESS"
+      },
+      {
+        "timestamp": "2026-10-24T15:20:43.154024+00:00",
+        "status": "RESOLVED"
+      }
+    ]
+  },
+  {
+    "ticket_id": "TKT-0044",
+    "priority": "P3",
+    "assignee_group": "Network Ops",
+    "transitions": [
+      {
+        "timestamp": "2026-10-08T02:09:30.992981+00:00",
+        "status": "CREATED"
+      },
+      {
+        "timestamp": "2026-10-08T03:55:30.992981+00:00",
+        "status": "IN_PROGRESS"
+      },
+      {
+        "timestamp": "2026-10-08T09:11:33.769544+00:00",
+        "status": "RESOLVED"
+      }
+    ]
+  },
+  {
+    "ticket_id": "TKT-0045",
+    "priority": "P3",
+    "assignee_group": "Unassigned",
+    "transitions": [
+      {
+        "timestamp": "2026-10-06T17:44:25.497784+00:00",
+        "status": "CREATED"
+      },
+      {
+        "timestamp": "2026-10-06T19:42:25.497784+00:00",
+        "status": "IN_PROGRESS"
+      },
+      {
+        "timestamp": "2026-10-11T16:34:50.184923+00:00",
+        "status": "RESOLVED"
+      }
+    ]
+  },
+  {
+    "ticket_id": "TKT-0046",
+    "priority": "P4",
+    "assignee_group": "Infrastructure",
+    "transitions": [
+      {
+        "timestamp": "2026-10-20T21:15:44.439528+00:00",
+        "status": "CREATED"
+      },
+      {
+        "timestamp": "2026-10-20T23:03:44.439528+00:00",
+        "status": "IN_PROGRESS"
+      },
+      {
+        "timestamp": "2026-10-21T03:04:44.439528+00:00",
+        "status": "ON_HOLD"
+      },
+      {
+        "timestamp": "2026-10-21T04:45:22.907413+00:00",
+        "status": "IN_PROGRESS"
+      },
+      {
+        "timestamp": "2026-10-24T21:16:32.943162+00:00",
+        "status": "RESOLVED"
+      }
+    ]
+  },
+  {
+    "ticket_id": "TKT-0047",
+    "priority": "P3",
+    "assignee_group": "App Support",
+    "transitions": [
+      {
+        "timestamp": "2026-10-19T10:50:01.668096+00:00",
+        "status": "CREATED"
+      },
+      {
+        "timestamp": "2026-10-19T12:38:01.668096+00:00",
+        "status": "IN_PROGRESS"
+      },
+      {
+        "timestamp": "2026-10-19T14:29:01.668096+00:00",
+        "status": "ON_HOLD"
+      },
+      {
+        "timestamp": "2026-10-21T04:23:02.709158+00:00",
+        "status": "IN_PROGRESS"
+      },
+      {
+        "timestamp": "2026-10-21T17:48:05.447637+00:00",
+        "status": "RESOLVED"
+      }
+    ]
+  },
+  {
+    "ticket_id": "TKT-0048",
+    "priority": "P4",
+    "assignee_group": "App Support",
+    "transitions": [
+      {
+        "timestamp": "2026-10-06T02:47:00.283507+00:00",
+        "status": "CREATED"
+      },
+      {
+        "timestamp": "2026-10-06T03:50:00.283507+00:00",
+        "status": "IN_PROGRESS"
+      },
+      {
+        "timestamp": "2026-10-10T06:23:15.034601+00:00",
+        "status": "RESOLVED"
+      }
+    ]
+  },
+  {
+    "ticket_id": "TKT-0049",
+    "priority": "P4",
+    "assignee_group": "Infrastructure",
+    "transitions": [
+      {
+        "timestamp": "2026-10-01T13:03:45.964639+00:00",
+        "status": "CREATED"
+      },
+      {
+        "timestamp": "2026-10-01T13:31:45.964639+00:00",
+        "status": "ON_HOLD"
+      },
+      {
+        "timestamp": "2026-10-01T13:34:45.964639+00:00",
+        "status": "IN_PROGRESS"
+      },
+      {
+        "timestamp": "2026-10-01T13:59:45.964639+00:00",
+        "status": "ON_HOLD"
+      },
+      {
+        "timestamp": "2026-10-01T14:08:45.964639+00:00",
+        "status": "IN_PROGRESS"
+      },
+      {
+        "timestamp": "2026-10-01T14:20:45.964639+00:00",
+        "status": "ON_HOLD"
+      },
+      {
+        "timestamp": "2026-10-02T05:55:15.319725+00:00",
+        "status": "IN_PROGRESS"
+      },
+      {
+        "timestamp": "2026-10-02T06:30:15.319725+00:00",
+        "status": "RESOLVED"
+      }
+    ]
+  },
+  {
+    "ticket_id": "TKT-0050",
+    "priority": "P4",
+    "assignee_group": "DB Admin",
+    "transitions": [
+      {
+        "timestamp": "2026-10-08T14:47:41.018116+00:00",
+        "status": "CREATED"
+      },
+      {
+        "timestamp": "2026-10-08T15:06:41.018116+00:00",
+        "status": "ON_HOLD"
+      },
+      {
+        "timestamp": "2026-10-08T15:15:41.018116+00:00",
+        "status": "IN_PROGRESS"
+      },
+      {
+        "timestamp": "2026-10-08T15:17:41.018116+00:00",
+        "status": "ON_HOLD"
+      },
+      {
+        "timestamp": "2026-10-08T15:21:41.018116+00:00",
+        "status": "IN_PROGRESS"
+      },
+      {
+        "timestamp": "2026-10-10T09:10:15.613561+00:00",
+        "status": "RESOLVED"
+      }
+    ]
+  }
+]

@@ -1,0 +1,44 @@
+POLICY: Refund requests for subscriptions under 30 days old are eligible for full refund.
+POLICY: Enterprise-tier customers get priority support with a 4-hour SLA.
+POLICY: Bug reports marked P0 (data loss or security) must be escalated to engineering immediately.
+POLICY: Feature requests go into the quarterly review backlog unless from an enterprise customer.
+POLICY: Complaints about billing must be routed to the finance team within 1 business day.
+POLICY: Account deletion requests require identity verification and a 7-day cooling-off period.
+POLICY: API rate-limit exceptions are only granted to enterprise-tier customers.
+POLICY: Password reset requests from unverified accounts must go through manual verification.
+POLICY: Spam and phishing reports should be acknowledged within 24 hours and forwarded to security.
+POLICY: Service outage reports must trigger an immediate incident ticket and notify the SRE team.
+POLICY: GDPR data export requests have a 30-day legal deadline.
+POLICY: Trial account extensions are limited to one 14-day extension per account.
+POLICY: Mergers and acquisition inquiries go directly to the legal team — no auto-response.
+POLICY: Accessibility complaints must be acknowledged within 48 hours and tracked in the A11y board.
+POLICY: Partner integrations are handled by the partnerships team; standard 72-hour initial response.
+
+CATEGORY: Bug — a defect or malfunction in the product.
+CATEGORY: Feature Request — a request for new or changed functionality.
+CATEGORY: Question — a how-to, clarification, or informational inquiry.
+CATEGORY: Complaint — expression of dissatisfaction with product, service, or experience.
+CATEGORY: Spam — unsolicited, irrelevant, or promotional content.
+CATEGORY: Billing — invoice, payment, refund, or pricing inquiry.
+CATEGORY: Account — account access, password reset, or profile change request.
+CATEGORY: Legal — GDPR, compliance, policy, or legal threat.
+
+ROUTING: Bug → engineering-team
+ROUTING: Feature Request → product-team
+ROUTING: Question → support-team
+ROUTING: Complaint → customer-success-team
+ROUTING: Spam → ignore
+ROUTING: Billing → finance-team
+ROUTING: Account → support-team
+ROUTING: Legal → legal-team
+ROUTING: Service Outage → sre-team (urgent)
+
+ESCALATION: Low confidence (< 70%) → human triage queue
+ESCALATION: Legal threats → legal-team + management
+ESCALATION: P0 bugs → engineering lead + on-call
+
+SIGNATURE: Support Team — "Best regards, the Support Team"
+SIGNATURE: Engineering Team — "Thanks, Engineering"
+SIGNATURE: Product Team — "Regards, Product Team"
+SIGNATURE: Finance Team — "Sincerely, Billing & Finance"
+SIGNATURE: Legal Team — "Regards, Legal Department"

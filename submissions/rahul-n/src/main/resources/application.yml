@@ -1,0 +1,27 @@
+spring:
+  application:
+    name: meeting-room-booking
+  datasource:
+    # LOCK_TIMEOUT bounds how long a transaction waits for the room row lock before failing.
+    url: jdbc:h2:mem:booking;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;LOCK_TIMEOUT=10000
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: ""
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    open-in-view: false
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: UTC
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+
+server:
+  port: 8080

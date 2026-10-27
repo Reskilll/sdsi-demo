@@ -1,0 +1,59 @@
+/* Landing screen: calm and pastel. White cards with a thin border, one accent colour, a vertical split (pipeline left, URL right).
+   Every class starts with "h-" so nothing here can collide with the workspace styles. */
+body.home{height:100vh;overflow:hidden;background:var(--bg);font-family:-apple-system,"SF Pro Display","SF Pro Text",Inter,"Segoe UI",system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+.h-page{display:grid;grid-template-columns:7fr 3fr;height:100vh;gap:0}
+.h-left{min-width:0;min-height:0;display:flex;flex-direction:column;padding:12px 24px 0 28px}
+.h-bar{display:flex;justify-content:flex-end;align-items:center;gap:8px;margin-bottom:8px}
+.h-bar a,.h-bar button{color:var(--muted);text-decoration:none;padding:4px 12px;border-radius:999px;border:1px solid var(--line);background:var(--panel);cursor:pointer;font:inherit;font-size:12.5px;font-weight:600}.h-bar a:hover,.h-bar button:hover{color:var(--acc);border-color:var(--acc)}
+.h-hero{background:var(--hl);border:1px solid var(--line);border-radius:16px;padding:14px 22px;display:flex;align-items:center;gap:22px;flex:none}
+.h-brand{font-size:50px;font-weight:800;letter-spacing:-.035em;line-height:1;color:var(--acc)}
+.h-herotxt{min-width:0}.h-tag{font-size:17px;font-weight:700;letter-spacing:-.01em;margin:0 0 3px}
+.h-desc{font-size:13.5px;line-height:1.45;color:var(--txt2);margin:0;max-width:40em}
+.h-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:10px 0 0;flex:none}
+.h-stat{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:11px 14px 10px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.h-n{font-size:30px;font-weight:800;letter-spacing:-.03em;line-height:1;font-variant-numeric:tabular-nums lining-nums;color:var(--fg)}.h-n small{font-size:15px;color:var(--muted);font-weight:700}
+.h-l{font-size:12.5px;font-weight:700;color:var(--fg)}.h-s{font-size:11.5px;color:var(--muted);margin-top:2px}
+.h-minibots{display:flex;gap:1px;margin-top:4px;flex-wrap:nowrap;overflow:hidden}.h-minibots canvas{opacity:.3;transition:opacity .4s}.h-minibots canvas.on{opacity:1}
+.h-head{display:flex;justify-content:space-between;align-items:baseline;margin:14px 2px 8px;gap:14px;flex-wrap:wrap;flex:none}
+.h-head h2{margin:0;font-size:18px;letter-spacing:-.02em}.h-head span{color:var(--muted);font-size:12px}
+.h-list{flex:1;min-height:0;overflow:auto;padding:3px 6px 18px 2px;display:flex;flex-direction:column;gap:8px}
+.h-card{display:grid;grid-template-columns:44px minmax(160px,1.1fr) minmax(190px,1.5fr) auto;gap:14px;align-items:center;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:10px 16px;min-height:66px;transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease;flex:none}
+.h-card:hover{transform:translateY(-2px);box-shadow:0 8px 22px rgba(30,40,80,.1);border-color:var(--acc)}
+.h-card.real{border-left:3px solid var(--acc)}
+.h-av{width:44px;height:44px;border-radius:12px;background:var(--panel2);display:grid;place-items:center}.h-av.ok{background:var(--okbg)}.h-av svg{width:22px;height:22px}
+.h-card h3{margin:0 0 1px;font-size:15.5px;font-weight:700;letter-spacing:-.01em;text-transform:none;color:var(--fg)}.h-meta{color:var(--muted);font-size:12px}
+.h-lbl{font-size:13px;font-weight:600;display:flex;justify-content:space-between;gap:10px}.h-lbl em{font-style:normal;color:var(--muted);font-weight:500;font-size:12px}
+.h-bar2{height:6px;background:var(--inset);border-radius:3px;margin-top:6px;overflow:hidden}.h-bar2 i{display:block;height:100%;border-radius:4px;background:var(--acc);transition:width 1s linear}.h-bar2.ok i{background:var(--good)}
+.h-steps{display:flex;gap:5px;margin-top:6px}.h-steps i{flex:1;height:3px;border-radius:2px;background:var(--inset);transition:background .4s}.h-steps i.on{background:var(--acc)}
+.h-act{display:flex;gap:8px;align-items:center;justify-content:flex-end;flex-wrap:wrap}
+.h-badge{font-size:11px;font-weight:700;padding:3px 9px;border-radius:999px;white-space:nowrap;border:1px solid transparent}.h-badge.real{background:var(--hl);color:var(--acc)}.h-badge.done{background:var(--okbg);color:var(--good)}.h-badge.run{background:var(--warnbg);color:var(--warn)}
+.h-score{font-size:22px;font-weight:800;letter-spacing:-.03em;line-height:1;text-align:right}.h-score small{display:block;font-size:9.5px;font-weight:700;color:var(--muted);letter-spacing:.07em;text-transform:uppercase;margin-top:3px}
+.h-btn{border:1px solid var(--line);background:var(--panel);border-radius:9px;padding:5px 11px;font-weight:700;font-size:12px;cursor:pointer;color:var(--fg);text-decoration:none;font-family:inherit}.h-btn:hover{border-color:var(--acc);color:var(--acc)}.h-btn.pri{background:var(--acc);border-color:var(--acc);color:#fff}.h-btn.pri:hover{color:#fff;filter:brightness(1.07)}
+/* right: the URL */
+.h-right{min-width:0;min-height:0;padding:12px 26px 22px 4px;display:flex;flex-direction:column}
+.h-enter{flex:1;min-height:0;background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:24px 22px;display:flex;flex-direction:column;justify-content:center;gap:14px;overflow:auto;margin-top:36px}
+.h-enter h2{margin:0;font-size:24px;line-height:1.1;letter-spacing:-.03em}.h-enter h2 span{color:var(--acc)}
+.h-enter p{margin:0;color:var(--muted);font-size:13.5px;line-height:1.5}
+.h-url{display:flex;flex-direction:column;gap:8px}
+.h-field{display:flex;align-items:center;gap:10px;background:var(--bg);border:2px solid var(--line);border-radius:12px;padding:2px 5px 2px 12px;transition:border-color .15s,box-shadow .15s}.h-field:focus-within{border-color:var(--acc);box-shadow:0 0 0 4px rgba(79,107,255,.12)}
+.h-field svg{width:17px;height:17px;color:var(--acc);flex:none}
+.h-field input{flex:1;min-width:0;border:0;outline:0;background:transparent;font-size:14.5px;font-weight:600;color:var(--fg);padding:8px 0;font-family:inherit}.h-field input::placeholder{color:var(--muted);font-weight:500}
+.h-go{background:var(--acc);color:#fff;border:0;border-radius:10px;padding:10px 16px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit}.h-go:hover{filter:brightness(1.08)}
+.h-or{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:11.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase}.h-or::before,.h-or::after{content:"";flex:1;height:1px;background:var(--line)}
+.h-replay{display:flex;flex-direction:column;gap:6px}
+.h-rrow{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:8px 12px;border:1px solid var(--line);border-radius:11px;text-decoration:none;color:var(--fg);font-weight:600;font-size:13.5px;transition:border-color .15s,transform .15s}.h-rrow:hover{border-color:var(--acc);transform:translateX(2px)}.h-rrow small{color:var(--muted);font-weight:500;margin-left:6px}.h-rrow b{color:var(--acc);font-size:15px}
+.h-enter select{width:100%;border:1px solid var(--line);border-radius:10px;padding:8px 12px;background:var(--panel);color:var(--fg);font-family:inherit;font-size:13px}
+@media(max-width:1100px){body.home{overflow:auto;height:auto}.h-page{grid-template-columns:1fr;height:auto}.h-left{padding:16px}.h-stats{grid-template-columns:repeat(2,1fr)}.h-card{grid-template-columns:58px 1fr}.h-card>:nth-child(3),.h-card>:nth-child(4){grid-column:1 / -1}.h-hero{flex-direction:column;align-items:flex-start}.h-right{padding:0 16px 24px}.h-enter{margin-top:0}}
+
+.h-pct{font-size:24px;font-weight:800;letter-spacing:-.02em;color:var(--acc);font-variant-numeric:tabular-nums lining-nums;margin-top:3px;min-height:29px}
+/* Government tenders triaged by the Tender Scout (simulated on this screen) */
+.h-av{position:relative}.h-av.gov{background:#fdeadb;color:#c2410c}.h-av.gov svg{width:26px;height:26px}.h-av.no{background:var(--panel2);color:var(--muted)}.h-av.no b{font-size:20px}
+.h-govb{position:absolute;right:-5px;bottom:-5px;width:20px;height:20px;border-radius:7px;background:#fdeadb;color:#c2410c;border:2px solid var(--panel);display:grid;place-items:center}.h-govb svg{width:13px;height:13px}
+.h-card.gov h3{font-size:14px}
+/* Government tenders stand apart: a saffron border with a soft glow */
+.h-card.gov{border-color:#f0a46c;box-shadow:0 0 0 1px rgba(234,120,40,.18),0 0 18px rgba(234,120,40,.22)}
+.h-card.gov:hover{border-color:#ea7828;box-shadow:0 0 0 1px rgba(234,120,40,.3),0 0 26px rgba(234,120,40,.32)}
+html[data-theme=dark] .h-card.gov{border-color:#b45a20;box-shadow:0 0 0 1px rgba(251,146,60,.2),0 0 18px rgba(251,146,60,.18)}
+.h-badge.gov{background:#fdeadb;color:#c2410c}.h-badge.skip{background:var(--panel2);color:var(--muted)}
+.h-govk{display:inline-block;width:12px;height:12px;vertical-align:-1px;background:#c2410c;-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 9.5L12 4l9 5.5M4.5 9.5h15M6.5 11v6.5M10 11v6.5M14 11v6.5M17.5 11v6.5M3.5 20h17'/%3E%3C/svg%3E") center/contain no-repeat;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 9.5L12 4l9 5.5M4.5 9.5h15M6.5 11v6.5M10 11v6.5M14 11v6.5M17.5 11v6.5M3.5 20h17'/%3E%3C/svg%3E") center/contain no-repeat}
+html[data-theme=dark] .h-av.gov,html[data-theme=dark] .h-govb,html[data-theme=dark] .h-badge.gov{background:#43220f;color:#fdba74}

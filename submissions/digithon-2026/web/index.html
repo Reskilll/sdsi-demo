@@ -1,0 +1,320 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nitro</title>
+<link rel="stylesheet" href="/web/style.css">
+
+</head>
+<body>
+<header>
+  <div class="logo"><a href="/" title="Back to the home screen" style="text-decoration:none"><span>Nitro</span></a></div>
+  <span class="seg mode" id="modeSeg" title="Replay shows a saved run and costs nothing. Live starts a new run and uses model tokens."><button data-md="replay" class="on">Replay</button><button data-md="live">Live</button></span>
+  <form id="rf"><select id="runs" aria-label="Saved run"></select><select id="speed" aria-label="Replay speed (changes apply at once)" title="You can change the speed while a replay is running"><option value="0.25">Very slow</option><option value="0.5">Slow</option><option value="1">Normal</option><option value="2">Fast</option><option value="4">Faster</option><option value="0">Instant</option></select><button class="go" id="rgo">▶ Replay</button><button type="button" class="go stop" id="rstop" hidden>■ Stop</button></form>
+  <form id="f" hidden><input id="url" type="text" placeholder="Paste any company website, e.g. samsung.com" autocomplete="off"><button class="go" id="go">Launch live run</button></form>
+  <a class="pill" href="/marketplace.html" target="_blank">Agent marketplace</a><button class="pill" id="themeBtn" type="button" style="cursor:pointer">🌙 Dark</button><span class="pill" id="mode">…</span><span class="pill off" id="livenote" hidden>Live runs use model tokens</span>
+  <div class="idle">Unallocated capacity cost since you opened this page<b id="idle">₹0</b></div>
+</header>
+<main>
+  <section class="card"><h2>Agents <span class="tok" id="tok" title="Model tokens used in this run"></span></h2><div class="scroll" id="lanes"></div></section>
+  <section class="card feedcard">
+    <h2>Live agent feed <span class="seg" id="seg"><button class="on" data-m="friendly">Friendly</button><button data-m="tech">Technical</button></span></h2>
+    <div class="hl" id="hl" hidden></div><div class="spot" id="spot" aria-live="polite"></div><div class="scroll" id="feed"><div class="empty">Paste a prospect's website and hit Launch.<br>The agents will talk it out here.</div></div>
+  </section>
+  <section class="card">
+    <h2>The office</h2>
+    <div class="officewrap">
+      <div class="office"><canvas id="oc" aria-label="Pixel-art office where the agents work"></canvas><div class="plates" id="plates"></div><div class="officesign" id="sign">AI Agents Office</div></div>
+      <div class="officenote">Bubbles show what each agent is up to. The Coordinator walks over when it hands work to someone.</div>
+    </div>
+  </section>
+</main>
+<div id="lb"><img alt="Screenshot, enlarged"></div>
+<script src="/web/assets/tech/icons.js"></script>
+<script src="/web/panels.js"></script>
+<script src="/web/replay.js"></script>
+<script src="/web/sprites.js"></script>
+<script src="/web/office.js"></script>
+<script>
+
+let personas = {}, mode = 'friendly', events = [], es = null, currentRun = null, office = null;
+
+// ── idle-cost ticker (₹ burned per second, from the ROI inputs) ──
+const t0 = Date.now();
+function tick() { const perSec = (roi.idle * roi.cost) / (30 * 24 * 3600); $('#idle').textContent = inr(perSec * (Date.now() - t0) / 1000); }
+setInterval(tick, 500);
+
+$('#seg').onclick = (e) => { if (!e.target.dataset.m) return; mode = e.target.dataset.m; document.querySelectorAll('#seg button').forEach((b) => b.classList.toggle('on', b.dataset.m === mode)); renderFeed(true); };
+
+// ── boot ──
+fetch('/api/config').then((r) => r.json()).then((c) => {
+  personas = c.personas;
+  $('#mode').textContent = c.llm ? `Live model · ${c.model}` : 'Offline mode · no model key'; $('#mode').className = 'pill ' + (c.llm ? 'on' : 'off');
+  buildLanes(); office = new OFFICE($('#oc'), $('#plates'), personas, $('#sign')); office.start();
+});
+
+function resetUi() {
+  events = []; dom.clear(); expanded.clear(); queue.length = 0; stopPlayerQuiet(); clearHighlights(); clearInterval(drainTimer); draining = false; if (es) { es.close(); es = null; }
+  $('#feed').innerHTML = '<div class="empty">Starting…</div>'; updateLanes(); office?.reset();
+}
+// Live posts are shown one at a time so each can be read; if many pile up, the queue drains faster.
+const queue = []; let drainTimer = null, draining = false;
+const QUIPS = [
+  'Pencils down! The agents have shut their laptops and are eyeing the coffee machine. Your move, human: come and review the work before anything gets sent.',
+  'Ta-da! Everyone is suspiciously proud of themselves. Please review the results and tell them they did well (or not).',
+  'The office is quiet, the confetti is settling. One human required: press the button, inspect the pitch, and decide what happens next.',
+];
+function show(ev) {
+  if (events.some((x) => x.id === ev.id)) return; // SSE reconnect replays history
+  events.push(ev); if (ev.kind !== 'usage') office?.handle(ev);
+  const m = majorOf(ev); if (m) { if (m.strip !== false) addHighlight(m); spotlight(m); }
+  if (ev.kind === 'done') {
+    const h = [...String(currentRun)].reduce((a, c) => a + c.charCodeAt(0), 0);
+    events.push({ id: 'review', ts: ev.ts, runId: currentRun, from: 'lead', kind: 'review', friendly: QUIPS[h % QUIPS.length] });
+  }
+  scheduleRender();
+}
+// A normal browser tab (no popup features), reused on later clicks; the report has its own switcher for other runs.
+function openReview(id) { const url = `/review.html?run=${encodeURIComponent(id)}`; if (!window.open(url, 'nitro-review')) window.open(url, '_blank'); }
+// Live runs arrive over SSE and are shown one at a time so each can be read; if many pile up, the queue drains faster.
+function attach(src, busy) {
+  busy.disabled = true; es = new EventSource(src);
+  let streamEnded = false;
+  const finish = () => { streamEnded = true; es.close(); if (!queue.length) { clearInterval(drainTimer); draining = false; busy.disabled = false; } };
+  const drain = () => { const ev = queue.shift(); if (ev) show(ev); if (!queue.length && streamEnded) { clearInterval(drainTimer); draining = false; busy.disabled = false; } };
+  es.onmessage = (m) => {
+    const ev = JSON.parse(m.data);
+    queue.push(ev);
+    if (!draining) { draining = true; drainTimer = setInterval(() => { const n = queue.length; drain(); if (n > 12) drain(); if (n > 25) drain(); }, 800); }
+    if (ev.kind === 'done' || (ev.kind === 'error' && ev.from === 'lead')) finish();
+  };
+  es.addEventListener('end', finish);
+  es.onerror = finish;
+}
+
+// ── Replay player. It runs in the browser (the saved trace is fetched once), so Stop works at once and a speed
+// change applies to the post that is already waiting. No model, browser or network call. ──
+const HOLD_MS = 1700; // a major moment holds the replay for a beat, so even a fast replay can be followed (not at Instant)
+let player = null, halted = false;
+const speedNow = () => Number($('#speed').value);
+function setReplayRunning(on) { $('#rgo').hidden = on; $('#rstop').hidden = !on; $('#runs').disabled = on; }
+function stopPlayerQuiet() { if (player) { clearTimeout(player.timer); player = null; } halted = false; setReplayRunning(false); }
+async function startReplay(id) {
+  resetUi(); currentRun = id;
+  const res = await fetch(`/api/runs/${encodeURIComponent(id)}/trace`);
+  if (!res.ok) { $('#feed').innerHTML = '<div class="empty">No saved trace for this run.</div>'; return; }
+  const trace = await res.json(); if (!trace.length) return;
+  player = { trace, i: 0, shownAt: performance.now(), hold: 0, timer: null };
+  setReplayRunning(true); playNext();
+}
+function playNext() {
+  const p = player; if (!p) return; clearTimeout(p.timer);
+  if (speedNow() <= 0) { while (p.i < p.trace.length) show(p.trace[p.i++]); return endReplay(); } // Instant: show everything left
+  const ev = p.trace[p.i++]; show(ev); p.shownAt = performance.now(); const mj = majorOf(ev); p.hold = mj ? (mj.hold ?? HOLD_MS) : 0;
+  if (p.i >= p.trace.length) return endReplay();
+  scheduleNext();
+}
+function scheduleNext() {
+  const p = player; if (!p) return; clearTimeout(p.timer);
+  const gap = p.trace[p.i].ts - p.trace[p.i - 1].ts;
+  p.timer = setTimeout(playNext, replayWait(p.shownAt, performance.now(), gap, speedNow(), p.hold));
+}
+function endReplay() { player = null; setReplayRunning(false); }
+/** Stop a running replay. What has been shown stays on screen; the agents stand down. */
+function stopReplay() {
+  if (!player) return; clearTimeout(player.timer); player = null; halted = true; setReplayRunning(false);
+  office?.calm(); renderFeed(true); updateLanes();
+}
+$('#rstop').onclick = stopReplay;
+$('#speed').addEventListener('change', () => { try { localStorage.setItem('nitro-speed', $('#speed').value); } catch {} if (player) scheduleNext(); });
+try { const sp = localStorage.getItem('nitro-speed'); if (sp !== null && [...$('#speed').options].some((o) => o.value === sp)) $('#speed').value = sp; } catch {}
+
+// Live run: starts agents, uses model tokens.
+$('#f').onsubmit = async (e) => {
+  e.preventDefault(); const url = $('#url').value.trim(); if (!url) return;
+  resetUi();
+  const res = await fetch('/api/runs', { method: 'POST', body: JSON.stringify({ url }) }); const j = await res.json();
+  if (!res.ok) { $('#feed').innerHTML = `<div class="empty">${esc(j.error)}</div>`; return; }
+  currentRun = j.runId; attach(`/api/runs/${j.runId}/events`, $('#go')); loadRuns();
+};
+
+// Replay: streams a saved trace. No model, browser or network call.
+$('#rf').onsubmit = (e) => { e.preventDefault(); const id = $('#runs').value; if (id && !player) startReplay(id); };
+
+function setMode(m) {
+  if (m !== 'replay') stopReplay();
+  document.querySelectorAll('#modeSeg button').forEach((b) => b.classList.toggle('on', b.dataset.md === m));
+  $('#rf').hidden = m !== 'replay'; $('#f').hidden = m !== 'live'; $('#livenote').hidden = m !== 'live';
+  try { localStorage.setItem('nitro-mode', m); } catch {}
+}
+$('#modeSeg').onclick = (e) => { if (e.target.dataset.md) setMode(e.target.dataset.md); };
+function loadRuns() {
+  return fetch('/api/runs').then((r) => r.json()).then((rows) => {
+    const sel = $('#runs'); const keep = sel.value;
+    sel.innerHTML = rows.length ? rows.map((r) => {
+      const when = r.startedAt ? new Date(r.startedAt).toLocaleString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '';
+      const label = `${r.title || r.url || r.id} · ${r.overall != null ? 'score ' + r.overall + ' · ' : ''}${r.seconds ? r.seconds + 's · ' : ''}${when}${r.hasTrace ? '' : ' · no saved trace'}`;
+      return `<option value="${esc(r.id)}" ${r.hasTrace ? '' : 'disabled'}>${esc(label)}</option>`;
+    }).join('') : '<option value="">No saved runs yet. Switch to Live and launch one.</option>';
+    const first = rows.find((r) => r.hasTrace);
+    sel.value = keep && rows.some((r) => r.id === keep && r.hasTrace) ? keep : (first?.id ?? '');
+    $('#rgo').disabled = !first;
+  });
+}
+
+initTheme(); initLightbox();
+let startMode = 'replay'; try { startMode = localStorage.getItem('nitro-mode') || 'replay'; } catch {}
+setMode(startMode);
+// The home screen opens this page with the right context: ?mode=live&url=...&autostart=1 or ?mode=replay&run=<id>&autostart=1
+function applyContext() {
+  const qp = new URLSearchParams(location.search), m = qp.get('mode');
+  if (m !== 'live' && m !== 'replay') return;
+  setMode(m);
+  if (m === 'live' && qp.get('url')) { $('#url').value = qp.get('url'); if (qp.get('autostart') === '1') $('#f').requestSubmit(); }
+  if (m === 'replay' && qp.get('run') && [...$('#runs').options].some((o) => o.value === qp.get('run') && !o.disabled)) { $('#runs').value = qp.get('run'); if (qp.get('autostart') === '1') $('#rf').requestSubmit(); }
+  history.replaceState(null, '', location.pathname);
+}
+loadRuns().then(applyContext);
+$('#feed').innerHTML = '<div class="empty">Pick a saved run and press Replay: it costs nothing.<br>Switch to Live to start a new run (uses model tokens).</div>';
+
+let pending = false;
+function scheduleRender() { if (pending) return; pending = true; requestAnimationFrame(() => { pending = false; renderFeed(); updateLanes(); }); }
+
+// ── lanes ──
+function laneState(id) {
+  const mine = events.filter((e) => e.from === id && e.kind !== 'usage'); if (!mine.length) return { cls: '', text: 'Waiting' };
+  const open = new Set(); mine.forEach((e) => { if (e.tool && /_start$/.test(e.kind)) open.add(e.tool.callId); if (e.tool && /_end$/.test(e.kind)) open.delete(e.tool.callId); });
+  const last = mine[mine.length - 1];
+  if (open.size) return halted ? { cls: '', text: 'Stopped' } : { cls: 'work', text: last.friendly };
+  if (mine.some((e) => e.kind === 'error')) return { cls: 'err', text: 'Hit a snag' };
+  if (id === 'lead') return events.some((e) => e.kind === 'done') ? { cls: 'done', text: 'Case closed' } : halted ? { cls: '', text: 'Stopped' } : { cls: 'work', text: 'Coordinating' };
+  const finished = events.some((e) => e.kind === 'done') || mine.some((e) => (e.tool && /_end$/.test(e.kind)) || e.kind === 'partial_result' || e.kind === 'finding');
+  return { cls: finished ? 'done' : 'work', text: last.friendly };
+}
+const laneEls = {}, laneLast = {};
+function buildLanes() {
+  $('#lanes').innerHTML = '';
+  for (const [id, p] of Object.entries(personas)) {
+    const el = document.createElement('div'); el.className = 'lane'; el.title = p.role;
+    el.innerHTML = `<div class="av"><img alt="" src="${avatarURL(id)}"><i class="dot"></i></div><div class="lt"><div class="nm">${esc(p.name)}</div><div class="rl">${esc(p.role)}</div></div><div class="tk"></div>`;
+    $('#lanes').appendChild(el); laneEls[id] = el; laneLast[id] = '';
+  }
+}
+// Lanes are updated in place (class and text only), so a working agent blinks smoothly instead of restarting on every event.
+function updateLanes() {
+  for (const [id, el] of Object.entries(laneEls)) {
+    const s = laneState(id), t = tokensOf(id), key = s.cls + '|' + s.text + '|' + t.tokens;
+    if (laneLast[id] === key) continue; laneLast[id] = key;
+    el.className = 'lane ' + s.cls; el.title = `${personas[id]?.role ?? ''}\nNow: ${s.text}`;
+    el.querySelector('.tk').innerHTML = t.tokens ? `<b>${fmtTok(t.tokens)}</b><span>tokens${t.cost != null ? ` · $${t.cost.toFixed(3)}` : ''}</span>` : (LLM_AGENTS.has(id) ? '<span title="Uses the model. Runs saved before token tracking, or in offline mode, have no token data.">– tokens</span>' : '<span>tools only</span>');
+  }
+  const all = events.filter((e) => e.usage), tot = all.reduce((a, e) => a + e.usage.input + e.usage.output + e.usage.cacheRead + e.usage.cacheWrite, 0);
+  $('#tok').textContent = tot ? `${fmtTok(tot)} tokens · $${all.reduce((a, e) => a + (e.usage.costUsd ?? 0), 0).toFixed(3)}` : '';
+}
+// Agents that call the model; the rest only use tools (Lighthouse, Playwright, axe-core, network analysis).
+const LLM_AGENTS = new Set(['lead', 'research', 'ux', 'geo', 'redesign']);
+const fmtTok = (n) => (n >= 1000 ? (n / 1000).toFixed(n >= 10000 ? 0 : 1) + 'k' : String(n));
+function tokensOf(id) {
+  const u = events.filter((e) => e.from === id && e.usage).map((e) => e.usage);
+  return { tokens: u.reduce((a, x) => a + x.input + x.output + x.cacheRead + x.cacheWrite, 0), cost: u.length && u.every((x) => x.costUsd != null) ? u.reduce((a, x) => a + x.costUsd, 0) : null };
+}
+
+// ── spotlight: major moments pop up over the feed, then stay in the Highlights strip ──
+const CAT = { speed: 'Speed', mobile: 'Mobile', a11y: 'Accessibility', ux: 'UX', geo: 'AI search' };
+const band = (n) => (n >= 80 ? 'strong' : n >= 60 ? 'partial' : 'gap');
+const READ_MS = 3600; // research callouts carry a sentence, so they stay up longer
+function majorOf(e) {
+  const d = e.panel?.data;
+  // Market research: each signal pops up as a callout (not kept in the strip), then the brief as a summary.
+  if (e.from === 'research' && e.kind === 'finding' && e.card) {
+    const news = e.card.metrics?.Type === 'News';
+    return { key: 'r' + e.id, icon: news ? '📰' : '📈', title: news ? 'In the news' : 'Market trend', value: e.card.title, note: e.card.headline, tone: e.card.tone === 'bad' ? 'gap' : 'partial', chips: [[`What we can do: ${e.card.metrics?.['What we can do'] ?? ''}`, 'strong']], strip: false, hold: READ_MS };
+  }
+  // Escalations: decisions the agents may not take alone, each with its reason.
+  if (e.to === 'human' && e.kind === 'question') return { key: 'h' + e.id, icon: '🙋', title: 'Needs a human', value: e.friendly.replace(/^Needs a human:\s*/, ''), note: e.detail?.summary, tone: 'partial', chips: [], strip: false, hold: READ_MS };
+  if (e.panel?.name === 'research' && d) return { key: 'research', icon: '🔎', title: `Market research · ${d.company}`, value: `${(d.items ?? []).length} signals`, note: d.summary, chips: (d.items ?? []).map((i) => [i.title, i.tone === 'bad' ? 'gap' : 'partial']), hold: READ_MS + 800 };
+  if (e.panel?.name === 'stack' && d) {
+    const cov = Object.fromEntries((d.coverage?.skills ?? []).map((x) => [x.tech, x.status]));
+    return { key: 'stack', icon: '🧩', title: 'Tech stack mapped', value: `${(d.technologies ?? []).length} technologies`, chips: (d.technologies ?? []).map((t) => [t.name, cov[t.name] ?? '']) };
+  }
+  if (e.panel?.name === 'audit' && d) return { key: 'audit', icon: '📋', title: 'Site score', value: `${d.overall}/100 · ${d.grade}`, tone: band(d.overall), chips: (d.categories ?? []).map((c) => [`${CAT[c.category] ?? c.category} ${c.score}`, band(c.score)]) };
+  if (e.panel?.name === 'team' && d) return { key: 'team', icon: '🧑‍💻', title: 'Team matched', value: `${d.orgScore}/100 org match`, tone: band(d.orgScore), chips: [[`${(d.team ?? []).length} people`, ''], ...(d.gaps ?? []).map((g) => [`Gap: ${g}`, 'gap'])] };
+  if (e.panel?.name === 'prototype' && d) return { key: 'prototype', icon: '🎨', title: 'New homepage built', value: 'Redesign ready', tone: 'strong', chips: (d.reaudit ?? []).map((r) => [`${CAT[r.category] ?? r.category} ${r.before} → ${r.after}`, r.after > r.before ? 'strong' : r.after < r.before ? 'gap' : '']) };
+  if (e.panel?.name === 'deck' && d) return { key: 'deck', icon: '📊', title: 'Pitch ready', value: 'Deck + proposal', tone: 'strong', chips: [['Waiting for human review', '']] };
+  if (e.stat?.label?.startsWith('model cost')) return { key: 'cost', icon: '💳', title: 'Model cost of this run', value: e.stat.value, chips: [[e.stat.label.replace(/^model cost of this run\s*/, '').replace(/[()]/g, ''), '']] };
+  return null;
+}
+const chipsHtml = (m) => m.chips.map(([t, c]) => `<span class="sc ${c}">${esc(t)}</span>`).join('');
+let spotTimer = null;
+function spotlight(m) {
+  const el = $('#spot'); clearTimeout(spotTimer);
+  el.className = 'spot'; void el.offsetWidth;
+  el.innerHTML = `<div class="sp ${m.tone ?? ''}"><div class="si">${m.icon}</div><div class="st2">${esc(m.title)}</div><div class="sv">${esc(m.value)}</div>${m.note ? `<p class="sn">${esc(m.note)}</p>` : ''}<div class="sch">${chipsHtml(m)}</div></div>`;
+  el.className = 'spot on';
+  spotTimer = setTimeout(() => { el.className = 'spot out'; }, (m.hold ?? HOLD_MS) - 250);
+}
+function addHighlight(m) {
+  const box = $('#hl'); box.hidden = false;
+  box.querySelector(`[data-k="${m.key}"]`)?.remove();
+  box.insertAdjacentHTML('beforeend', `<span class="h ${m.tone ?? ''}" data-k="${m.key}" title="${esc(m.chips.map((c) => c[0]).join(', '))}">${m.icon} <b>${esc(m.value)}</b></span>`);
+}
+function clearHighlights() { const b = $('#hl'); if (b) { b.innerHTML = ''; b.hidden = true; } clearTimeout(spotTimer); const s = $('#spot'); if (s) s.className = 'spot'; }
+
+// ── feed (newest first, incremental: existing posts are never re-rendered unless they change) ──
+const expanded = new Set(), dom = new Map();
+const toneOf = (c) => c.tone || (c.grade ? (/[AB]/.test(c.grade) ? 'good' : c.grade === 'C' ? 'warn' : 'bad') : '');
+const avImg = (id) => `<img class="pimg" alt="" src="${avatarURL(id)}">`;
+function rowHtml(e, ended) {
+  if (e.kind === 'review') return `<div class="msg review"><div class="av">${avImg('lead')}</div><div class="cardbox"><div class="who"><b>${esc((personas.lead || {}).name || 'Coordinator')}</b> · Needs a human</div><div class="cta"><p>${esc(e.friendly)}</p><button class="go" data-review="${esc(e.runId)}">Start the review ↗</button></div></div></div>`;
+  const p = personas[e.from] || { name: e.from, emoji: '•', role: '' };
+  const isEnd = e.tool && /_end$/.test(e.kind), isStart = e.tool && /_start$/.test(e.kind);
+  const detBtn = (txt) => (txt ? `<button class="more" data-x="${e.id}">${expanded.has(e.id) ? 'less' : 'details'}</button>` : '');
+  const detBox = (txt) => (txt && expanded.has(e.id) ? `<div class="detail">${esc(txt)}${e.detail?.evidence?.length ? '\n\nEvidence: ' + esc(e.detail.evidence.join(' | ')) : ''}</div>` : '');
+  if (isStart) { // small "working on it" line; dims when the result post arrives
+    const end = ended.get(e.tool.callId);
+    const text = mode === 'tech' ? `${e.tool.name}${end ? ` · ${end.tool.durationMs} ms` : ''}` : e.friendly;
+    return `<div class="msg tool${end ? ' dim' : ''}"><div><span class="bubble"><b>${esc(p.name)}</b> · ${end ? '<span class="tick">✓</span>' : halted ? '<span class="x">■</span> ' : '<span class="spin"></span>'}${esc(text)}</span></div></div>`;
+  }
+  if (isEnd && e.card) { // the finished result, as its own formatted post
+    const c = e.card, tone = toneOf(c), sum = e.detail?.summary;
+    const metrics = c.metrics ? `<div class="cm">${Object.entries(c.metrics).filter(([, v]) => v !== '' && v != null).map(([k, v]) => `<div><span>${esc(k)}</span><b>${esc(v)}</b></div>`).join('')}</div>` : '';
+    const badge = c.grade ? `<span class="grade g${esc(c.grade)}">${esc(c.grade)}</span>` : '';
+    const score = c.score != null ? `<span class="sc">${esc(c.score)}<small>/100</small></span>` : '';
+    return `<div class="msg card-msg"><div class="av">${avImg(e.from)}</div><div class="cardbox"><div class="who"><b>${esc(p.name)}</b> · result</div><div class="card2 ${tone}"><div class="ch"><span class="ct">${esc(c.title)}</span>${score}${badge}</div><div class="cl">${esc(mode === 'tech' && sum ? sum : c.headline)}${mode !== 'tech' ? detBtn(sum) : ''}</div>${mode !== 'tech' ? metrics : ''}</div>${mode !== 'tech' ? detBox(sum) : ''}</div></div>`;
+  }
+  if (isEnd) { // result of a tool without a card: a compact new post
+    const sum = e.detail?.summary;
+    return `<div class="msg tool ok"><div><span class="bubble"><b>${esc(p.name)}</b> · ${e.tool.ok ? '<span class="tick">✓</span>' : '<span class="x">✕</span>'}${esc(mode === 'tech' ? `${e.tool.name} · ${e.tool.durationMs} ms` : e.friendly)}${detBtn(sum)}</span>${detBox(sum)}</div></div>`;
+  }
+  if (e.card) { // a finding posted as a card (for example one detected technology)
+    const c = e.card, tone = toneOf(c);
+    const metrics = c.metrics ? `<div class="cm">${Object.entries(c.metrics).filter(([, v]) => v !== '' && v != null).map(([k, v]) => `<div><span>${esc(k)}</span><b>${esc(v)}</b></div>`).join('')}</div>` : '';
+    return `<div class="msg card-msg"><div class="av">${avImg(e.from)}</div><div class="cardbox"><div class="who"><b>${esc(p.name)}</b> · found</div><div class="card2 ${tone}"><div class="ch">${c.icon ? techIcon(c.icon, c.title, 32) : ''}<span class="ct">${esc(c.title)}</span></div><div class="cl">${esc(c.headline)}${detBtn(e.detail?.summary)}</div>${metrics}</div>${detBox(e.detail?.summary)}</div></div>`;
+  }
+  const to = e.to === 'human' ? ' <span class="arrow">→</span> <b class="tohuman">a human</b>' : e.to && e.to !== 'all' ? ` <span class="arrow">→</span> ${esc((personas[e.to] || {}).name || e.to)}` : e.to === 'all' ? ' <span class="arrow">→</span> everyone' : '';
+  const text = mode === 'tech' && e.detail ? e.detail.summary : e.friendly;
+  const stat = e.stat ? `<div class="stat ${esc(e.stat.tone || '')}"><b>${esc(e.stat.value)}</b><span>${esc(e.stat.label)}</span></div>` : '';
+  const img = e.image ? `<img class="thumb" src="${esc(e.image)}" alt="Screenshot" loading="lazy" data-zoom="${esc(e.image)}">` : '';
+  return `<div class="msg ${e.kind}"><div class="av">${avImg(e.from)}</div><div><div class="who"><b>${esc(p.name)}</b>${to} · ${esc(p.role)}</div><span class="bubble">${esc(text)}${mode !== 'tech' ? detBtn(e.detail?.summary) : ''}</span>${stat}${img}${mode !== 'tech' ? detBox(e.detail?.summary) : ''}</div></div>`;
+}
+function renderFeed(rebuild) {
+  const box = $('#feed'); if (!events.length) return;
+  if (rebuild || !dom.size) { box.innerHTML = ''; dom.clear(); }
+  const prevH = box.scrollHeight, prevTop = box.scrollTop;
+  const ended = new Map(); events.forEach((e) => { if (e.tool && /_end$/.test(e.kind)) ended.set(e.tool.callId, e); });
+  const make = (html) => { const t = document.createElement('div'); t.innerHTML = html; return t.firstElementChild; };
+  for (const e of events) {
+    if (e.kind === 'usage') continue;
+    const html = rowHtml(e, ended); const rec = dom.get(e.id);
+    if (!rec) { const el = make(html); if (!rebuild) el.classList.add('fresh'); dom.set(e.id, { el, html }); box.insertBefore(el, box.firstChild); }
+    else if (rec.html !== html) { const el = make(html); rec.el.replaceWith(el); rec.el = el; rec.html = html; }
+  }
+  // Newest on top: stay at the top if the reader is there; otherwise keep their place while posts are added above.
+  if (prevTop > 40) box.scrollTop = prevTop + (box.scrollHeight - prevH);
+}
+$('#feed').onclick = (e) => { if (e.target.dataset.review) { openReview(e.target.dataset.review); return; } if (e.target.dataset.zoom) { $('#lb img').src = e.target.dataset.zoom; $('#lb').classList.add('on'); return; } const id = e.target.dataset.x; if (!id) return; expanded.has(+id) ? expanded.delete(+id) : expanded.add(+id); renderFeed(true); };
+
+</script>
+</body>
+</html>

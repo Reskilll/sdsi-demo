@@ -1,0 +1,180 @@
+{
+  "_note": "The Nitro agent marketplace: every agent we have or plan, so teams can find, reuse and showcase them. status: live (in the app today), beta (partly built), planned (next releases).",
+  "agents": [
+    {
+      "id": "lead", "name": "Coordinator", "emoji": "🧭", "status": "live", "category": "Coordinate",
+      "summary": "Plans the whole job, picks the next step and hands work to the other agents.",
+      "inputs": ["Prospect website URL"], "outputs": ["Run plan", "Hand-offs", "Request for human review"],
+      "builtWith": ["Claude planner", "Guardrails in code", "Rule-based offline fallback"],
+      "showcase": "Shows how one URL turns into a full pre-sales package with no manual steps."
+    },
+    {
+      "id": "research", "name": "Market Researcher", "emoji": "📰", "status": "live", "category": "Research",
+      "summary": "First step of the journey: reads the latest news, analyst notes and market reports on the company, then says what we can do about each signal.",
+      "inputs": ["Company name and website"], "outputs": ["News and trend signals", "What we can do for each", "Research summary for the pitch"],
+      "builtWith": ["Imported market brief (sample data today)", "Web search next"],
+      "showcase": "The pitch opens with what keeps their leadership up at night, not with our capabilities."
+    },
+    {
+      "id": "tenders", "name": "Tender Scout", "emoji": "🏛️", "status": "beta", "category": "Research",
+      "summary": "Watches government tender portals and RSS feeds, and triages each tender for relevance to our skills before the agents pick it up.",
+      "inputs": ["Tender portals (GeM, CPPP)", "State tender RSS feeds", "Our skills"], "outputs": ["Relevant tenders", "Reason for each triage call", "Hand-off to the agents"],
+      "builtWith": ["RSS and portal readers", "Skill matching", "Simulated on the home dashboard today"],
+      "showcase": "Government work found and filtered before anyone has to read a tender document."
+    },
+    {
+      "id": "audit", "name": "Site Auditor", "emoji": "🕵️", "status": "live", "category": "Audit",
+      "summary": "Opens the site in a real browser, takes snapshots and builds a report card with evidence.",
+      "inputs": ["Website URL"], "outputs": ["Score out of 100", "Grade", "Ranked findings with evidence", "Screenshots"],
+      "builtWith": ["Playwright", "Chromium"],
+      "showcase": "A clear report card a CTO or CMO understands in one glance."
+    },
+    {
+      "id": "tech", "name": "Tech Detector", "emoji": "🧩", "status": "live", "category": "Audit",
+      "summary": "Reads network traffic, headers and cookies to find the front end, back end, CMS, commerce, analytics, CDN and cloud in use.",
+      "inputs": ["Network log", "Headers", "Cookies", "Markup"], "outputs": ["Technology stack", "Third-party share", "Our skill coverage per technology"],
+      "builtWith": ["Chrome DevTools Protocol", "87 technology signatures"],
+      "showcase": "Front end to back end to DevOps, mapped to the people we have."
+    },
+    {
+      "id": "speed", "name": "Speed Tester", "emoji": "⏱️", "status": "live", "category": "Audit",
+      "summary": "Measures page speed and Core Web Vitals on a mobile profile.",
+      "inputs": ["Website URL"], "outputs": ["Performance score", "LCP, CLS, TBT", "Slowest resources"],
+      "builtWith": ["Lighthouse 12", "Playwright timing fallback"],
+      "showcase": "Hard performance numbers, not opinions."
+    },
+    {
+      "id": "mobile", "name": "Mobile Tester", "emoji": "📱", "status": "live", "category": "Test",
+      "summary": "Reloads the page at phone size and checks layout, tap targets and text size.",
+      "inputs": ["Website URL"], "outputs": ["Mobile score", "Phone screenshot", "Layout issues"],
+      "builtWith": ["Playwright device emulation"],
+      "showcase": "Shows the prospect what their customers see on a phone."
+    },
+    {
+      "id": "a11y", "name": "Accessibility Checker", "emoji": "♿", "status": "live", "category": "Test",
+      "summary": "Checks the page against WCAG rules so it works for everyone.",
+      "inputs": ["Rendered page"], "outputs": ["Accessibility score", "Violations by severity"],
+      "builtWith": ["axe-core"],
+      "showcase": "Compliance and inclusion risks, found automatically."
+    },
+    {
+      "id": "ux", "name": "UX Reviewer", "emoji": "👁️", "status": "live", "category": "Audit",
+      "summary": "Looks at a screenshot like a designer would and scores it against a fixed rubric.",
+      "inputs": ["Screenshot"], "outputs": ["LLM UX score", "Design and clarity findings"],
+      "builtWith": ["Claude vision", "Rubric scoring", "Rule-based fallback"],
+      "showcase": "LLM scores with reasons, checked against a rubric."
+    },
+    {
+      "id": "geo", "name": "AI-Search Checker", "emoji": "🔎", "status": "live", "category": "Audit",
+      "summary": "Checks if AI assistants and AI search can find and quote the site.",
+      "inputs": ["Markup", "robots.txt", "llms.txt"], "outputs": ["AI-search score", "Structured data gaps"],
+      "builtWith": ["Claude", "Structured data checks"],
+      "showcase": "A new risk most prospects have not thought about yet."
+    },
+    {
+      "id": "redesign", "name": "Designer", "emoji": "🎨", "status": "live", "category": "Build",
+      "summary": "Takes the prospect's own colours, fonts and content and builds an improved homepage in HTML, then has it re-audited.",
+      "inputs": ["Brand kit", "Audit findings"], "outputs": ["Redesigned homepage (HTML)", "Before/after scores"],
+      "builtWith": ["Claude", "Template fallback", "Re-audit loop"],
+      "showcase": "The prospect sees their own site, improved, before they sign."
+    },
+    {
+      "id": "bench", "name": "Team Matcher", "emoji": "🧑‍💻", "status": "live", "category": "People",
+      "summary": "Matches the work to developers who are free now and estimates effort and price.",
+      "inputs": ["Needed skills", "Talent roster", "Org skills"], "outputs": ["Org match score", "Named team", "Effort and price estimate"],
+      "builtWith": ["Skill matching", "HR adapter (sample data today)"],
+      "showcase": "Turns time between projects into a staffed, priced proposal."
+    },
+    {
+      "id": "deck", "name": "Deck Writer", "emoji": "📊", "status": "live", "category": "Sell",
+      "summary": "Writes a personalised pitch deck and proposal from the real results.",
+      "inputs": ["Audit", "Redesign", "Team match"], "outputs": ["9-slide PPTX deck", "Markdown proposal"],
+      "builtWith": ["pptxgenjs"],
+      "showcase": "A send-ready pitch in minutes instead of days."
+    },
+    {
+      "id": "judge", "name": "LLM Scorer", "emoji": "⚖️", "status": "beta", "category": "Audit",
+      "summary": "Gives every page, design and journey step an LLM score with reasons, using the same rubric each time.",
+      "inputs": ["Screenshots", "Findings", "Journey steps"], "outputs": ["LLM scores", "Reasons", "Confidence"],
+      "builtWith": ["Claude as judge", "Fixed rubrics"],
+      "showcase": "Comparable scores across hundreds of sites."
+    },
+    {
+      "id": "journey", "name": "Journey Runner", "emoji": "🚶", "status": "planned", "category": "Test",
+      "summary": "Walks key user journeys like a real customer: search, product page, add to cart, checkout, sign-up.",
+      "inputs": ["Website URL", "Journey goals"], "outputs": ["Step-by-step video and screenshots", "Broken steps", "Score per step"],
+      "builtWith": ["Agent-driven browser", "Playwright"],
+      "showcase": "Shows where real customers get stuck."
+    },
+    {
+      "id": "testgen", "name": "Test Writer", "emoji": "🧪", "status": "planned", "category": "Test",
+      "summary": "Turns each journey into automated tests the client can keep running.",
+      "inputs": ["Recorded journeys"], "outputs": ["Playwright test suite", "Pass/fail report"],
+      "builtWith": ["Playwright", "Claude"],
+      "showcase": "Automated tests handed over on day one."
+    },
+    {
+      "id": "locale", "name": "Locale Tester", "emoji": "🌍", "status": "planned", "category": "Test",
+      "summary": "Runs the site across locales and languages: translations, currency, dates, right-to-left layout and regional pages.",
+      "inputs": ["Website URL", "Locale list (en-IN, hi-IN, en-US, de-DE, ja-JP, ar-AE)"], "outputs": ["Locale score grid", "Missing translations", "Layout breaks"],
+      "builtWith": ["Playwright locale and geo emulation"],
+      "showcase": "Global brands see every market in one view."
+    },
+    {
+      "id": "backend", "name": "Backend & API Inspector", "emoji": "🗄️", "status": "planned", "category": "Audit",
+      "summary": "Checks API speed, errors, caching and security headers behind the page.",
+      "inputs": ["Network log", "Headers"], "outputs": ["Slow and failing APIs", "Caching and security gaps"],
+      "builtWith": ["Chrome DevTools Protocol"],
+      "showcase": "Back-end insight without access to their code."
+    },
+    {
+      "id": "devops", "name": "DevOps & Cloud Inspector", "emoji": "☁️", "status": "planned", "category": "Audit",
+      "summary": "Reviews CDN, hosting, compression, HTTP versions, TLS and cache rules.",
+      "inputs": ["Headers", "Network log"], "outputs": ["DevOps findings", "Quick infra wins"],
+      "builtWith": ["Header and network analysis"],
+      "showcase": "DevOps and cloud improvements our people can deliver."
+    },
+    {
+      "id": "htmlfix", "name": "HTML Fixer", "emoji": "🛠️", "status": "planned", "category": "Build",
+      "summary": "Writes ready-to-use HTML and CSS fixes for the top findings: alt text, meta tags, structured data, contrast.",
+      "inputs": ["Findings", "Page markup"], "outputs": ["HTML improvements", "Code snippets per issue"],
+      "builtWith": ["Claude"],
+      "showcase": "Proof we can fix it, not just find it."
+    },
+    {
+      "id": "rag", "name": "Chat Builder", "emoji": "💬", "status": "planned", "category": "Build",
+      "summary": "Builds a simple RAG chat assistant from the prospect's own pages, as a live demo.",
+      "inputs": ["Site pages"], "outputs": ["Demo chat assistant", "Answers with source links"],
+      "builtWith": ["Retrieval-augmented generation", "Claude"],
+      "showcase": "An AI feature the prospect can try in the first meeting."
+    },
+    {
+      "id": "meeting", "name": "Meeting Assistant", "emoji": "🎤", "status": "planned", "category": "Sell",
+      "summary": "Gives a two-minute brief on a CTO's site during a live meeting.",
+      "inputs": ["Website URL"], "outputs": ["One-page brief", "Top three talking points"],
+      "builtWith": ["Fast audit profile", "Replay"],
+      "showcase": "Answers in the meeting, not a week later."
+    },
+    {
+      "id": "outreach", "name": "Outreach Writer", "emoji": "✉️", "status": "planned", "category": "Sell",
+      "summary": "Writes a short, personal note to the CTO based on the real findings.",
+      "inputs": ["Audit", "Redesign"], "outputs": ["Personalised email draft (human approves before sending)"],
+      "builtWith": ["Claude"],
+      "showcase": "Reach many CTOs quickly, each with a message about their own site."
+    },
+    {
+      "id": "watch", "name": "Night Watch", "emoji": "🌙", "status": "planned", "category": "Always on",
+      "summary": "Runs in the background 24x7, re-checks a watchlist of prospects and flags when a site gets slower or changes.",
+      "inputs": ["Watchlist of prospect URLs"], "outputs": ["Morning digest", "Change and drop alerts"],
+      "builtWith": ["Scheduled runs", "Saved traces"],
+      "showcase": "Hundreds of analyses a week while the team sleeps."
+    },
+    {
+      "id": "reviewer", "name": "Review Assigner", "emoji": "🙋", "status": "planned", "category": "People",
+      "summary": "Assigns each finished run to an available expert with the right skills to review, fine-tune and sign off.",
+      "inputs": ["Finished run", "Team skills"], "outputs": ["Review task", "Notification", "Reviewer credit"],
+      "builtWith": ["Skill matching", "Review window"],
+      "showcase": "Engages our people and adds expert judgement to every pitch."
+    }
+  ]
+}

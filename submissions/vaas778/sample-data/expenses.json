@@ -1,0 +1,48 @@
+{
+  "members": [
+    { "id": "aman", "name": "Aman" },
+    { "id": "rahul", "name": "Rahul" },
+    { "id": "priya", "name": "Priya" },
+    { "id": "neha", "name": "Neha" }
+  ],
+  "expenses": [
+    {
+      "id": "exp-1",
+      "description": "Dinner at Pind Balluchi",
+      "amount": 2400,
+      "paidBy": "aman",
+      "splitType": "equal",
+      "participants": ["aman", "rahul", "priya", "neha"],
+      "date": "2026-10-25"
+    },
+    {
+      "id": "exp-2",
+      "description": "Movie tickets",
+      "amount": 1200,
+      "paidBy": "rahul",
+      "splitType": "equal",
+      "participants": ["rahul", "priya"],
+      "date": "2026-10-26"
+    },
+    {
+      "id": "exp-3",
+      "description": "Groceries",
+      "amount": 850,
+      "paidBy": "priya",
+      "splitType": "exact",
+      "participants": ["aman", "priya", "neha"],
+      "exactAmounts": { "aman": 300, "priya": 250, "neha": 300 },
+      "date": "2026-10-27"
+    },
+    {
+      "id": "exp-4",
+      "description": "Cab fare",
+      "amount": 500,
+      "paidBy": "neha",
+      "splitType": "percentage",
+      "participants": ["aman", "rahul", "neha"],
+      "percentages": { "aman": 40, "rahul": 40, "neha": 20 },
+      "date": "2026-10-27"
+    }
+  ]
+}

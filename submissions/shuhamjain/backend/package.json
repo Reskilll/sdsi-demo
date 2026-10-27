@@ -2,12 +2,12 @@
   "name": "sdsi-url-shortener",
   "version": "1.0.0",
   "description": "PS3: URL Shortener with Analytics (Fastify + SQLite)",
-  "main": "src/server.js",
+  "main": "src/index.js",
   "private": true,
   "type": "commonjs",
   "scripts": {
-    "start": "node src/server.js",
-    "dev": "node --watch src/server.js",
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js",
     "test": "node --test test/*.test.js"
   },
   "engines": {

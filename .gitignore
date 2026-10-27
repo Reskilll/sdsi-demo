@@ -1,0 +1,14 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+# SQLite database (generated at runtime)
+*.db
+*.db-wal
+*.db-shm
+
+# Pytest
+.pytest_cache/

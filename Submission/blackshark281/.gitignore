@@ -1,0 +1,19 @@
+# Maven
+target/
+!.mvn/wrapper/maven-wrapper.jar
+!.mvn/wrapper/maven-wrapper.properties
+
+# IDE
+.idea/
+*.iml
+.vscode/
+
+# Database files
+data/
+
+# Maven local repository (contains downloaded Maven distribution for bootstrap)
+.m2/
+
+# OS
+.DS_Store
+Thumbs.db

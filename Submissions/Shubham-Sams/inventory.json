@@ -1,0 +1,44 @@
+{
+  "products": [
+    {
+      "sku": "SHOE-RED-42",
+      "name": "Red Running Shoes",
+      "description": "Limited edition red running shoes, size 42",
+      "price": 2999.00,
+      "stock": 100,
+      "max_per_user": 2
+    },
+    {
+      "sku": "SHOE-BLK-40",
+      "name": "Black Running Shoes",
+      "description": "Classic black running shoes, size 40",
+      "price": 2499.00,
+      "stock": 50,
+      "max_per_user": 1
+    },
+    {
+      "sku": "WATCH-PRO-ONE",
+      "name": "Pro Smartwatch",
+      "description": "Premium smartwatch with health tracking",
+      "price": 12999.00,
+      "stock": 25,
+      "max_per_user": 1
+    },
+    {
+      "sku": "BAG-TRAV-01",
+      "name": "Travel Backpack",
+      "description": "Water-resistant travel backpack, 40L",
+      "price": 1999.00,
+      "stock": 200,
+      "max_per_user": 3
+    },
+    {
+      "sku": "PHONE-CASE-X",
+      "name": "Phone Case X",
+      "description": "Shockproof phone case for latest model",
+      "price": 499.00,
+      "stock": 500,
+      "max_per_user": 5
+    }
+  ]
+}

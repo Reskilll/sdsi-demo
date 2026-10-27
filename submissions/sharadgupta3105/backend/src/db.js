@@ -1,4 +1,5 @@
-// SQLite storage layer. Embedded, zero-config, and safe by default:
+// SQLite storage layer. Zero-dependency: uses Node's built-in `node:sqlite`
+// (Node >= 22.5). Embedded, zero-config, and safe by default:
 //   * WAL journal mode for safe concurrent readers
 //   * foreign keys ON (cascading click cleanup)
 //   * a partial unique index enforces idempotency for non-custom links
@@ -6,12 +7,12 @@
 // All statements are prepared (parameterized), so user input is never
 // interpolated into SQL.
 
-import Database from 'better-sqlite3';
+import { DatabaseSync } from 'node:sqlite';
 
 export function createDb(path = ':memory:') {
-  const db = new Database(path);
-  db.pragma('journal_mode = WAL');
-  db.pragma('foreign_keys = ON');
+  const db = new DatabaseSync(path);
+  db.exec('PRAGMA journal_mode = WAL');
+  db.exec('PRAGMA foreign_keys = ON');
 
   db.exec(`
     CREATE TABLE IF NOT EXISTS links (

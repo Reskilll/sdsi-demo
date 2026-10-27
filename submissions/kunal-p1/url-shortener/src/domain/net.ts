@@ -114,20 +114,20 @@ function isPrivateIPv6(value: string): boolean {
   const allZero = groups.every((g) => g === 0);
   if (allZero) return true; // :: unspecified
 
-  const firstSixZero = groups.slice(0, 6).every((g) => g === 0);
-  if (firstSixZero && groups[7] === 1) return true; // ::1 loopback
+  const firstFiveZero = groups.slice(0, 5).every((g) => g === 0);
+  if (firstFiveZero && groups[5] === 0 && groups[6] === 0 && groups[7] === 1) return true; // ::1 loopback
 
   const g0 = groups[0] ?? 0;
-  const g1 = groups[1] ?? 0;
 
-  // IPv4-mapped ::ffff:0:0/96 -> classify the embedded IPv4 address
-  if (firstSixZero && g0 === 0 && (g1 === 0xffff || g1 === 0)) {
-    const embedded = [groups[6] ?? 0, groups[7] ?? 0];
-    const hi = embedded[0] ?? 0;
-    const lo = embedded[1] ?? 0;
+  // IPv4-mapped (::ffff:a.b.c.d) and IPv4-compatible (::a.b.c.d) addresses:
+  // classify the embedded IPv4 address, which is what actually gets connected to.
+  if (firstFiveZero && (groups[5] === 0xffff || groups[5] === 0)) {
+    const hi = groups[6] ?? 0;
+    const lo = groups[7] ?? 0;
     if (hi === 0 && lo === 0) return true; // ::ffff:0.0.0.0
+    if (hi === 1 && lo === 0) return true; // ::1 already covered, kept explicit
     const dotted = `${hi >> 8}.${hi & 0xff}.${lo >> 8}.${lo & 0xff}`;
-    if (hi !== 0 || lo !== 0) return isPrivateIPv4(dotted);
+    return isPrivateIPv4(dotted);
   }
 
   if ((g0 & 0xfe00) === 0xfc00) return true; // fc00::/7 unique local

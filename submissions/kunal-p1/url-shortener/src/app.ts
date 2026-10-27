@@ -142,9 +142,9 @@ export function buildApp(options: BuildAppOptions): BuiltApp {
   app.use(limiters.global);
 
   app.use(createHealthRouter(service, clock.now()));
-  app.use(createShortenRouter(service, requireApiKey));
+  app.use(createShortenRouter(service, requireApiKey, limiters));
   app.use(createStatsRouter(service, statsAuth));
-  app.use(createLinksRouter(service, requireApiKey));
+  app.use(createLinksRouter(service, requireApiKey, limiters));
 
   if (options.publicDir && existsSync(options.publicDir)) {
     app.use(

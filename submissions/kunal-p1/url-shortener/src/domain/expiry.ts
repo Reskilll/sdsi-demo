@@ -17,6 +17,26 @@ const ISO_WITH_ZONE =
 const MS_PER_DAY = 86_400_000;
 
 /**
+ * True when `YYYY-MM-DD` names a real calendar day.
+ *
+ * `Date.parse` silently rolls invalid days forward (`2026-02-30` becomes
+ * 2 March), which would accept a typo as a valid expiry, so the calendar part is
+ * validated explicitly before parsing.
+ */
+function isValidCalendarDate(value: string): boolean {
+  const match = /^(\d{4})-(\d{2})-(\d{2})/.exec(value);
+  if (!match) return false;
+  const year = Number(match[1]);
+  const month = Number(match[2]);
+  const day = Number(match[3]);
+  if (month < 1 || month > 12) return false;
+  if (day < 1 || day > 31) return false;
+  // Day 0 of the next month is the last day of this month (UTC).
+  const daysInMonth = new Date(Date.UTC(year, month, 0)).getUTCDate();
+  return day <= daysInMonth;
+}
+
+/**
  * @param raw   client supplied ISO-8601 timestamp
  * @param now   current epoch milliseconds (injected clock for testability)
  * @param maxDays maximum allowed horizon in days
@@ -29,7 +49,7 @@ export function parseExpiresAt(raw: unknown, now: number, maxDays: number): numb
       field: 'expiresAt',
     });
   }
-  if (!ISO_WITH_ZONE.test(raw)) {
+  if (!ISO_WITH_ZONE.test(raw) || !isValidCalendarDate(raw)) {
     throw new AppError(
       'INVALID_EXPIRY',
       '`expiresAt` must be ISO-8601 with an explicit timezone, e.g. 2026-12-31T23:59:59Z',

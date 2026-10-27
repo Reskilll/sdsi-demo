@@ -44,16 +44,16 @@ describe('LinkService', () => {
 
   it('rejects reusing an alias owned by an expired link', () => {
     ctx.service.createLink({
-      url: 'https://example.com/one',
+      url: 'https://example.com/same-target',
       alias: 'reused',
       expiresAt: '2026-01-20T00:00:00Z',
     });
 
     ctx.clock.set(Date.parse('2026-01-21T00:00:00Z'));
 
-    expect(() => ctx.service.createLink({ url: 'https://example.com/two', alias: 'reused' })).toThrow(
-      /expired link/,
-    );
+    expect(() =>
+      ctx.service.createLink({ url: 'https://example.com/same-target', alias: 'reused' }),
+    ).toThrow(/expired link/);
   });
 
   it('records clicks and exposes totals', () => {

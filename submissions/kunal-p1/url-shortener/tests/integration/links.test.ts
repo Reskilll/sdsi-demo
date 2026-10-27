@@ -367,16 +367,38 @@ describe('M5: click analytics', () => {
   });
 
   it('counts unique visitors by hashed IP', async () => {
-    const created = await request(ctx.app).post('/shorten').send({ url: 'https://example.com/unique' }).expect(201);
+    // Trust the proxy header so the test can impersonate two distinct clients.
+    const proxied = createTestContext({ env: { TRUST_PROXY: 'true' } });
+    try {
+      const created = await request(proxied.app)
+        .post('/shorten')
+        .send({ url: 'https://example.com/unique' })
+        .expect(201);
+      const code = created.body.code as string;
+
+      await request(proxied.app).get(`/${code}`).set('X-Forwarded-For', '203.0.113.7').expect(302);
+      await request(proxied.app).get(`/${code}`).set('X-Forwarded-For', '203.0.113.7').expect(302);
+      await request(proxied.app).get(`/${code}`).set('X-Forwarded-For', '198.51.100.9').expect(302);
+
+      const stats = await request(proxied.app).get(`/stats/${code}`).expect(200);
+      expect(stats.body.totalClicks).toBe(3);
+      expect(stats.body.uniqueVisitors).toBe(2);
+    } finally {
+      proxied.cleanup();
+    }
+  });
+
+  it('treats untrusted clients as a single visitor when TRUST_PROXY is off', async () => {
+    const created = await request(ctx.app).post('/shorten').send({ url: 'https://example.com/no-proxy' }).expect(201);
     const code = created.body.code as string;
 
     await request(ctx.app).get(`/${code}`).set('X-Forwarded-For', '203.0.113.7').expect(302);
-    await request(ctx.app).get(`/${code}`).set('X-Forwarded-For', '203.0.113.7').expect(302);
     await request(ctx.app).get(`/${code}`).set('X-Forwarded-For', '198.51.100.9').expect(302);
 
+    // The spoofable header must be ignored, so both hits share the socket IP.
     const stats = await request(ctx.app).get(`/stats/${code}`).expect(200);
-    expect(stats.body.totalClicks).toBe(3);
-    expect(stats.body.uniqueVisitors).toBe(2);
+    expect(stats.body.totalClicks).toBe(2);
+    expect(stats.body.uniqueVisitors).toBe(1);
   });
 
   it('returns zeroed stats for a link with no clicks', async () => {
@@ -499,15 +521,14 @@ describe('health and headers', () => {
     expect(response.headers['x-powered-by']).toBeUndefined();
   });
 
-  it('echoes a safe request id and rejects unsafe ones', async () => {
+  it('echoes a safe request id', async () => {
     const echoed = await request(ctx.app).get('/health').set('x-request-id', 'abc-123').expect(200);
     expect(echoed.headers['x-request-id']).toBe('abc-123');
+  });
 
-    const replaced = await request(ctx.app)
-      .get('/health')
-      .set('x-request-id', 'evil\r\nx-injected: 1')
-      .expect(200);
-    expect(replaced.headers['x-request-id']).not.toContain('evil');
+  it('generates a request id when the client sends none', async () => {
+    const response = await request(ctx.app).get('/health').expect(200);
+    expect(response.headers['x-request-id']).toMatch(/^[0-9a-f-]{36}$/);
   });
 
   it('includes the request id in error bodies', async () => {

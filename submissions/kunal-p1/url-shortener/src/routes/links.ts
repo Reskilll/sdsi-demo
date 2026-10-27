@@ -3,11 +3,16 @@
 import { Router } from 'express';
 
 import { clampInteger } from '../services/linkService.js';
+import type { RateLimiters } from '../middleware/rateLimit.js';
 import type { LinkService } from '../services/linkService.js';
 import { firstParam } from './types.js';
 import type { AuthMiddleware } from './types.js';
 
-export function createLinksRouter(service: LinkService, requireApiKey: AuthMiddleware): Router {
+export function createLinksRouter(
+  service: LinkService,
+  requireApiKey: AuthMiddleware,
+  limiters: RateLimiters,
+): Router {
   const router = Router();
 
   router.get('/links', requireApiKey, (req, res) => {
@@ -28,7 +33,7 @@ export function createLinksRouter(service: LinkService, requireApiKey: AuthMiddl
     });
   });
 
-  router.delete('/:code', requireApiKey, (req, res) => {
+  router.delete('/:code', limiters.write, requireApiKey, (req, res) => {
     const code = firstParam(req.params.code);
     service.deleteLink(code);
     res.status(200).json({ code, deleted: true });

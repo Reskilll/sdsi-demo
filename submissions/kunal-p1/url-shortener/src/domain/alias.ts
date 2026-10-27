@@ -50,6 +50,11 @@ export const RESERVED_ALIASES: ReadonlySet<string> = new Set([
 
 /**
  * Validate a custom alias and return it unchanged.
+ *
+ * Order matters: length, then reserved names, then the character set. Reserved
+ * names are checked before the pattern so `favicon.ico` (reserved, but contains a
+ * dot) reports the more specific `ALIAS_RESERVED` rather than `INVALID_ALIAS`.
+ *
  * @throws {AppError} INVALID_ALIAS / ALIAS_RESERVED (both 400).
  */
 export function validateAlias(alias: unknown): string {
@@ -63,18 +68,18 @@ export function validateAlias(alias: unknown): string {
       { field: 'alias', minLength: MIN_ALIAS_LENGTH, maxLength: MAX_ALIAS_LENGTH },
     );
   }
+  if (RESERVED_ALIASES.has(alias.toLowerCase())) {
+    throw new AppError('ALIAS_RESERVED', 'Alias is reserved by the application', {
+      field: 'alias',
+      alias,
+    });
+  }
   if (!ALIAS_PATTERN.test(alias)) {
     throw new AppError(
       'INVALID_ALIAS',
       'Alias may only contain letters, digits, underscores and hyphens',
       { field: 'alias' },
     );
-  }
-  if (RESERVED_ALIASES.has(alias.toLowerCase())) {
-    throw new AppError('ALIAS_RESERVED', 'Alias is reserved by the application', {
-      field: 'alias',
-      alias,
-    });
   }
   return alias;
 }

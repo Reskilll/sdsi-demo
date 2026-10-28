@@ -1,0 +1,48 @@
+
+> frontend@0.0.0 dev
+> vite
+
+
+  [32m[1mVITE[22m v8.3.5[39m  [2mready in [0m[1m384[22m[2m[0m ms[22m
+
+  [32m➜[39m  [1mLocal[22m:   [36mhttp://localhost:[1m5173[22m/[39m
+[2m  [32m➜[39m  [1mNetwork[22m[2m: use [22m[1m--host[22m[2m to expose[22m
+[2m10:52:52 am[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [optimizer] bundling dependencies...
+[2m11:17:10 am[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/context/AuthContext.tsx, /src/pages/DeveloperPage.tsx, /src/pages/ModelsPage.tsx, /src/pages/AdminOverviewPage.tsx, /src/pages/UsersPage.tsx, /src/pages/AdminProjectsPage.tsx, /src/pages/ProjectPage.tsx, /src/pages/AuditPage.tsx[22m
+[2m11:17:19 am[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/context/AuthContext.tsx, /src/pages/DeveloperPage.tsx, /src/pages/ModelsPage.tsx, /src/pages/AdminOverviewPage.tsx, /src/pages/UsersPage.tsx, /src/pages/AdminProjectsPage.tsx, /src/pages/ProjectPage.tsx, /src/pages/AuditPage.tsx[22m
+[2m11:17:39 am[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/context/AuthContext.tsx, /src/pages/DeveloperPage.tsx, /src/pages/ModelsPage.tsx, /src/pages/AdminOverviewPage.tsx, /src/pages/UsersPage.tsx, /src/pages/AdminProjectsPage.tsx, /src/pages/ProjectPage.tsx, /src/pages/AuditPage.tsx[22m
+[2m11:17:49 am[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/context/AuthContext.tsx, /src/pages/DeveloperPage.tsx, /src/pages/ModelsPage.tsx, /src/pages/AdminOverviewPage.tsx, /src/pages/UsersPage.tsx, /src/pages/AdminProjectsPage.tsx, /src/pages/ProjectPage.tsx, /src/pages/AuditPage.tsx[22m
+[2m11:18:03 am[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/context/AuthContext.tsx, /src/pages/DeveloperPage.tsx, /src/pages/ModelsPage.tsx, /src/pages/AdminOverviewPage.tsx, /src/pages/UsersPage.tsx, /src/pages/AdminProjectsPage.tsx, /src/pages/ProjectPage.tsx, /src/pages/AuditPage.tsx[22m
+[2m11:18:14 am[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/context/AuthContext.tsx, /src/pages/DeveloperPage.tsx, /src/pages/ModelsPage.tsx, /src/pages/AdminOverviewPage.tsx, /src/pages/UsersPage.tsx, /src/pages/AdminProjectsPage.tsx, /src/pages/ProjectPage.tsx, /src/pages/AuditPage.tsx[22m
+[2m11:18:18 am[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/context/AuthContext.tsx, /src/pages/DeveloperPage.tsx, /src/pages/ModelsPage.tsx, /src/pages/AdminOverviewPage.tsx, /src/pages/UsersPage.tsx, /src/pages/AdminProjectsPage.tsx, /src/pages/ProjectPage.tsx, /src/pages/AuditPage.tsx[22m
+[2m11:18:22 am[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/DeveloperPage.tsx, /src/pages/ModelsPage.tsx, /src/pages/AdminOverviewPage.tsx, /src/pages/UsersPage.tsx, /src/pages/AdminProjectsPage.tsx, /src/pages/ProjectPage.tsx, /src/pages/AuditPage.tsx[22m
+[2m11:18:55 am[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/styles/app.css[22m
+[2m11:19:21 am[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/AdminProjectsPage.tsx[22m
+[2m11:19:37 am[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/ProjectPage.tsx[22m
+[2m11:19:58 am[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/AdminProjectsPage.tsx[22m
+[2m11:31:21 am[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/styles/app.css[22m
+[2m11:31:29 am[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/AdminOverviewPage.tsx[22m
+[2m11:31:40 am[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/AdminOverviewPage.tsx[22m
+[2m11:32:00 am[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/AdminProjectsPage.tsx[22m
+[2m11:32:05 am[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/AdminProjectsPage.tsx[22m
+[2m11:32:10 am[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/components/TopBar.tsx[22m
+[2m11:32:25 am[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/ProjectPage.tsx[22m
+[2m11:32:31 am[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/ProjectPage.tsx[22m
+[2m11:32:37 am[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/DeveloperPage.tsx[22m
+[2m11:34:36 am[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/components/Tooltip.tsx[22m
+[2m11:34:51 am[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/styles/app.css[22m
+[2m11:34:59 am[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/styles/app.css[22m
+[2m11:35:18 am[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/AdminOverviewPage.tsx[22m
+[2m11:35:22 am[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/AdminProjectsPage.tsx[22m
+[2m11:35:29 am[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/ProjectPage.tsx[22m
+[2m11:38:45 am[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/context/AuthContext.tsx, /src/pages/DeveloperPage.tsx, /src/pages/ModelsPage.tsx, /src/pages/AdminOverviewPage.tsx, /src/pages/UsersPage.tsx, /src/pages/AdminProjectsPage.tsx, /src/pages/ProjectPage.tsx, /src/pages/AuditPage.tsx[22m
+[2m11:39:04 am[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/context/AuthContext.tsx, /src/pages/DeveloperPage.tsx, /src/pages/ModelsPage.tsx, /src/pages/AdminOverviewPage.tsx, /src/pages/UsersPage.tsx, /src/pages/AdminProjectsPage.tsx, /src/pages/ProjectPage.tsx, /src/pages/AuditPage.tsx[22m
+[2m11:39:10 am[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/context/AuthContext.tsx, /src/pages/DeveloperPage.tsx, /src/pages/ModelsPage.tsx, /src/pages/AdminOverviewPage.tsx, /src/pages/UsersPage.tsx, /src/pages/AdminProjectsPage.tsx, /src/pages/ProjectPage.tsx, /src/pages/AuditPage.tsx[22m
+[2m11:41:10 am[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/styles/app.css[22m
+[2m11:41:29 am[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/AdminOverviewPage.tsx[22m
+[2m11:41:44 am[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/AdminProjectsPage.tsx[22m
+[2m11:44:40 am[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/DeveloperPage.tsx, /src/pages/ModelsPage.tsx, /src/pages/AdminOverviewPage.tsx, /src/pages/UsersPage.tsx, /src/pages/AdminProjectsPage.tsx, /src/pages/ProjectPage.tsx, /src/pages/AuditPage.tsx, /src/components/KpiTile.tsx, /src/components/charts.tsx[22m
+[2m11:45:14 am[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/styles/app.css[22m
+[2m11:45:52 am[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/AdminOverviewPage.tsx[22m
+[2m11:46:10 am[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/AdminOverviewPage.tsx[22m
+[2m12:04:18 pm[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/AdminOverviewPage.tsx[22m

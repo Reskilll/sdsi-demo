@@ -1,0 +1,90 @@
+spring:
+  application:
+    name: mesterx-dashboard
+  profiles:
+    default: dev
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: none
+    properties:
+      hibernate:
+        jdbc.time_zone: UTC
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+  jackson:
+    default-property-inclusion: non_null
+    serialization:
+      write-dates-as-timestamps: false
+  mvc:
+    problemdetails:
+      enabled: false
+
+server:
+  port: 8080
+  error:
+    include-message: always
+  servlet:
+    session:
+      timeout: 8h
+      cookie:
+        http-only: true
+        same-site: lax
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+mesterx:
+  # Routing used when neither project nor user has a config
+  seed:
+    enabled: false
+    days: 90
+  jira:
+    enabled: false
+    base-url: ${JIRA_BASE_URL:}
+    email: ${JIRA_EMAIL:}
+    api-token: ${JIRA_API_TOKEN:}
+    sync-cron: "0 */15 * * * *"
+  plugin:
+    config-poll-seconds: 60
+
+---
+spring:
+  config:
+    activate:
+      on-profile: dev
+  datasource:
+    url: jdbc:h2:file:./data/mesterx;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DEFAULT_NULL_ORDERING=HIGH;AUTO_SERVER=TRUE
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: ""
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+mesterx:
+  seed:
+    enabled: true
+logging:
+  level:
+    com.mesterx: DEBUG
+
+---
+spring:
+  config:
+    activate:
+      on-profile: prod
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/mesterx}
+    username: ${DB_USER:mesterx}
+    password: ${DB_PASSWORD:mesterx}
+    driver-class-name: org.postgresql.Driver
+server:
+  servlet:
+    session:
+      cookie:
+        secure: true

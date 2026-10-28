@@ -1,0 +1,130 @@
+{
+  "name": "masterx",
+  "displayName": "MasterX",
+  "description": "Asymmetric Master-Worker LLM orchestration: a cheap OpenRouter worker indexes and drafts code, a deep-thinking Claude Master plans and reviews — saving tokens on high-tier models.",
+  "version": "0.1.0",
+  "publisher": "masterx",
+  "license": "MIT",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Other",
+    "Machine Learning"
+  ],
+  "keywords": [
+    "llm",
+    "claude",
+    "openrouter",
+    "agent",
+    "orchestration",
+    "master-worker"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "viewsContainers": {
+      "panel": [
+        {
+          "id": "masterx-sidebar",
+          "title": "MasterX",
+          "icon": "media/masterx.svg"
+        }
+      ]
+    },
+    "views": {
+      "masterx-sidebar": [
+        {
+          "type": "webview",
+          "id": "masterx.chatView",
+          "name": "MasterX",
+          "icon": "media/masterx.svg"
+        }
+      ]
+    },
+    "commands": [
+      {
+        "command": "masterx.execute",
+        "title": "MasterX: Execute Goal",
+        "icon": "$(play)"
+      },
+      {
+        "command": "masterx.focus",
+        "title": "MasterX: Focus Panel",
+        "icon": "$(comment-discussion)"
+      },
+      {
+        "command": "masterx.reset",
+        "title": "MasterX: Reset Panel",
+        "icon": "$(clear-all)"
+      },
+      {
+        "command": "masterx.showConfig",
+        "title": "MasterX: Show Resolved Configuration",
+        "icon": "$(settings-gear)"
+      },
+      {
+        "command": "masterx.selectMasterModel",
+        "title": "MasterX: Select Master Model",
+        "icon": "$(list-selection)",
+        "category": "MasterX"
+      },
+      {
+        "command": "masterx.selectWorkerModel",
+        "title": "MasterX: Select Worker Model",
+        "icon": "$(list-selection)",
+        "category": "MasterX"
+      }
+    ],
+    "configuration": {
+      "title": "MasterX",
+      "properties": {
+        "masterx.openAiApiKey": {
+          "type": "string",
+          "default": "",
+          "markdownDescription": "API key for the model catalog (`masterx.modelListUrl`) and the bearer token written into the run-scoped `settings.json`. Falls back to `OPENAI_API_KEY`, then `ANTHROPIC_AUTH_TOKEN` from `~/.claude/settings.json` or the environment.",
+          "scope": "window"
+        },
+        "masterx.modelListUrl": {
+          "type": "string",
+          "default": "https://creditclaim.reskilll.com/llm/v1/models",
+          "markdownDescription": "OpenAI-compatible endpoint that returns the list of selectable models (`GET`, `Authorization: Bearer <key>`). Point this at your gateway's `/v1/models` to list its models.",
+          "scope": "window"
+        },
+        "masterx.claudeCliPath": {
+          "type": "string",
+          "default": "",
+          "markdownDescription": "Absolute path to the `claude` CLI executable. When empty, MasterX looks for `claude` on `PATH`, then `CLAUDE_CLI_PATH`.",
+          "scope": "window"
+        },
+        "masterx.masterModel": {
+          "type": "string",
+          "default": "",
+          "markdownDescription": "Model id or alias for the **Master** (planning + synthesis). Choose it with **MasterX: Select Master Model** or by clicking the Master row in the panel. When empty, resolves from `~/.claude/settings.json` → `model`, then `ANTHROPIC_MODEL`.",
+          "scope": "window"
+        },
+        "masterx.workerModel": {
+          "type": "string",
+          "default": "",
+          "markdownDescription": "Model id or alias for the **Worker** (indexing + code drafting). Choose it with **MasterX: Select Worker Model** or by clicking the Worker row in the panel. When empty, resolves from `CLAUDE_CODE_SUBAGENT_MODEL`, then `ANTHROPIC_DEFAULT_HAIKU_MODEL`. Use a lighter model than the Master — that asymmetry is the point.",
+          "scope": "window"
+        },
+        "masterx.useClaudeCliConfig": {
+          "type": "boolean",
+          "default": true,
+          "markdownDescription": "Read model ids and environment defaults from `~/.claude/settings.json`, the same file the Claude CLI uses. Authentication is always handled by the CLI itself.",
+          "scope": "window"
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./"
+  },
+  "devDependencies": {
+    "@types/node": "^20.17.0",
+    "@types/vscode": "^1.85.0",
+    "typescript": "^5.6.3"
+  }
+}

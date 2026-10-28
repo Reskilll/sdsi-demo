@@ -5,7 +5,7 @@
 **Use case:** Cybersecurity (SOC-style triage of AI traffic) — with an external-business data-leak extension
 **Source (open):** https://github.com/TowardInfinity/aegis-proxy
 
-The full product is exported under [`aegis-proxy/`](./aegis-proxy/) in this folder; it is a
+The full product is exported directly into this folder; it is a
 single Go binary plus a React SecOps console. Nothing secret is included — real keys live in
 an untracked `config.yaml` / `.env`; only `.env.example` and `config.example.yaml` ship.
 
@@ -34,7 +34,7 @@ offensive hacking** (category *malicious cyber*). Defensive work — fixing your
 explaining an attack in general, writing tests or security tooling — is allowed, not blind.
 
 ## Run it
-See [`aegis-proxy/README.md`](./aegis-proxy/README.md). In short: copy `config.example.yaml` →
+See [`README.md`](./README.md). In short: copy `config.example.yaml` →
 `config.yaml` and fill in a provider key, `go build -o guardrail ./cmd/guardrail`, then
 `guardrail serve -config config.yaml`. Point `ANTHROPIC_BASE_URL` at the proxy. The SecOps console
 is in `web/portal` (`pnpm dev`).

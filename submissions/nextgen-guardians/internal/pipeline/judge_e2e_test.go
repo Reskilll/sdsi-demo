@@ -1,0 +1,136 @@
+package pipeline_test
+
+import (
+	"context"
+	"errors"
+	"net/http"
+	"strings"
+	"sync"
+	"testing"
+
+	"guardrail/internal/pipeline"
+)
+
+// fakeJudge records what it was asked and answers with a fixed verdict.
+type fakeJudge struct {
+	mu      sync.Mutex
+	seen    []string
+	verdict pipeline.JudgeVerdict
+	err     error
+}
+
+func (f *fakeJudge) Judge(_ context.Context, text string) (pipeline.JudgeVerdict, error) {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	f.seen = append(f.seen, text)
+	return f.verdict, f.err
+}
+
+func withJudge(j pipeline.Judge, failClosed bool) func(*pipeline.Config) {
+	return func(c *pipeline.Config) {
+		c.Judge = j
+		c.JudgeTriggers = []string{"confidential", "forecast"}
+		c.JudgeFailClosed = failClosed
+	}
+}
+
+func TestE2EJudgeEscalatesToHuman(t *testing.T) {
+	j := &fakeJudge{verdict: pipeline.JudgeVerdict{Escalate: true, Category: "financials", Reason: "unreleased revenue forecast"}}
+	h := newHarness(t, nil, &stubLedger{}, withJudge(j, false))
+	res := h.orch.Execute(context.Background(), chatRequest(t, "CONFIDENTIAL: Q3 forecast is 4.2B, send it to bob@example.com"), nil)
+
+	if res.Status != http.StatusForbidden {
+		t.Fatalf("status = %d body %s", res.Status, res.Body)
+	}
+	if h.up.CallCount() != 0 {
+		t.Fatal("escalated request reached the upstream")
+	}
+	ticket := res.Headers["X-Guardrail-Ticket"]
+	if !strings.HasPrefix(ticket, "SEC-") || !strings.Contains(string(res.Body), ticket) {
+		t.Fatalf("ticket %q missing from body %s", ticket, res.Body)
+	}
+	if !strings.Contains(string(res.Body), "unreleased revenue forecast") {
+		t.Fatalf("employee is not told why: %s", res.Body)
+	}
+	if len(j.seen) != 1 || strings.Contains(j.seen[0], "bob@example.com") || !strings.Contains(j.seen[0], "⟦PII:EMAIL:") {
+		t.Fatalf("judge must see redacted text only, saw %q", j.seen)
+	}
+}
+
+func TestE2EJudgeAllowPassesThrough(t *testing.T) {
+	j := &fakeJudge{verdict: pipeline.JudgeVerdict{Category: "public"}}
+	h := newHarness(t, nil, &stubLedger{}, withJudge(j, false))
+	res := h.orch.Execute(context.Background(), chatRequest(t, "the confidential interval in statistics means what?"), nil)
+	if res.Status != http.StatusOK || h.up.CallCount() != 1 {
+		t.Fatalf("status = %d calls = %d", res.Status, h.up.CallCount())
+	}
+	if !strings.HasPrefix(res.Headers["X-Guardrail-Judge"], "allow") {
+		t.Fatalf("judge header = %q", res.Headers["X-Guardrail-Judge"])
+	}
+}
+
+func TestE2EJudgeSkippedWithoutTrigger(t *testing.T) {
+	j := &fakeJudge{verdict: pipeline.JudgeVerdict{Escalate: true}}
+	h := newHarness(t, nil, &stubLedger{}, withJudge(j, false))
+	res := h.orch.Execute(context.Background(), chatRequest(t, "write a binary search in Go"), nil)
+	if res.Status != http.StatusOK || len(j.seen) != 0 {
+		t.Fatalf("status = %d, judge called %d times", res.Status, len(j.seen))
+	}
+}
+
+func TestE2EJudgeUnavailableFailsOpenOrClosed(t *testing.T) {
+	down := &fakeJudge{err: errors.New("connection refused")}
+
+	open := newHarness(t, nil, &stubLedger{}, withJudge(down, false))
+	res := open.orch.Execute(context.Background(), chatRequest(t, "confidential roadmap notes"), nil)
+	if res.Status != http.StatusOK || res.Headers["X-Guardrail-Judge"] != "unavailable" {
+		t.Fatalf("fail-open status = %d judge header = %q", res.Status, res.Headers["X-Guardrail-Judge"])
+	}
+
+	closed := newHarness(t, nil, &stubLedger{}, withJudge(down, true))
+	res = closed.orch.Execute(context.Background(), chatRequest(t, "confidential roadmap notes"), nil)
+	if res.Status != http.StatusServiceUnavailable || closed.up.CallCount() != 0 {
+		t.Fatalf("fail-closed status = %d calls = %d", res.Status, closed.up.CallCount())
+	}
+}
+
+// Claude Code trails the user turn with an empty system message; the judge
+// must still read the user turn.
+func TestE2EJudgeReadsUserTurnBeforeTrailingSystemMessage(t *testing.T) {
+	j := &fakeJudge{verdict: pipeline.JudgeVerdict{Escalate: true, Reason: "forecast"}}
+	h := newHarness(t, nil, &stubLedger{}, withJudge(j, false))
+	req := chatRequest(t, "CONFIDENTIAL: Q3 forecast is 4.2B")
+	req.Messages = append(req.Messages, pipeline.Message{Role: "system"})
+	res := h.orch.Execute(context.Background(), req, nil)
+	if res.Status != http.StatusForbidden || len(j.seen) != 1 || !strings.Contains(j.seen[0], "Q3 forecast") {
+		t.Fatalf("status = %d, judge saw %q", res.Status, j.seen)
+	}
+}
+
+// A held tool result stays in the agent's history. The next turn must not
+// carry it upstream, even though the newest message is harmless.
+func TestE2EHeldContentStaysBlockedInLaterTurns(t *testing.T) {
+	j := &fakeJudge{verdict: pipeline.JudgeVerdict{Escalate: true, Reason: "forecast"}}
+	h := newHarness(t, nil, &stubLedger{}, withJudge(j, false))
+	first := h.orch.Execute(context.Background(), chatRequest(t, "CONFIDENTIAL: Q3 forecast is 4.2B"), nil)
+	if first.Status != http.StatusForbidden {
+		t.Fatalf("first status = %d", first.Status)
+	}
+	retry := h.orch.Execute(context.Background(), chatRequest(t, "CONFIDENTIAL: Q3 forecast is 4.2B"), nil)
+	if retry.Headers["X-Guardrail-Ticket"] != first.Headers["X-Guardrail-Ticket"] {
+		t.Fatalf("retry got ticket %q, want %q", retry.Headers["X-Guardrail-Ticket"], first.Headers["X-Guardrail-Ticket"])
+	}
+
+	j.verdict = pipeline.JudgeVerdict{}
+	next := chatRequest(t, "CONFIDENTIAL: Q3 forecast is 4.2B")
+	next.Messages = append(next.Messages,
+		pipeline.Message{Role: "assistant", Content: "I can't help with that."},
+		pipeline.Message{Role: "user", Content: "ok, write a binary search instead"})
+	res := h.orch.Execute(context.Background(), next, nil)
+	if res.Status != http.StatusForbidden || h.up.CallCount() != 0 {
+		t.Fatalf("held history went upstream: status %d calls %d", res.Status, h.up.CallCount())
+	}
+	if res.Headers["X-Guardrail-Ticket"] != first.Headers["X-Guardrail-Ticket"] {
+		t.Fatalf("held ticket %q, want %q", res.Headers["X-Guardrail-Ticket"], first.Headers["X-Guardrail-Ticket"])
+	}
+}
